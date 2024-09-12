@@ -427,3 +427,7 @@ tests/integration/ui/cypress/screenshots/
 #JetBrains IDE
 .idea/
 .env
+.venv
+images
+.history
+images_converted

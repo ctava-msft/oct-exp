@@ -15,6 +15,11 @@ pip install -r requirements.txt
 ```
 # Scripts
 
+Convert images to numpy arrays and store them.
+```
+python save_as_npy.py
+```
+
 ```
 python script.py
 ```
