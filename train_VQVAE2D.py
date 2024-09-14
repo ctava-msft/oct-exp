@@ -99,7 +99,7 @@ class VQModel(pl.LightningModule):
 
             lossconfig = dict(disc_conditional=False, disc_in_channels=1, disc_num_layers=2, disc_start=1, disc_weight=0.6,
                       codebook_weight=1.0, perceptual_weight=0.1)
-            self.loss2 = VQLPIPSWithDiscriminator(**lossconfig)
+            self.loss = VQLPIPSWithDiscriminator(**lossconfig)
 
     def get_input(self, batch):
         x = batch['image']
