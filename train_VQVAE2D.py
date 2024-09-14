@@ -19,11 +19,11 @@ def get_parser():
     parser = ArgumentParser()
     parser.add_argument("--exp_name", type=str, default='exp')
     parser.add_argument('--ckpt_path', type=str, default='./model.pk')
-    parser.add_argument('--result_root', type=str, default='./results4')
+    parser.add_argument('--result_root', type=str, default='./results2')
     parser.add_argument("--command", default="fit")
     # tio args
     parser.add_argument('--data_root', type=str,
-                        default='./images/oct')
+                        default='./images/oct/oct-500')
     parser.add_argument('--train_name_json', type=str,default='train_volume_names.json')
     parser.add_argument('--test_name_json', type=str, default='train_volume_names.json')
     parser.add_argument('--image_size', default=[512,512])
@@ -60,6 +60,7 @@ def main(opts):
                              default_root_dir=opts.default_root_dir, profiler=opts.profiler,
                              benchmark=opts.benchmark, callbacks=[ckpt_callback, TQDMProgressBar(refresh_rate=10)])
         trainer.fit(model=model, datamodule=datamodule)
+        trainer.save(model.state_dict(),'./VQVAE2D.pt')
     else:
         ckpt_path = opts.ckpt_path
         opts.ckpt_name = ckpt_path.split('/')[-1].split('.')[0]
