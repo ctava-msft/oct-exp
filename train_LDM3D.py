@@ -67,6 +67,7 @@ def main(opts):
     model.instantiate_first_stage(opts)
     # del model.sample_batch
     trainer.fit(model=model, datamodule=datamodule)
+    trainer.save(model,'./LDM3D.pt')
 
 
 class VQModelInterface(nn.Module):

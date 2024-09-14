@@ -28,7 +28,7 @@ def get_parser():
     parser = ArgumentParser()
     parser.add_argument("--exp_name", type=str, default='model name')
     parser.add_argument('--result_root', type=str, default='path/to/save/dir')
-    parser.add_argument("--command", default="test")
+    parser.add_argument("--command", default="fit")
     # tio args
     parser.add_argument('--image_npy_root', type=str,default='path/to/volume/npy')
     parser.add_argument('--train_name_json', type=str,default='train_volume_names.json')
@@ -93,6 +93,7 @@ def main(opts):
         for param in model.decoder.conv_out.parameters():
             param.requires_grad = True
         trainer.fit(model=model, datamodule=datamodule)
+        trainer.save(model,'./NHVQVAE.pt')
 
     elif opts.command == "test":
         ckpt_path = ''
