@@ -19,7 +19,7 @@ def get_parser():
     parser = ArgumentParser()
     parser.add_argument("--exp_name", type=str, default='VQVAE2D')
     parser.add_argument('--ckpt_path', type=str, default='./model.pk')
-    parser.add_argument('--result_root', type=str, default='./results2')
+    parser.add_argument('--result_root', type=str, default='./results3')
     parser.add_argument("--command", default="fit")
     # tio args
     parser.add_argument('--data_root', type=str,
