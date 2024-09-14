@@ -55,7 +55,7 @@ def main(opts):
         os.makedirs('checkpoints', exist_ok=True)
         checkpoint_callback = ModelCheckpoint(
             dirpath='checkpoints',  # Directory to save the checkpoints
-            filename='{epoch}',  # Filename format
+            filename='vqmodel-{epoch:02d}-{val_loss:.2f}',  # Descriptive filename format
             save_top_k=-1,  # Save all models
             save_weights_only=True,  # Save only the model weights
             every_n_epochs=1  # Save every epoch
@@ -66,7 +66,6 @@ def main(opts):
                              default_root_dir=opts.default_root_dir, profiler=opts.profiler,
                              benchmark=opts.benchmark, callbacks=[checkpoint_callback, TQDMProgressBar(refresh_rate=10)])
         trainer.fit(model=model, datamodule=datamodule)
-        trainer.save(model.state_dict(),'./VQVAE2D.pt')
     else:
         ckpt_path = opts.ckpt_path
         opts.ckpt_name = ckpt_path.split('/')[-1].split('.')[0]
