@@ -426,3 +426,5 @@ tests/integration/ui/cypress/screenshots/
 images
 .history
 images_converted
+results
+results2

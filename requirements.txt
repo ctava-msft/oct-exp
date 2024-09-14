@@ -1,7 +1,9 @@
+albumentations
 azure-ai-ml
 azure-identity
 azureml-dataprep[pandas]
 cuda-python
+einops
 ftfy
 mltable
 natsort
@@ -10,6 +12,7 @@ git+https://github.com/openai/CLIP.git
 pandas
 pillow
 python-dotenv
+pytorch_lightning
 regex
 numpy
 scipy
