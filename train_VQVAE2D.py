@@ -17,7 +17,7 @@ from utils.util import load_network
 import numpy as np
 def get_parser():
     parser = ArgumentParser()
-    parser.add_argument("--exp_name", type=str, default='exp')
+    parser.add_argument("--exp_name", type=str, default='VQVAE2D')
     parser.add_argument('--ckpt_path', type=str, default='./model.pk')
     parser.add_argument('--result_root', type=str, default='./results2')
     parser.add_argument("--command", default="fit")

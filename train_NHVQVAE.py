@@ -26,7 +26,7 @@ from utils.util_for_openai_diffusion import disabled_train
 
 def get_parser():
     parser = ArgumentParser()
-    parser.add_argument("--exp_name", type=str, default='model name')
+    parser.add_argument("--exp_name", type=str, default='NHVQVAE')
     parser.add_argument('--result_root', type=str, default='path/to/save/dir')
     parser.add_argument("--command", default="fit")
     # tio args
@@ -67,11 +67,11 @@ def main(opts):
                              precision=opts.precision, devices=opts.devices, deterministic=opts.deterministic,
                              default_root_dir=opts.default_root_dir, profiler=opts.profiler,
                              benchmark=opts.benchmark, callbacks=[ckpt_callback])
-        ckpt_path = 'path/to/VQVAE2D/ckpt'
+        ckpt_path = './VQVAE2D.pt'
         load_network(model, ckpt_path, device=model.device)
 
-        ckpt_path2 = 'path/to/NHVQVAE/ckpt'
-        load_network(model, ckpt_path2, device=model.device)
+        # ckpt_path2 = 'path/to/NHVQVAE/ckpt'
+        # load_network(model, ckpt_path2, device=model.device)
         # model
         model.decoder.train = disabled_train
         model.encoder.train = disabled_train

@@ -20,9 +20,9 @@ from utils.util import load_network, save_cube_from_tensor
 
 def get_parser():
     parser = ArgumentParser()
-    parser.add_argument("--exp_name", type=str, default='model name')
+    parser.add_argument("--exp_name", type=str, default='VQVAE_adaptor')
     parser.add_argument('--result_root', type=str, default='path/to/save/dir')
-    parser.add_argument("--command", default="test")
+    parser.add_argument("--command", default="fit")
     # tio args
     parser.add_argument('--image_npy_root', type=str, default='path/to/volume/npy')
     parser.add_argument('--train_name_json', type=str,
@@ -78,6 +78,7 @@ def main(opts):
         load_network(model, ckpt_path, model.device)
         freeze_except_3d(model)
         trainer.fit(model=model, datamodule=datamodule)
+        trainer.save(model,'./VQVAE_adaptor.pt')
     else:
         ckpt_path = 'path/to/ckpt'
         opts.ckpt_name = ckpt_path.split('/')[-1].split('.')[0]

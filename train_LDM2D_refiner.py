@@ -25,7 +25,7 @@ from torchvision.utils import save_image
 def get_parser():
     parser = ArgumentParser()
     parser.add_argument("--command", default="fit")
-    parser.add_argument("--exp_name", type=str, default='dirname')
+    parser.add_argument("--exp_name", type=str, default='LDM2D_refiner')
     parser.add_argument('--result_root', type=str, default='path/to/dir')
     # data & tio args
     parser.add_argument('--first_stage_ckpt', type=str, default='path/to/vqgan2d/ckpt')
@@ -63,6 +63,7 @@ def main(opts):
                          default_root_dir=opts.default_root_dir, profiler=opts.profiler, benchmark=opts.benchmark,
                          callbacks=[ckpt_callback, TQDMProgressBar(refresh_rate=10)])
     trainer.fit(model=model, datamodule=datamodule)
+    trainer.save(model,'./LDM2D_refiner.pt')
 
 
 class VQModelInterface(nn.Module):

@@ -25,7 +25,7 @@ from taming.modules.vqvae.quantize import VectorQuantizer2 as VectorQuantizer
 def get_parser():
     parser = ArgumentParser()
     parser.add_argument("--command", default="fit")
-    parser.add_argument("--exp_name", default='model name')
+    parser.add_argument("--exp_name", default='LDM3D')
     parser.add_argument('--result_root', type=str, default='path/to/save/dir')
     # data & tio args
     parser.add_argument('--first_stage_ckpt', type=str,default='path/to/NHVQVAE/ckpt')
