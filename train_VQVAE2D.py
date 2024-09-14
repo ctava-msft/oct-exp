@@ -60,6 +60,11 @@ def main(opts):
             save_weights_only=True,  # Save only the model weights
             every_n_epochs=1  # Save every epoch
         )
+        # Log the checkpoint saving
+        def on_save_checkpoint(trainer, pl_module, checkpoint):
+           print(f"Checkpoint saved at epoch {trainer.current_epoch}")
+
+        checkpoint_callback.on_save_checkpoint = on_save_checkpoint
         trainer = pl.Trainer(max_epochs=opts.max_epochs, limit_train_batches=opts.limit_train_batches,
                              accelerator=opts.accelerator,  # strategy=opts.strategy,
                              precision=opts.precision, devices=opts.devices, deterministic=opts.deterministic,
