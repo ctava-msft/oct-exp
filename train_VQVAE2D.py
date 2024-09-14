@@ -17,9 +17,9 @@ from utils.util import load_network
 import numpy as np
 def get_parser():
     parser = ArgumentParser()
-    parser.add_argument("--exp_name", type=str, default='dirname')
+    parser.add_argument("--exp_name", type=str, default='exp')
     parser.add_argument('--ckpt_path', type=str, default='./model.pk')
-    parser.add_argument('--result_root', type=str, default='./results2')
+    parser.add_argument('--result_root', type=str, default='./results4')
     parser.add_argument("--command", default="fit")
     # tio args
     parser.add_argument('--data_root', type=str,
@@ -253,11 +253,11 @@ if __name__ == '__main__':
         opts.deterministic = False
         opts.benchmark = True
     opts.default_root_dir = os.path.join(opts.result_root, opts.exp_name)
-    if opts.command == 'fit':
-        if os.getenv("LOCAL_RANK", '0') == '0':
-            if not os.path.exists(opts.default_root_dir):
-                os.makedirs(opts.default_root_dir)
-                code_dir = os.path.abspath(os.path.dirname(os.getcwd()))
-                shutil.copytree(code_dir, os.path.join(opts.default_root_dir, 'code'))
-                print('save in', opts.default_root_dir)
+    # if opts.command == 'fit':
+    #     if os.getenv("LOCAL_RANK", '0') == '0':
+    #         if not os.path.exists(opts.default_root_dir):
+    #             os.makedirs(opts.default_root_dir)
+    #             code_dir = os.path.abspath(os.path.dirname(os.getcwd()))
+    #             shutil.copytree(code_dir, os.path.join(opts.default_root_dir, 'code'))
+    #             print('save in', opts.default_root_dir)
     main(opts)
