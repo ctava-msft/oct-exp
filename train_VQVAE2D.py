@@ -52,13 +52,19 @@ def main(opts):
     datamodule = trainDatamodule(**vars(opts))
     model = VQModel(opts)
     if opts.command == "fit":
-        ckpt_callback = ModelCheckpoint(save_last=False, filename="{epoch}", every_n_epochs=1, save_top_k=-1,
-                                        save_on_train_epoch_end=True)
+        os.makedirs('checkpoints', exist_ok=True)
+        checkpoint_callback = ModelCheckpoint(
+            dirpath='checkpoints',  # Directory to save the checkpoints
+            filename='{epoch}',  # Filename format
+            save_top_k=-1,  # Save all models
+            save_weights_only=True,  # Save only the model weights
+            every_n_epochs=1  # Save every epoch
+        )
         trainer = pl.Trainer(max_epochs=opts.max_epochs, limit_train_batches=opts.limit_train_batches,
                              accelerator=opts.accelerator,  # strategy=opts.strategy,
                              precision=opts.precision, devices=opts.devices, deterministic=opts.deterministic,
                              default_root_dir=opts.default_root_dir, profiler=opts.profiler,
-                             benchmark=opts.benchmark, callbacks=[ckpt_callback, TQDMProgressBar(refresh_rate=10)])
+                             benchmark=opts.benchmark, callbacks=[checkpoint_callback, TQDMProgressBar(refresh_rate=10)])
         trainer.fit(model=model, datamodule=datamodule)
         trainer.save(model.state_dict(),'./VQVAE2D.pt')
     else:
