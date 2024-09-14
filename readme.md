@@ -10,7 +10,7 @@ This set of scripts that is used to work with azure machine learning studio.
 python -m venv .venv
 pip install virtualenv
 [windows].venv\Scripts\activate
-[mac]activate
+[linux]source .venv/bin/activate
 pip install -r requirements.txt
 ```
 # Scripts
@@ -23,6 +23,29 @@ python save_as_npy.py
 ```
 python script.py
 ```
+
+# Download files to the command line
+
+# Step 1: Install Azure CLI (if not already installed)
+# curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+# Step 2: Login to Azure
+az login
+
+# Step 3: Set variables
+CONTAINER_NAME="<redacted>"
+STORAGE_ACCOUNT="<redacted>"
+DESTINATION_DIR="./oct"
+ACCOUNT_KEY="<redacted>"
+FOLDER_PREFIX="oct-500/"
+
+# Step 4: Download the images
+az storage blob download-batch \
+    --account-name $STORAGE_ACCOUNT \
+    --source $CONTAINER_NAME \
+    --destination $DESTINATION_DIR \
+    --pattern "$FOLDER_PREFIX*" \
+    --account-key $ACCOUNT_KEY
 
 # Reference
 
