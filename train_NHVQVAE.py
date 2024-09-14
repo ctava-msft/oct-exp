@@ -27,10 +27,10 @@ from utils.util_for_openai_diffusion import disabled_train
 def get_parser():
     parser = ArgumentParser()
     parser.add_argument("--exp_name", type=str, default='NHVQVAE')
-    parser.add_argument('--result_root', type=str, default='path/to/save/dir')
+    parser.add_argument('--result_root', type=str, default='./results2')
     parser.add_argument("--command", default="fit")
     # tio args
-    parser.add_argument('--image_npy_root', type=str,default='path/to/volume/npy')
+    parser.add_argument('--image_npy_root', type=str,default='./images/oct/oct-500')
     parser.add_argument('--train_name_json', type=str,default='train_volume_names.json')
     parser.add_argument('--test_name_json', type=str,default='train_volume_names.json')
     parser.add_argument('--patch_per_size', default=(256, 256, 256))
