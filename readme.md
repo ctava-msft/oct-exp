@@ -102,11 +102,11 @@ parser.add_argument('--image_npy_root', type=str, default='path/to/volume/npy')
 ```
 
 
-# Test
+# Generate
 
 We split the generation procedure into three stages.
 
-1.  Generate 3D latents. Run `test_LDM3D.py` and fill following args:
+1.  Generate 3D latents. Run `gen_LDM3D.py` and fill following args:
 ```python
 parser.add_argument('--result_save_dir', type=str, default='path/to/save/dir')
 parser.add_argument('--first_stage_ckpt', type=str,
@@ -116,7 +116,7 @@ default='path/to/LDM3D/ckpt')
 parser.add_argument('--ldm2_ckpt', type=s
 ```
 
-2.  Refine latents. Run `test_LDM2D_refiner.py` and fill following args:
+2.  Refine latents. Run `gen_LDM2D.py` and fill following args:
 ```python
 parser.add_argument('--result_save_dir', type=str, default='path/to/save/dir')
 parser.add_argument('--first_stage_ckpt', type=str, default='path/to/NHVQVAE/ckpt')
@@ -125,7 +125,7 @@ parser.add_argument('--ldm2_ckpt', type=str, default='path/to/LDM2D_refiner/ckpt
 datamodule = testDatamodule(latent_root='path/to/ldm1_latent')
 ```
 
-3.  Decode latents to images. Run `test_decodebyMSDecoder.py` and fill following args:
+3.  Decode latents to images. Run `gen_decodelatents.py` and fill following args:
 ```python
 parser.add_argument('--result_save_dir', type=str,default='path/to/save/dir')
 parser.add_argument('--result_save_name', type=str, default='save name')

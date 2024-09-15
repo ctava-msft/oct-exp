@@ -35,7 +35,7 @@ def get_parser():
     parser.add_argument('--profiler', default='simple')
     parser.add_argument('--accelerator', default='gpu')
     parser.add_argument('--precision', default='32')
-    parser.add_argument('--devices', default=[1])
+    parser.add_argument('--devices', default=[0])
     parser.add_argument('--reproduce', type=int, default=False)
     return parser
 
