@@ -384,12 +384,12 @@ if __name__ == '__main__':
         opts.deterministic = False
         opts.benchmark = True
     opts.default_root_dir = os.path.join(opts.result_root, opts.exp_name)
-    if opts.command == 'fit':
-        if os.getenv("LOCAL_RANK", '0') == '0':
-            if not os.path.exists(opts.default_root_dir):
-                os.makedirs(opts.default_root_dir)
-                code_dir = os.path.abspath(os.getcwd())
-                print(code_dir)
-                shutil.copytree(code_dir, os.path.join(opts.default_root_dir, 'code'))
-                print('save in', opts.default_root_dir)
+    # if opts.command == 'fit':
+    #     if os.getenv("LOCAL_RANK", '0') == '0':
+    #         if not os.path.exists(opts.default_root_dir):
+    #             os.makedirs(opts.default_root_dir)
+    #             code_dir = os.path.abspath(os.getcwd())
+    #             print(code_dir)
+    #             shutil.copytree(code_dir, os.path.join(opts.default_root_dir, 'code'))
+    #             print('save in', opts.default_root_dir)
     main(opts)
