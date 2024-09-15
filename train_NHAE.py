@@ -27,7 +27,7 @@ from utils.util_for_openai_diffusion import disabled_train
 def get_parser():
     parser = ArgumentParser()
     parser.add_argument("--exp_name", type=str, default='NHVQVAE')
-    parser.add_argument('--result_root', type=str, default='./results2')
+    parser.add_argument('--result_root', type=str, default='./checkpoints')
     parser.add_argument("--command", default="fit")
     # tio args
     parser.add_argument('--image_npy_root', type=str,default='./images/oct/oct-500')
@@ -43,8 +43,8 @@ def get_parser():
     parser.add_argument("--base_lr", type=float, default=3e-4)
     parser.add_argument('--accumulate_grad_batches', type=int, default=4)
     # lightning args
-    parser.add_argument("--max_epochs", type=int, default=200)
-    parser.add_argument("--limit_train_batches", type=int, default=5000)
+    parser.add_argument("--max_epochs", type=int, default=50)
+    parser.add_argument("--limit_train_batches", type=int, default=1000)
     parser.add_argument("--check_val_every_n_epoch", type=int, default=2)
     parser.add_argument('--profiler', default='simple')
     parser.add_argument('--accelerator', default='gpu')
@@ -59,15 +59,20 @@ def main(opts):
 
     if opts.command == "fit":
         model = VQModel(opts)
-        ckpt_callback = ModelCheckpoint(save_last=False, filename="{epoch}",
-                                        every_n_epochs=opts.check_val_every_n_epoch, save_top_k=-1)
+        checkpoint_callback = ModelCheckpoint(
+            dirpath='checkpoints/nhae',  # Directory to save the checkpoints
+            filename='nhae-{epoch:02d}-{val_loss:.2f}',  # Descriptive filename format
+            save_top_k=-1,  # Save all models
+            save_weights_only=True,  # Save only the model weights
+            every_n_epochs=1  # Save every epoch
+        )
         trainer = pl.Trainer(max_epochs=opts.max_epochs, limit_train_batches=opts.limit_train_batches,
                              num_sanity_val_steps=0, limit_val_batches=1,
                              accelerator=opts.accelerator, check_val_every_n_epoch=opts.check_val_every_n_epoch,
                              precision=opts.precision, devices=opts.devices, deterministic=opts.deterministic,
                              default_root_dir=opts.default_root_dir, profiler=opts.profiler,
-                             benchmark=opts.benchmark, callbacks=[ckpt_callback])
-        ckpt_path = './VQVAE2D.pt'
+                             benchmark=opts.benchmark, callbacks=[checkpoint_callback])
+        ckpt_path = './checkpoints/AE2D'
         load_network(model, ckpt_path, device=model.device)
 
         # ckpt_path2 = 'path/to/NHVQVAE/ckpt'
@@ -93,7 +98,6 @@ def main(opts):
         for param in model.decoder.conv_out.parameters():
             param.requires_grad = True
         trainer.fit(model=model, datamodule=datamodule)
-        trainer.save(model,'./NHVQVAE.pt')
 
     elif opts.command == "test":
         ckpt_path = ''

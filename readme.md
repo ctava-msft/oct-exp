@@ -65,14 +65,14 @@ Acutally, there are many routes to train our model. Here we provide a more stabl
 1. Train a 2DAE. Run `train_AE2D.py` and fill following args:
 
 ```python
-parser.add_argument("--exp_name", type=str, default='.')
+parser.add_argument("--exp_name", type=str, default='AE2D')
 parser.add_argument('--result_root', type=str, default='./results')
 parser.add_argument('--data_root', type=str, default='./oct')
 ```
 
 2. Train NHAE. Run `train_NHAE.py` and fill following args:
 ```python
-parser.add_argument("--exp_name", type=str, default='model name')
+parser.add_argument("--exp_name", type=str, default='NHAE')
 parser.add_argument('--result_root', type=str, default='path/to/save/dir')
 parser.add_argument('--data_root', type=str, default='path/to/OCT')
 parser.add_argument('--image_npy_root', type=str,default='path/to/volume/npy')
@@ -80,14 +80,14 @@ parser.add_argument('--image_npy_root', type=str,default='path/to/volume/npy')
 
 3. Train LDM3D. Run `train_LDM3D.py` and fill following args:
 ```python
-parser.add_argument("--exp_name", default='model name')
+parser.add_argument("--exp_name", default='LDM3D')
 parser.add_argument('--result_root', type=str, default='path/to/save/dir')
 parser.add_argument('--first_stage_ckpt', type=str,default='path/to/NHVQVAE/ckpt')
 parser.add_argument('--latent_root', type=str,default='path/to/NHVQVAE/latent')
 ```
 4. Train LDM2D_refiner. Run `train_LDM2D_refiner.py` and fill following args:
 ```python
-parser.add_argument("--exp_name", type=str, default='dirname')
+parser.add_argument("--exp_name", type=str, default='LDM2D_refiner')
 parser.add_argument('--result_root', type=str, default='path/to/dir')
 parser.add_argument('--first_stage_ckpt', type=str, default='path/to/vqgan2d/ckpt')
 parser.add_argument('--latent_1_root', type=str, default='path/to/3D/latent')
@@ -96,7 +96,7 @@ parser.add_argument('--latent_2_root', type=str, default='path/to/2D/latent')
 
 5. Train multi-slice_decoder. Run `train_AE_w_adaptor.py` and fill following args:
 ```python
-parser.add_argument("--exp_name", type=str, default='model name')
+parser.add_argument("--exp_name", type=str, default='AE_adaptor')
 parser.add_argument('--result_root', type=str, default='path/to/save/dir')
 parser.add_argument('--image_npy_root', type=str, default='path/to/volume/npy')
 ```

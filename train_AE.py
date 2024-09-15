@@ -20,11 +20,11 @@ from utils.util import load_network, save_cube_from_tensor
 
 def get_parser():
     parser = ArgumentParser()
-    parser.add_argument("--exp_name", type=str, default='VQVAE_adaptor')
-    parser.add_argument('--result_root', type=str, default='path/to/save/dir')
+    parser.add_argument("--exp_name", type=str, default='AE')
+    parser.add_argument('--result_root', type=str, default='./checkpoints/AE')
     parser.add_argument("--command", default="fit")
     # tio args
-    parser.add_argument('--image_npy_root', type=str, default='path/to/volume/npy')
+    parser.add_argument('--image_npy_root', type=str, default='./images/oct/oct-500')
     parser.add_argument('--train_name_json', type=str,
                         default='train_volume_names.json')
     parser.add_argument('--test_name_json', type=str,
@@ -42,8 +42,8 @@ def get_parser():
     parser.add_argument('--accumulate_grad_batches', type=int, default=1)
     parser.add_argument('--gradient_clip_val', default=1.0)
     # lightning args
-    parser.add_argument("--max_epochs", type=int, default=100)
-    parser.add_argument("--limit_train_batches", type=int, default=10000)
+    parser.add_argument("--max_epochs", type=int, default=50)
+    parser.add_argument("--limit_train_batches", type=int, default=1000)
     parser.add_argument('--profiler', default='simple')
     parser.add_argument('--accelerator', default='gpu')
     parser.add_argument('--precision', default='32')
@@ -67,18 +67,22 @@ def main(opts):
     datamodule = PatchTioDatamodule(**vars(opts))
     model = VQModel(opts)
     if opts.command == "fit":
-        ckpt_callback = ModelCheckpoint(save_last=False, filename="{epoch}", every_n_epochs=1, save_top_k=-1,
-                                        save_on_train_epoch_end=True)
+        checkpoint_callback = ModelCheckpoint(
+            dirpath='checkpoints/ae',  # Directory to save the checkpoints
+            filename='ae-{epoch:02d}-{val_loss:.2f}',  # Descriptive filename format
+            save_top_k=-1,  # Save all models
+            save_weights_only=True,  # Save only the model weights
+            every_n_epochs=1  # Save every epoch
+        )
         trainer = pl.Trainer(max_epochs=opts.max_epochs, limit_train_batches=opts.limit_train_batches,limit_val_batches=1,
                              accelerator=opts.accelerator,  # strategy=opts.strategy,
                              precision=opts.precision, devices=opts.devices, deterministic=opts.deterministic,
                              default_root_dir=opts.default_root_dir, profiler=opts.profiler,
-                             benchmark=opts.benchmark, callbacks=[ckpt_callback, TQDMProgressBar(refresh_rate=10)])
-        ckpt_path = 'path/to/VQVAE2D/ckpt'
+                             benchmark=opts.benchmark, callbacks=[checkpoint_callback, TQDMProgressBar(refresh_rate=10)])
+        ckpt_path = '/checkpoints/AE2D'
         load_network(model, ckpt_path, model.device)
         freeze_except_3d(model)
         trainer.fit(model=model, datamodule=datamodule)
-        trainer.save(model,'./VQVAE_adaptor.pt')
     else:
         ckpt_path = 'path/to/ckpt'
         opts.ckpt_name = ckpt_path.split('/')[-1].split('.')[0]

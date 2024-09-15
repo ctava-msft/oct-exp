@@ -26,7 +26,7 @@ def get_parser():
     parser = ArgumentParser()
     parser.add_argument("--command", default="fit")
     parser.add_argument("--exp_name", default='LDM3D')
-    parser.add_argument('--result_root', type=str, default='path/to/save/dir')
+    parser.add_argument('--result_root', type=str, default='./checkpoints')
     # data & tio args
     parser.add_argument('--first_stage_ckpt', type=str,default='path/to/NHVQVAE/ckpt')
     parser.add_argument('--latent_root', type=str,default='path/to/NHVQVAE/latent')
@@ -43,9 +43,9 @@ def get_parser():
     parser.add_argument("--base_lr", type=float, default=4.5e-6)
     parser.add_argument('--accumulate_grad_batches', type=int, default=4)
     # lightning args
-    parser.add_argument("--max_epochs", type=int, default=1000)
+    parser.add_argument("--max_epochs", type=int, default=50)
+    parser.add_argument("--limit_train_batches", type=int, default=1000)
     parser.add_argument("--eval_save_every_n_epoch", type=int, default=10)
-    parser.add_argument("--limit_train_batches", type=int, default=4000)
     parser.add_argument('--profiler', default='simple')
     parser.add_argument('--accelerator', default='gpu')
     parser.add_argument('--precision', default=32)
@@ -57,17 +57,21 @@ def get_parser():
 def main(opts):
     datamodule = trainDatamodule(**vars(opts))
     model = LDM(opts)
-    ckpt_callback = ModelCheckpoint(save_last=True, filename="model-{epoch}",
-                                    every_n_epochs=opts.eval_save_every_n_epoch)
+    checkpoint_callback = ModelCheckpoint(
+        dirpath='checkpoints/ldm3d',  # Directory to save the checkpoints
+        filename='ldm3d-{epoch:02d}-{val_loss:.2f}',  # Descriptive filename format
+        save_top_k=-1,  # Save all models
+        save_weights_only=True,  # Save only the model weights
+        every_n_epochs=1  # Save every epoch
+    )
     trainer = pl.Trainer(max_epochs=opts.max_epochs, limit_train_batches=opts.limit_train_batches,
                          accelerator=opts.accelerator,  # strategy=opts.strategy,
                          precision=opts.precision, devices=opts.devices, deterministic=opts.deterministic,
                          default_root_dir=opts.default_root_dir, profiler=opts.profiler, benchmark=opts.benchmark,
-                         callbacks=[ckpt_callback, TQDMProgressBar(refresh_rate=10)])
+                         callbacks=[checkpoint_callback, TQDMProgressBar(refresh_rate=10)])
     model.instantiate_first_stage(opts)
     # del model.sample_batch
     trainer.fit(model=model, datamodule=datamodule)
-    trainer.save(model,'./LDM3D.pt')
 
 
 class VQModelInterface(nn.Module):

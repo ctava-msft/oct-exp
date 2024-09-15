@@ -17,9 +17,9 @@ from utils.util import load_network
 import numpy as np
 def get_parser():
     parser = ArgumentParser()
-    parser.add_argument("--exp_name", type=str, default='VQVAE2D')
-    parser.add_argument('--ckpt_path', type=str, default='./model.pk')
-    parser.add_argument('--result_root', type=str, default='./results3')
+    parser.add_argument("--exp_name", type=str, default='AE2D')
+    parser.add_argument('--ckpt_path', type=str, default='./checkpoints/ae2d')
+    parser.add_argument('--result_root', type=str, default='./checkpoints')
     parser.add_argument("--command", default="fit")
     # tio args
     parser.add_argument('--data_root', type=str,
@@ -37,7 +37,7 @@ def get_parser():
     parser.add_argument('--accumulate_grad_batches', type=int, default=1)
     parser.add_argument('--gradient_clip_val', default=1.0)
     # lightning args
-    parser.add_argument("--max_epochs", type=int, default=1)
+    parser.add_argument("--max_epochs", type=int, default=50)
     parser.add_argument("--limit_train_batches", type=int, default=1000)
     parser.add_argument('--profiler', default='simple')
     parser.add_argument('--accelerator', default='gpu')
@@ -52,19 +52,13 @@ def main(opts):
     datamodule = trainDatamodule(**vars(opts))
     model = VQModel(opts)
     if opts.command == "fit":
-        os.makedirs('checkpoints', exist_ok=True)
         checkpoint_callback = ModelCheckpoint(
-            dirpath='checkpoints',  # Directory to save the checkpoints
-            filename='vqmodel-{epoch:02d}-{val_loss:.2f}',  # Descriptive filename format
+            dirpath='checkpoints/ae2d',  # Directory to save the checkpoints
+            filename='ae2d-{epoch:02d}-{val_loss:.2f}',  # Descriptive filename format
             save_top_k=-1,  # Save all models
             save_weights_only=True,  # Save only the model weights
             every_n_epochs=1  # Save every epoch
         )
-        # Log the checkpoint saving
-        def on_save_checkpoint(trainer, pl_module, checkpoint):
-           print(f"Checkpoint saved at epoch {trainer.current_epoch}")
-
-        checkpoint_callback.on_save_checkpoint = on_save_checkpoint
         trainer = pl.Trainer(max_epochs=opts.max_epochs, limit_train_batches=opts.limit_train_batches,
                              accelerator=opts.accelerator,  # strategy=opts.strategy,
                              precision=opts.precision, devices=opts.devices, deterministic=opts.deterministic,

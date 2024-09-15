@@ -25,12 +25,12 @@ from torchvision.utils import save_image
 def get_parser():
     parser = ArgumentParser()
     parser.add_argument("--command", default="fit")
-    parser.add_argument("--exp_name", type=str, default='LDM2D_refiner')
-    parser.add_argument('--result_root', type=str, default='path/to/dir')
+    parser.add_argument("--exp_name", type=str, default='LDM2D')
+    parser.add_argument('--result_root', type=str, default='./checkpoints')
     # data & tio args
-    parser.add_argument('--first_stage_ckpt', type=str, default='path/to/vqgan2d/ckpt')
-    parser.add_argument('--latent_1_root', type=str, default='path/to/3D/latent')
-    parser.add_argument('--latent_2_root', type=str, default='path/to/2D/latent')
+    parser.add_argument('--first_stage_ckpt', type=str, default='/checkpoints/AE2D')
+    parser.add_argument('--latent_1_root', type=str, default='/latents/3d')
+    parser.add_argument('--latent_2_root', type=str, default='/latents/2d')
     parser.add_argument('--train_name_json', type=str, default='train_volume_names.json')
     parser.add_argument('--test_name_json', type=str, default='train_volume_names.json')
     # train args
@@ -42,9 +42,9 @@ def get_parser():
     parser.add_argument("--base_lr", type=float, default=4.5e-6)
     parser.add_argument('--accumulate_grad_batches', type=int, default=4)
     # lightning args
-    parser.add_argument("--max_epochs", type=int, default=200)
+    parser.add_argument("--max_epochs", type=int, default=50)
+    parser.add_argument("--limit_train_batches", type=int, default=1000)
     parser.add_argument("--eval_save_every_n_epoch", type=int, default=1)
-    parser.add_argument("--limit_train_batches", type=int, default=5000)
     parser.add_argument('--profiler', default='simple')
     parser.add_argument('--accelerator', default='gpu')
     parser.add_argument('--precision', default=32)
@@ -56,15 +56,19 @@ def get_parser():
 def main(opts):
     datamodule = trainDatamodule(**vars(opts))
     model = LDM(opts)
-    ckpt_callback = ModelCheckpoint(save_last=True, filename="model-{epoch}")
+    checkpoint_callback = ModelCheckpoint(
+        dirpath='checkpoints',  # Directory to save the checkpoints
+        filename='ldm2d-{epoch:02d}-{val_loss:.2f}',  # Descriptive filename format
+        save_top_k=-1,  # Save all models
+        save_weights_only=True,  # Save only the model weights
+        every_n_epochs=1  # Save every epoch
+    )
     trainer = pl.Trainer(max_epochs=opts.max_epochs, limit_train_batches=opts.limit_train_batches,
                          accelerator=opts.accelerator, # strategy=opts.strategy,
                          precision=opts.precision, devices=opts.devices, deterministic=opts.deterministic,
                          default_root_dir=opts.default_root_dir, profiler=opts.profiler, benchmark=opts.benchmark,
-                         callbacks=[ckpt_callback, TQDMProgressBar(refresh_rate=10)])
+                         callbacks=[checkpoint_callback, TQDMProgressBar(refresh_rate=10)])
     trainer.fit(model=model, datamodule=datamodule)
-    trainer.save(model,'./LDM2D_refiner.pt')
-
 
 class VQModelInterface(nn.Module):
     def __init__(self):
