@@ -18,7 +18,7 @@ import numpy as np
 def get_parser():
     parser = ArgumentParser()
     parser.add_argument("--exp_name", type=str, default='AE2D')
-    parser.add_argument('--ckpt_path', type=str, default='./checkpoints/ae2d')
+    parser.add_argument('--ckpt_path', type=str, default='./checkpoints/AE2D')
     parser.add_argument('--result_root', type=str, default='./checkpoints')
     parser.add_argument("--command", default="fit")
     # tio args
@@ -53,7 +53,7 @@ def main(opts):
     model = VQModel(opts)
     if opts.command == "fit":
         checkpoint_callback = ModelCheckpoint(
-            dirpath='checkpoints/ae2d',  # Directory to save the checkpoints
+            dirpath='checkpoints/AE2D',  # Directory to save the checkpoints
             filename='ae2d-{epoch:02d}-{val_loss:.2f}',  # Descriptive filename format
             save_top_k=-1,  # Save all models
             save_weights_only=True,  # Save only the model weights
