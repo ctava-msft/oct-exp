@@ -56,17 +56,21 @@ python ./utils/save_as_npy.py
 
 # Train
 
-There are 5 steps in the training process:
+There are 5 steps in the training process. 
+Create the checkpoints directory with 5 subfolers:
+2DAE, NHAE, LDM3D, LDM2D, AE
 
-1. Train a 2DAE. Configure and run `./scripts/train_AE2D.py`.
+To execute them, configue and run the following scripts.
 
-2. Train NHAE. Configure and run `./scripts/train_NHAE.py`.
+1. Train a 2DAE. Configure and run `train_AE2D.py`.
 
-3. Train LDM3D. Configure and run `./scripts/train_LDM3D.py`.
+2. Train NHAE. Configure and run `train_NHAE.py`.
 
-4. Train LDM2D. Configure and run `./scripts/train_LDM2D.py`.
+3. Train LDM3D. Configure and run `train_LDM3D.py`.
 
-5. Train AE. Configure and run `./scripts/train_AE.py`.
+4. Train LDM2D. Configure and run `train_LDM2D.py`.
+
+5. Train AE. Configure and run `train_AE.py`.
 
 ## Retrieve images
 
@@ -84,11 +88,11 @@ az storage blob upload \
 
 The image generation procedure is split into three stages.
 
-1.  Generate 3D latents. Configure and run `./scripts/gen_LDM3D.py`.
+1.  Generate 3D latents. Configure and run `gen_LDM3D.py`.
 
-2.  Refine latents. Configure and run `./scripts/gen_LDM2D.py`.
+2.  Refine latents. Configure and run `gen_LDM2D.py`.
 
-3.  Decode latents to images. Configure and run `./scripts/gen_decodelatents.py`.
+3.  Decode latents to images. Configure and run `gen_decodelatents.py`.
 
 
 # Reference(s)
