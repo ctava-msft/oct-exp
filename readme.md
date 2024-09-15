@@ -68,9 +68,9 @@ The partitions of data of our experiments are provided at `train_volume_names.js
 
 # Train
 
-Acutally, there are many routes to train our model. Here we provide a more stable version recently discovered, which differs slightly from the version described in the paper.
+Here we provide a more stable version recently discovered, which differs slightly from the version described in the paper.
 
-1. Train a 2DAE. Run `train_AE2D.py` and fill following args:
+1. Train a 2DAE. Run `./scripts/train_AE2D.py` and fill following args:
 
 ```python
 parser.add_argument("--exp_name", type=str, default='AE2D')
@@ -78,7 +78,7 @@ parser.add_argument('--result_root', type=str, default='./results')
 parser.add_argument('--data_root', type=str, default='./oct')
 ```
 
-2. Train NHAE. Run `train_NHAE.py` and fill following args:
+2. Train NHAE. Run `./scripts/train_NHAE.py` and fill following args:
 ```python
 parser.add_argument("--exp_name", type=str, default='NHAE')
 parser.add_argument('--result_root', type=str, default='path/to/save/dir')
@@ -86,35 +86,34 @@ parser.add_argument('--data_root', type=str, default='path/to/OCT')
 parser.add_argument('--image_npy_root', type=str,default='path/to/volume/npy')
 ```
 
-3. Train LDM3D. Run `train_LDM3D.py` and fill following args:
+3. Train LDM3D. Run `./scripts/train_LDM3D.py` and fill following args:
 ```python
 parser.add_argument("--exp_name", default='LDM3D')
 parser.add_argument('--result_root', type=str, default='path/to/save/dir')
 parser.add_argument('--first_stage_ckpt', type=str,default='path/to/NHVQVAE/ckpt')
 parser.add_argument('--latent_root', type=str,default='path/to/NHVQVAE/latent')
 ```
-4. Train LDM2D_refiner. Run `train_LDM2D_refiner.py` and fill following args:
+4. Train LDM2D_refiner. Run `./scripts/train_LDM2D.py` and fill following args:
 ```python
-parser.add_argument("--exp_name", type=str, default='LDM2D_refiner')
+parser.add_argument("--exp_name", type=str, default='LDM2D')
 parser.add_argument('--result_root', type=str, default='path/to/dir')
 parser.add_argument('--first_stage_ckpt', type=str, default='path/to/vqgan2d/ckpt')
 parser.add_argument('--latent_1_root', type=str, default='path/to/3D/latent')
 parser.add_argument('--latent_2_root', type=str, default='path/to/2D/latent')
 ```
 
-5. Train multi-slice_decoder. Run `train_AE_w_adaptor.py` and fill following args:
+5. Train multi-slice_decoder. Run `./scripts/train_AE.py` and fill following args:
 ```python
-parser.add_argument("--exp_name", type=str, default='AE_adaptor')
+parser.add_argument("--exp_name", type=str, default='AE')
 parser.add_argument('--result_root', type=str, default='path/to/save/dir')
 parser.add_argument('--image_npy_root', type=str, default='path/to/volume/npy')
 ```
-
 
 # Generate
 
 We split the generation procedure into three stages.
 
-1.  Generate 3D latents. Run `gen_LDM3D.py` and fill following args:
+1.  Generate 3D latents. Run `./scripts/gen_LDM3D.py` and fill following args:
 ```python
 parser.add_argument('--result_save_dir', type=str, default='path/to/save/dir')
 parser.add_argument('--first_stage_ckpt', type=str,
@@ -124,7 +123,7 @@ default='path/to/LDM3D/ckpt')
 parser.add_argument('--ldm2_ckpt', type=s
 ```
 
-2.  Refine latents. Run `gen_LDM2D.py` and fill following args:
+2.  Refine latents. Run `./scripts/gen_LDM2D.py` and fill following args:
 ```python
 parser.add_argument('--result_save_dir', type=str, default='path/to/save/dir')
 parser.add_argument('--first_stage_ckpt', type=str, default='path/to/NHVQVAE/ckpt')
@@ -133,11 +132,10 @@ parser.add_argument('--ldm2_ckpt', type=str, default='path/to/LDM2D_refiner/ckpt
 datamodule = testDatamodule(latent_root='path/to/ldm1_latent')
 ```
 
-3.  Decode latents to images. Run `gen_decodelatents.py` and fill following args:
+3.  Decode latents to images. Run `./scripts/gen_decodelatents.py` and fill following args:
 ```python
 parser.add_argument('--result_save_dir', type=str,default='path/to/save/dir')
 parser.add_argument('--result_save_name', type=str, default='save name')
 parser.add_argument('--first_stage_ckpt', type=str, default='path/to/VQVAE_w_adaptor/ckpt')
 parser.add_argument('--ldm2_latent', type=str, default='path/to/saved/ldm2_latent')
 ```
-
