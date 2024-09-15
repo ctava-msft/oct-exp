@@ -47,6 +47,8 @@ az storage blob download-batch \
     --pattern "$FOLDER_PREFIX*" \
     --account-key $ACCOUNT_KEY
 
+az storage blob upload --account-name $STORAGE_ACCOUNT --container-name $CONTAINER_NAME --name myblob --file /path/to/myfile
+
 # Reference
 
 [AUTOML-Classification](https://learn.microsoft.com/en-us/training/modules/find-best-classification-model-automated-machine-learning/1-introduction)
