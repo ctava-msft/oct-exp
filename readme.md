@@ -62,7 +62,7 @@ The partitions of data of our experiments are provided at `train_volume_names.js
 
 Acutally, there are many routes to train our model. Here we provide a more stable version recently discovered, which differs slightly from the version described in the paper.
 
-1. Train a 2D VQVAE. Run `train_VQVAE2D.py` and fill following args:
+1. Train a 2DAE. Run `train_AE2D.py` and fill following args:
 
 ```python
 parser.add_argument("--exp_name", type=str, default='.')
@@ -70,7 +70,7 @@ parser.add_argument('--result_root', type=str, default='./results')
 parser.add_argument('--data_root', type=str, default='./oct')
 ```
 
-2. Train NHVQVAE. Run `train_NHVQVAE.py` and fill following args:
+2. Train NHAE. Run `train_NHAE.py` and fill following args:
 ```python
 parser.add_argument("--exp_name", type=str, default='model name')
 parser.add_argument('--result_root', type=str, default='path/to/save/dir')
@@ -94,7 +94,7 @@ parser.add_argument('--latent_1_root', type=str, default='path/to/3D/latent')
 parser.add_argument('--latent_2_root', type=str, default='path/to/2D/latent')
 ```
 
-5. Train multi-slice decoder. Run `train_VQVAE_w_adaptor.py` and fill following args:
+5. Train multi-slice_decoder. Run `train_AE_w_adaptor.py` and fill following args:
 ```python
 parser.add_argument("--exp_name", type=str, default='model name')
 parser.add_argument('--result_root', type=str, default='path/to/save/dir')
