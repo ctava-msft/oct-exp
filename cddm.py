@@ -2,7 +2,6 @@ import torch
 import clip
 from PIL import Image
 import numpy as np
-from scipy.spatial.distance import cdist
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model, preprocess = clip.load("ViT-B/32", device=device)
@@ -31,7 +30,7 @@ def calculate_cmmd(image_paths1, image_paths2):
     cmmd = compute_mmd(embeddings1, embeddings2)
     return cmmd
 
-image_paths1 = ["./images/NORMAL-9961073-2.jpeg"]
-image_paths2 = ["./images/NORMAL-9961073-3.jpeg"]
+image_paths1 = ["./images/200-before.png"]
+image_paths2 = ["./images/200-after.png"]
 cmmd_value = calculate_cmmd(image_paths1, image_paths2)
 print(f"CMMD value: {cmmd_value}")
