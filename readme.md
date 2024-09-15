@@ -47,7 +47,13 @@ az storage blob download-batch \
     --pattern "$FOLDER_PREFIX*" \
     --account-key $ACCOUNT_KEY
 
-az storage blob upload --account-name $STORAGE_ACCOUNT --container-name $CONTAINER_NAME --name myblob --file /path/to/myfile
+# Step 5: Upload results
+az storage blob upload \
+    --account-name $STORAGE_ACCOUNT \
+    --container-name $CONTAINER_NAME \
+    --name ten.png \
+    --file ./10.png \
+    --account-key $ACCOUNT_KEY
 
 # Reference
 
