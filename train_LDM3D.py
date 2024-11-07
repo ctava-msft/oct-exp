@@ -37,6 +37,7 @@ def get_parser():
     # train args
     parser.add_argument("--latent_size", default=(64, 64, 64))
     parser.add_argument("--latent_channel", default=4)
+    parser.add_argument("--paded_size", default=(128, 128, 128))
     parser.add_argument("--batch_size", default=1)
     parser.add_argument("--num_workers", default=8)
     parser.add_argument("--pin_memory", default=True)
