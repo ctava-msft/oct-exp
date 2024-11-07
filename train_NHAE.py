@@ -28,7 +28,7 @@ def get_parser():
     parser = ArgumentParser()
     parser.add_argument("--exp_name", type=str, default='NHVQVAE')
     parser.add_argument('--ckpt_path', type=str, default='./checkpoints/NHAE')
-    parser.add_argument('--ckpt_path_ae2d', type=str, default='./checkpoints/AE2D')
+    #parser.add_argument('--ckpt_path_ae2d', type=str, default='./checkpoints/AE2D')
     parser.add_argument('--result_root', type=str, default='./checkpoints')
     parser.add_argument("--command", default="fit")
     # tio args
