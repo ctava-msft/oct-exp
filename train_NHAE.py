@@ -27,6 +27,7 @@ from utils.util_for_openai_diffusion import disabled_train
 def get_parser():
     parser = ArgumentParser()
     parser.add_argument("--exp_name", type=str, default='NHVQVAE')
+    parser.add_argument('--ckpt_path', type=str, default='./checkpoints/NHAE')
     parser.add_argument('--result_root', type=str, default='./checkpoints')
     parser.add_argument("--command", default="fit")
     # tio args
