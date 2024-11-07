@@ -262,7 +262,7 @@ class VQModel(pl.LightningModule):
         frame_rec_2D = self.decode_2D(h_2D, testing=True)
         return frame_target, frame_rec_3D, frame_rec_2D
 
-    def training_step(self, batch, batch_idx, optimizer_idx):
+    def training_step(self, batch, batch_idx):
         # https://github.com/pytorch/pytorch/issues/37142
         # try not to fool the heuristics
         if batch_idx == 0:
@@ -272,7 +272,8 @@ class VQModel(pl.LightningModule):
         frame_target, frame_rec_3D, latent_loss, emb_loss = self(x)
         target = frame_target
         rec = frame_rec_3D
-
+        optimizer_idx = self.trainer.current_epoch % 2
+        self.automatic_optimization = False
         if optimizer_idx == 0:
             # autoencode
             aeloss, log_dict_ae = self.loss(emb_loss, latent_loss, target, rec, optimizer_idx, self.global_step,
