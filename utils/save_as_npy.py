@@ -17,7 +17,11 @@ def read_img_to_np(img_dir, name, cvflag =  cv.IMREAD_GRAYSCALE):
 
 def save(src_dir, dst_dir):
     os.makedirs(dst_dir, exist_ok=True)
-    names = natsorted(os.listdir(src_dir))
+    names = []
+    for root, dirs, files in os.walk(src_dir):
+        for file in files:
+            names.append(os.path.join(root, file))
+    names = natsorted(names)
     for i, name in enumerate(names):
         print(i, name)
         oct = read_img_to_np(src_dir, name, cv.IMREAD_GRAYSCALE)
