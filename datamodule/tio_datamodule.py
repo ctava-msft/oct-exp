@@ -191,28 +191,27 @@ class PatchTioDatamodule(pl.LightningDataModule):
                         except FileNotFoundError:
                             print(f"File not found: {file_path}")
 
-
-
     def prepare_data(self):
-        # print(self.train_image_names, self.test_image_names)
-        self.train_subjects = []
-        for name in self.train_image_names:
-            # print(os.path.join(self.image_root, name))
-            subject = tio.Subject(
-                image=tio.ScalarImage(os.path.join(self.image_root, name+'.npy'),
-                                      reader=image_reader),
-                name=name
-            )
-            self.train_subjects.append(subject)
-
-        self.test_subjects = []
-        for name in self.test_image_names:
-            subject = tio.Subject(
-                image=tio.ScalarImage(os.path.join(self.image_root, name+'.npy'),
-                                      reader=image_reader),
-                name=name
-            )
-            self.test_subjects.append(subject)
+        # Loop through all folders in the image_root directory
+        for folder_name in os.listdir(self.image_root):
+            folder_path = os.path.join(self.image_root, folder_name)
+            
+            # Check if the path is a directory
+            if os.path.isdir(folder_path):
+                # Loop through all .npy files in the folder
+                for file_name in os.listdir(folder_path):
+                    if file_name.endswith('.npy'):
+                        file_path = os.path.join(folder_path, file_name)
+                        
+                        # Load the .npy file using torchio
+                        try:
+                            image = tio.ScalarImage(file_path)
+                            # Process the image as needed
+                            print(f"Loaded file: {file_path}")
+                        except FileNotFoundError:
+                            print(f"File not found: {file_path}")
+                        except ValueError as e:
+                            print(f"Error loading file {file_path}: {e}")
 
     def get_preprocessing_transform(self):
         preprocess = tio.Compose([
