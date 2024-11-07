@@ -41,7 +41,7 @@ def get_parser():
     parser.add_argument('--samples_per_volume', default=5)
     # train args
     parser.add_argument("--batch_size", default=1)
-    parser.add_argument("--num_workers", default=16)
+    parser.add_argument("--num_workers", default=39)
     parser.add_argument("--base_lr", type=float, default=3e-4)
     parser.add_argument('--accumulate_grad_batches', type=int, default=4)
     # lightning args
@@ -132,7 +132,7 @@ class VQModel(pl.LightningModule):
         self.quantize = VectorQuantizer(n_embed, self.embed_dim, beta=0.25)
         self.quant_conv = torch.nn.Conv2d(self.embed_dim, self.embed_dim, 1)
         self.post_quant_conv = torch.nn.Conv2d(self.embed_dim, self.embed_dim, 1)
-
+        self.automatic_optimization = False
         self.lr_g_factor = 1.0
 
         if opts.command == 'fit':
