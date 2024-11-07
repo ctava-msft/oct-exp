@@ -5,6 +5,7 @@ azureml-dataprep[pandas]
 cuda-python
 einops
 ftfy
+imageio
 mltable
 natsort
 opencv-python
@@ -18,5 +19,6 @@ numpy
 scipy
 setuptools
 torch
+torchio 
 torchvision
 tqdm

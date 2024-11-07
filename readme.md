@@ -1,11 +1,15 @@
 # Introduction
+
 This instructions give setup and steps to train models to 
 generate synthetic images of Optical coherence tomography (OCT).
 
 # Prerequisites
-- Compute node with GPU has alredy been created and runding.
+
+- Compute node with GPU has alredy been created and running.
+- Be sure to set a 15 idle timeout.
 
 # Setup environment
+
 Run the following commands to setup a python virtual env.
 
 ```
@@ -15,7 +19,7 @@ pip install virtualenv
 [linux]source .venv/bin/activate
 pip install -r requirements.txt
 ```
-# Data
+# Dataset
 
 Public data 'OCTA-500' can be downloaded at: https://ieee-dataport.org/open-access/octa-500.
 
@@ -47,54 +51,49 @@ az storage blob download-batch \
     --pattern "$FOLDER_PREFIX*" \
     --account-key $ACCOUNT_KEY
 
-# Utils
-
-If needed, use this script to convert images to numpy arrays and store them.
-```
-python ./utils/save_as_npy.py
-```
-
-# Train
+# Train models
 
 There are 5 steps in the training process. 
-Create the checkpoints directory with 5 subfolers:
+Create the checkpoints directory with 5 subfolders:
 2DAE, NHAE, LDM3D, LDM2D, AE
 
-To execute them, configue and run the following scripts.
+To execute them, configure and run the following scripts:
 
-1. Train a 2DAE. Configure and run `train_AE2D.py`.
+1. Train a 2DAE. Configure and run `python train_AE2D.py`.
 
-2. Train NHAE. Configure and run `train_NHAE.py`.
+2. Train NHAE. Configure and run `python train_NHAE.py`.
 
-3. Train LDM3D. Configure and run `train_LDM3D.py`.
+3. Train LDM3D. Configure and run `python train_LDM3D.py`.
 
-4. Train LDM2D. Configure and run `train_LDM2D.py`.
+4. Train LDM2D. Configure and run `python train_LDM2D.py`.
 
-5. Train AE. Configure and run `train_AE.py`.
+5. Train AE. Configure and run `python train_AE.py`.
+
+# Generate Images
+
+The image generation procedure is split into three stages:
+
+1.  Generate 3D latents. Configure and run `python gen_LDM3D.py`.
+
+2.  Refine latents. Configure and run `python gen_LDM2D.py`.
+
+3.  Decode latents to images. Configure and run `python gen_decode.py`.
+
 
 ## Retrieve images
 
-After each training epoch images in training_progress can be upload to storage account to be downloaded and viewed.
+After each training, images in training_progress can be uploaded to storage account to be downloaded and viewed.
 ```
 az storage blob upload \
     --account-name $STORAGE_ACCOUNT \
     --container-name $CONTAINER_NAME \
-    --name ten.png \
-    --file ./10.png \
+    --name file.png \
+    --file ./file.png \
     --account-key $ACCOUNT_KEY
 ```
-
-# Generate
-
-The image generation procedure is split into three stages.
-
-1.  Generate 3D latents. Configure and run `gen_LDM3D.py`.
-
-2.  Refine latents. Configure and run `gen_LDM2D.py`.
-
-3.  Decode latents to images. Configure and run `gen_decodelatents.py`.
-
 
 # Reference(s)
 
 [Compute Instance](https://learn.microsoft.com/en-us/azure/machine-learning/concept-compute-instance?view=azureml-api-2)
+
+[Memory-efficient High-resolution OCT Volume Synthesis with Cascaded Amortized Latent Diffusion Models](https://arxiv.org/pdf/2405.16516)
