@@ -121,7 +121,7 @@ class VQModel(pl.LightningModule):
         ddconfig = {'z_channels': 4, 'resolution': 512, 'in_channels': 1, 'out_ch': 1, 'ch': 128,
                     'ch_mult': [1, 2, 4, 4], 'num_res_blocks': 2, 'attn_resolutions': [], 'dropout': 0.0}
 
-        self.SR3D = DecoderSR(in_channels=4, upsample=[8, 1, 1], image_channel=1, norm_type='group', num_groups=4)
+        self.SR3D = DecoderSR(in_channels=4, upsample=[8, 1, 1], norm_type='group', num_groups=4)
         self.decoder = Decoder2D(**ddconfig)
         self.embed_dim = 4
         n_embed = 16384
