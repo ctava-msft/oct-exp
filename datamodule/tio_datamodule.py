@@ -153,7 +153,7 @@ class TioDatamodule(pl.LightningDataModule):
 
 def is_valid_numpy_file(file_path):
     try:
-        np.load(path, allow_pickle=True)
+        np.load(file_path, allow_pickle=True)
         return True
     except Exception as e:
         print(f"Error loading {file_path}: {e}")
