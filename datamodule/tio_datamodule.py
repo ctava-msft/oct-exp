@@ -154,7 +154,7 @@ class TioDatamodule(pl.LightningDataModule):
 def is_valid_numpy_file(file_path):
     try:
         array = np.load(file_path, allow_pickle=True)
-        sitk.GetImageFromArray(array)
+        sitk_image = sitk.GetImageFromArray(array)
         return True
     except Exception as e:
         print(f"Error loading {file_path}: {e}")
