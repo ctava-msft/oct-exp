@@ -74,7 +74,7 @@ def main(opts):
                              precision=opts.precision, devices=opts.devices, deterministic=opts.deterministic,
                              default_root_dir=opts.default_root_dir, profiler=opts.profiler,
                              benchmark=opts.benchmark, callbacks=[checkpoint_callback])
-        load_network(model, ckpt_path_ae2d, device=model.device)
+        load_network(model, opts.ckpt_path_ae2d, device=model.device)
 
         # ckpt_path2 = 'path/to/NHVQVAE/ckpt'
         # load_network(model, ckpt_path2, device=model.device)
