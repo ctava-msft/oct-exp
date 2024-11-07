@@ -80,7 +80,7 @@ def get_file_path_from_dir(src_dir, file_name):
 def load_network(model, save_path, device, key = 'state_dict'):
     if not os.path.isfile(save_path):
         print('%s not exists yet!' % save_path)
-        raise ('path must exist!')
+        raise ValueError('path must exist!')
     else:
         # network.load_state_dict(torch.load(save_path))
         try:
