@@ -25,7 +25,8 @@ def save(src_dir, dst_dir):
     for i, name in enumerate(names):
         print(i, name)
         oct = read_img_to_np(src_dir, name, cv.IMREAD_GRAYSCALE)
-        print(oct.shape, np.max(oct))
+        #print(oct.shape, np.max(oct))
+        name = os.path.splitext(name)[0]  # Remove the .bmp extension
         np.save(os.path.join(dst_dir, name+'.npy'), oct)
 
 if __name__ == '__main__':
