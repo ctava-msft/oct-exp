@@ -64,6 +64,7 @@ class testTioDatamodule(pl.LightningDataModule):
 
 
 class TioDatamodule(pl.LightningDataModule):
+
     def __init__(self, image_npy_root, train_name_json, test_name_json, image_size, batch_size, num_workers, **kwargs):
         super().__init__()
         self.batch_size = batch_size
@@ -76,6 +77,28 @@ class TioDatamodule(pl.LightningDataModule):
             self.train_image_names = json.load(f)
         with open(test_name_json, "r") as f:
             self.test_image_names = json.load(f)
+
+    def load_images(self):
+        # Loop through all folders in the image_root directory
+        for folder_name in os.listdir(self.image_root):
+            folder_path = os.path.join(self.image_root, folder_name)
+            
+            # Check if the path is a directory
+            if os.path.isdir(folder_path):
+                # Loop through all .npy files in the folder
+                for file_name in os.listdir(folder_path):
+                    if file_name.endswith('.npy'):
+                        file_path = os.path.join(folder_path, file_name)
+                        
+                        # Load the .npy file
+                        try:
+                            data = np.load(file_path)
+                            # Process the data as needed
+                            print(f"Loaded file: {file_path}")
+                        except FileNotFoundError:
+                            print(f"File not found: {file_path}")
+
+
 
     def prepare_data(self):
         # print(self.train_image_names, self.test_image_names)
@@ -146,6 +169,29 @@ class PatchTioDatamodule(pl.LightningDataModule):
             self.train_image_names = json.load(f)
         with open(test_name_json, "r") as f:
             self.test_image_names = json.load(f)
+
+
+    def load_images(self):
+        # Loop through all folders in the image_root directory
+        for folder_name in os.listdir(self.image_root):
+            folder_path = os.path.join(self.image_root, folder_name)
+            
+            # Check if the path is a directory
+            if os.path.isdir(folder_path):
+                # Loop through all .npy files in the folder
+                for file_name in os.listdir(folder_path):
+                    if file_name.endswith('.npy'):
+                        file_path = os.path.join(folder_path, file_name)
+                        
+                        # Load the .npy file
+                        try:
+                            data = np.load(file_path)
+                            # Process the data as needed
+                            print(f"Loaded file: {file_path}")
+                        except FileNotFoundError:
+                            print(f"File not found: {file_path}")
+
+
 
     def prepare_data(self):
         # print(self.train_image_names, self.test_image_names)

@@ -58,7 +58,7 @@ def get_parser():
 
 def main(opts):
     datamodule = PatchTioDatamodule(**vars(opts))
-
+    datamodule.load_images()
     if opts.command == "fit":
         model = VQModel(opts)
         checkpoint_callback = ModelCheckpoint(
