@@ -26,7 +26,7 @@ def get_parser():
     parser = ArgumentParser()
     parser.add_argument("--command", default="fit")
     parser.add_argument("--exp_name", type=str, default='LDM2D')
-    parser.add_argument('--result_root', type=str, default='./checkpoints')
+    parser.add_argument('--result_root', type=str, default='./checkpoints/LDM2D')
     # data & tio args
     parser.add_argument('--first_stage_ckpt', type=str, default='/checkpoints/AE2D')
     parser.add_argument('--latent_1_root', type=str, default='/latents/3d')
