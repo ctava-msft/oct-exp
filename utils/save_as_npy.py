@@ -25,6 +25,6 @@ def save(src_dir, dst_dir):
         np.save(os.path.join(dst_dir, name+'.npy'), oct)
 
 if __name__ == '__main__':
-    src_dir = '.\images'
-    dst_dir = '.\images_converted'
+    src_dir = '..\images'
+    dst_dir = '..\images_converted'
     save(src_dir, dst_dir)
