@@ -51,6 +51,13 @@ az storage blob download-batch \
     --pattern "$FOLDER_PREFIX*" \
     --account-key $ACCOUNT_KEY
 
+# Convert images to numpy arrays
+
+If needed, use this script to convert images to numpy arrays and store them.
+```
+python ./utils/save_as_npy.py
+```
+
 # Train models
 
 There are 5 steps in the training process. 
