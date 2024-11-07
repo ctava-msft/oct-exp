@@ -30,7 +30,7 @@ def calculate_cmmd(image_paths1, image_paths2):
     cmmd = compute_mmd(embeddings1, embeddings2)
     return cmmd
 
-image_paths1 = ["./images/200-before.png"]
-image_paths2 = ["./images/200-after.png"]
+image_paths1 = ["./images/0-before.png"]
+image_paths2 = ["./images/0-after.png"]
 cmmd_value = calculate_cmmd(image_paths1, image_paths2)
 print(f"CMMD value: {cmmd_value}")

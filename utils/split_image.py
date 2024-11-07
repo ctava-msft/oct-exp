@@ -19,4 +19,4 @@ def split_image(image_path, output_path1, output_path2):
 
 
 # call it
-split_image('./images/200.png', './images/200-before.png', './images/200-after.png')
+split_image('./images/300.png', './images/300-before.png', './images/300-after.png')
