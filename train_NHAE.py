@@ -28,6 +28,7 @@ def get_parser():
     parser = ArgumentParser()
     parser.add_argument("--exp_name", type=str, default='NHVQVAE')
     parser.add_argument('--ckpt_path', type=str, default='./checkpoints/NHAE')
+    parser.add_argument('--ckpt_path_ae2d', type=str, default='./checkpoints/AE2D')
     parser.add_argument('--result_root', type=str, default='./checkpoints')
     parser.add_argument("--command", default="fit")
     # tio args
@@ -61,7 +62,7 @@ def main(opts):
     if opts.command == "fit":
         model = VQModel(opts)
         checkpoint_callback = ModelCheckpoint(
-            dirpath='checkpoints/nhae',  # Directory to save the checkpoints
+            dirpath='checkpoints/NHAE',  # Directory to save the checkpoints
             filename='nhae-{epoch:02d}-{val_loss:.2f}',  # Descriptive filename format
             save_top_k=-1,  # Save all models
             save_weights_only=True,  # Save only the model weights
@@ -73,8 +74,7 @@ def main(opts):
                              precision=opts.precision, devices=opts.devices, deterministic=opts.deterministic,
                              default_root_dir=opts.default_root_dir, profiler=opts.profiler,
                              benchmark=opts.benchmark, callbacks=[checkpoint_callback])
-        ckpt_path = './checkpoints/AE2D'
-        load_network(model, ckpt_path, device=model.device)
+        load_network(model, ckpt_path_ae2d, device=model.device)
 
         # ckpt_path2 = 'path/to/NHVQVAE/ckpt'
         # load_network(model, ckpt_path2, device=model.device)
