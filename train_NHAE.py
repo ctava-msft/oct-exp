@@ -273,7 +273,6 @@ class VQModel(pl.LightningModule):
         target = frame_target
         rec = frame_rec_3D
         optimizer_idx = self.trainer.current_epoch % 2
-        self.automatic_optimization = False
         if optimizer_idx == 0:
             # autoencode
             aeloss, log_dict_ae = self.loss(emb_loss, latent_loss, target, rec, optimizer_idx, self.global_step,

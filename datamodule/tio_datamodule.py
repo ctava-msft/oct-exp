@@ -151,7 +151,14 @@ class TioDatamodule(pl.LightningDataModule):
         return DataLoader(self.test_set, batch_size=self.batch_size, shuffle=False, num_workers=4)
 
 
-
+def is_valid_numpy_file(file_path):
+    try:
+        np.load(file_path)
+        return True
+    except Exception as e:
+        print(f"Error loading {file_path}: {e}")
+        return False
+    
 class PatchTioDatamodule(pl.LightningDataModule):
     def __init__(self, image_npy_root, train_name_json, test_name_json, image_size, batch_size, num_workers, patch_per_size,
                  queue_length, samples_per_volume, **kwargs):
@@ -186,9 +193,12 @@ class PatchTioDatamodule(pl.LightningDataModule):
                         
                         # Load the .npy file
                         try:
-                            data = np.load(file_path, allow_pickle=True)
-                            # Process the data as needed
-                            print(f"Loaded file: {file_path}")
+                            if is_valid_numpy_file(file_path):
+                                data = np.load(file_path, allow_pickle=True)
+                                # Process the data as needed
+                                print(f"Loaded file: {file_path}")
+                            else:
+                                print(f"Invalid file: {file_path}")
                         except FileNotFoundError:
                             print(f"File not found: {file_path}")
 
