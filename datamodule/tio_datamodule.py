@@ -92,7 +92,7 @@ class TioDatamodule(pl.LightningDataModule):
                         
                         # Load the .npy file
                         try:
-                            data = np.load(file_path)
+                            data = np.load(file_path, allow_pickle=True)
                             # Process the data as needed
                             print(f"Loaded file: {file_path}")
                         except FileNotFoundError:
@@ -185,7 +185,7 @@ class PatchTioDatamodule(pl.LightningDataModule):
                         
                         # Load the .npy file
                         try:
-                            data = np.load(file_path)
+                            data = np.load(file_path, allow_pickle=True)
                             # Process the data as needed
                             print(f"Loaded file: {file_path}")
                         except FileNotFoundError:
