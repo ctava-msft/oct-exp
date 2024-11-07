@@ -213,13 +213,15 @@ class PatchTioDatamodule(pl.LightningDataModule):
                     for file_name in os.listdir(folder_path):
                         if file_name.endswith('.npy'):
                             file_path = os.path.join(folder_path, file_name)
-                            
                             # Load the .npy file using torchio
                             try:
-                                image = tio.ScalarImage(file_path)
-                                subject = tio.Subject(image=image, name=name)
-                                self.train_subjects.append(subject)
-                                print(f"Loaded file: {file_path}")
+                                if is_valid_numpy_file(file_path):
+                                    image = tio.ScalarImage(file_path)
+                                    subject = tio.Subject(image=image, name=name)
+                                    self.train_subjects.append(subject)
+                                    print(f"Loaded file: {file_path}")
+                                else:
+                                    print(f"Invalid file: {file_path}")
                             except FileNotFoundError:
                                 print(f"File not found: {file_path}")
                             except ValueError as e:
@@ -235,9 +237,15 @@ class PatchTioDatamodule(pl.LightningDataModule):
                     for file_name in os.listdir(folder_path):
                         if file_name.endswith('.npy'):
                             file_path = os.path.join(folder_path, file_name)
-                            
                             # Load the .npy file using torchio
                             try:
+                                if is_valid_numpy_file(file_path):
+                                    image = tio.ScalarImage(file_path)
+                                    subject = tio.Subject(image=image, name=name)
+                                    self.train_subjects.append(subject)
+                                    print(f"Loaded file: {file_path}")
+                                else:
+                                    print(f"Invalid file: {file_path}")
                                 image = tio.ScalarImage(file_path)
                                 subject = tio.Subject(image=image, name=name)
                                 self.test_subjects.append(subject)
