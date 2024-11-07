@@ -159,7 +159,8 @@ class PatchTioDatamodule(pl.LightningDataModule):
         self.batch_size = batch_size
         self.num_workers = num_workers
         self.image_root = image_npy_root
-
+        self.train_subjects = []
+        self.test_subjects = []
         self.image_size = image_size
         self.patch_size = patch_per_size
         self.queue_length = queue_length
