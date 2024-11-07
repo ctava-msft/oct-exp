@@ -206,6 +206,8 @@ class PatchTioDatamodule(pl.LightningDataModule):
                         # Load the .npy file using torchio
                         try:
                             image = tio.ScalarImage(file_path)
+                            subject = tio.Subject(image=image)
+                            self.train_subjects.append(subject)
                             # Process the image as needed
                             print(f"Loaded file: {file_path}")
                         except FileNotFoundError:
