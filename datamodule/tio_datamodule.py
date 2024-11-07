@@ -11,7 +11,7 @@ import json
 
 
 def image_reader(path):
-    data = np.load(path)
+    data = np.load(path, allow_pickle=True)
     data = torch.from_numpy(data).float()
     data /= 255.
     data = data.unsqueeze(0)
@@ -20,7 +20,7 @@ def image_reader(path):
 
 
 def label_reader(path):
-    data = np.load(path)
+    data = np.load(path, allow_pickle=True)
     data = torch.from_numpy(data).long()
     data //= 255
     data = data.unsqueeze(0)
@@ -153,7 +153,7 @@ class TioDatamodule(pl.LightningDataModule):
 
 def is_valid_numpy_file(file_path):
     try:
-        np.load(file_path)
+        np.load(path, allow_pickle=True)
         return True
     except Exception as e:
         print(f"Error loading {file_path}: {e}")
@@ -194,7 +194,7 @@ class PatchTioDatamodule(pl.LightningDataModule):
                         # Load the .npy file
                         try:
                             if is_valid_numpy_file(file_path):
-                                data = np.load(file_path, allow_pickle=True)
+                                #data = np.load(file_path, allow_pickle=True)
                                 # Process the data as needed
                                 print(f"Loaded file: {file_path}")
                             else:
