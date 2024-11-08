@@ -158,7 +158,7 @@ def is_valid_numpy_file(file_path):
         if array.dtype == object:
             # Convert the array to a numeric type, e.g., float32
             array = array.astype(np.float32)
-        sitk_image = sitk.GetImageFromArray(array)
+            sitk_image = sitk.GetImageFromArray(array)
         return True
     except Exception as e:
         print(f"Error loading {file_path}: {e}")
