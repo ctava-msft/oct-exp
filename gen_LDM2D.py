@@ -19,14 +19,14 @@ import numpy as np
 from einops import rearrange
 def get_parser():
     parser = ArgumentParser()
-    parser.add_argument('--result_save_dir', type=str, default='path/to/save/dir')
+    parser.add_argument('--result_save_dir', type=str, default='./results')
     # data & tio args
     parser.add_argument('--first_stage_ckpt', type=str,
-                        default='path/to/NHVQVAE/ckpt')
+                        default='./checkpoints/NHAE')
     parser.add_argument('--ldm1_ckpt', type=str,
-                        default='path/to/LDM3D/ckpt')
+                        default='./checkpoints/LDM3D')
     parser.add_argument('--ldm2_ckpt', type=str,
-                        default='path/to/LDM2D_refiner/ckpt')
+                        default='./checkpoints/LDM2D')
     # train args
     parser.add_argument("--batch_size", default=1)
     # lightning args
@@ -40,7 +40,7 @@ def get_parser():
 
 def main(opts):
     model = CascadeLDM(opts)
-    datamodule = testDatamodule(latent_root='path/to/ldm1_latent')
+    datamodule = testDatamodule(latent_root='./latents/3D')
     trainer = pl.Trainer(accelerator=opts.accelerator, devices=opts.devices, deterministic=opts.deterministic,
                         logger=False, profiler=opts.profiler, benchmark=opts.benchmark)
     trainer.test(model=model, datamodule=datamodule)

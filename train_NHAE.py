@@ -76,7 +76,7 @@ def main(opts):
                              benchmark=opts.benchmark, callbacks=[checkpoint_callback])
         #load_network(model, opts.ckpt_path_ae2d, device=model.device)
 
-        # ckpt_path2 = 'path/to/NHVQVAE/ckpt'
+        # ckpt_path2 = './checkpoints/NHAE'
         # load_network(model, ckpt_path2, device=model.device)
         # model
         model.decoder.train = disabled_train

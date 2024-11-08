@@ -21,14 +21,14 @@ from networks.VQModel3D_adaptor_333 import Decoder
 def get_parser():
     parser = ArgumentParser()
     parser.add_argument('--result_save_dir', type=str,
-                        default='path/to/save/dir')
+                        default='./latents/2D')
     parser.add_argument('--result_save_name', type=str,
-                        default='save name')
+                        default='resulting_image')
     # data & tio args
     parser.add_argument('--first_stage_ckpt', type=str,
-                        default='path/to/VQVAE_w_adaptor/ckpt')
+                        default='./checkpoints/NHAE')
     parser.add_argument('--ldm2_latent', type=str,
-                        default='path/to/saved/ldm2_latent')
+                        default='./latents/2D')
     # train args
     parser.add_argument("--batch_size", default=1)
     # lightning args

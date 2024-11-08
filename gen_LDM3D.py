@@ -20,14 +20,14 @@ import numpy as np
 
 def get_parser():
     parser = ArgumentParser()
-    parser.add_argument('--result_save_dir', type=str, default='path/to/save/dir')
+    parser.add_argument('--result_save_dir', type=str, default='./results')
     # data & tio args
     parser.add_argument('--first_stage_ckpt', type=str,
-                        default='path/to/NHVQVAE/ckpt')
+                        default='./checkpoints/NHAE')
     parser.add_argument('--ldm1_ckpt', type=str,
-                        default='path/to/LDM3D/ckpt')
+                        default='./checkpoints/LDM3D')
     parser.add_argument('--ldm2_ckpt', type=str,
-                        default='path/to/LDM2D_refiner/ckpt')
+                        default='./checkpoints/LDM2D')
     # train args
     parser.add_argument("--batch_size", default=1)
     # lightning args

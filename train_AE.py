@@ -79,12 +79,12 @@ def main(opts):
                              precision=opts.precision, devices=opts.devices, deterministic=opts.deterministic,
                              default_root_dir=opts.default_root_dir, profiler=opts.profiler,
                              benchmark=opts.benchmark, callbacks=[checkpoint_callback, TQDMProgressBar(refresh_rate=10)])
-        ckpt_path = '/checkpoints/AE2D'
+        ckpt_path = './checkpoints/AE2D'
         load_network(model, ckpt_path, model.device)
         freeze_except_3d(model)
         trainer.fit(model=model, datamodule=datamodule)
     else:
-        ckpt_path = 'path/to/ckpt'
+        ckpt_path = './checkpoints/AE2D'
         opts.ckpt_name = ckpt_path.split('/')[-1].split('.')[0]
         opts.img_save_dir = os.path.join(opts.default_root_dir, 'test_img2_' + opts.ckpt_name)
         model = VQModel(opts)
