@@ -154,6 +154,10 @@ class TioDatamodule(pl.LightningDataModule):
 def is_valid_numpy_file(file_path):
     try:
         array = np.load(file_path, allow_pickle=True)
+        # Check the number of dimensions of the array
+        if array.ndim == 1:
+            # Reshape the array to have at least 2 dimensions
+            array = array.reshape((1, -1))
         # Check the data type of the array
         if array.dtype == object:
             # Convert the array to a numeric type, e.g., float32
