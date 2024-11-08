@@ -9,6 +9,7 @@ import torch
 from natsort import natsorted
 import json
 import SimpleITK as sitk
+import nibabel as nib
 
 def image_reader(path):
     data = np.load(path, allow_pickle=True)
@@ -158,7 +159,7 @@ def is_valid_numpy_file(file_path):
         # Ensure the array has a numeric data type
         if array.dtype == object:
             array = array.astype(np.float32)
-            
+
         # Check the number of dimensions of the array
         if array.ndim == 1:
             # Reshape the array to have at least 2 dimensions
@@ -166,7 +167,11 @@ def is_valid_numpy_file(file_path):
         elif array.ndim == 2:
             # If the array is 2D, ensure it has the correct shape for an image
             array = array.reshape((array.shape[0], array.shape[1], 1))
-        image = sitk.GetImageFromArray(array)
+        # Convert the numpy array to a NiBabel image
+        nib_image = nib.Nifti1Image(array, affine=np.eye(4))
+
+        # Convert the NiBabel image to a SimpleITK image
+        sitk_image = sitk.GetImageFromArray(nib_image.get_fdata())
         return True
     except Exception as e:
         print(f"Error loading {file_path}: {e}")
