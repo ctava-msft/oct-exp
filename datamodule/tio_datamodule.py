@@ -158,11 +158,10 @@ def is_valid_numpy_file(file_path):
         if array.ndim == 1:
             # Reshape the array to have at least 2 dimensions
             array = array.reshape((1, -1))
-        # Check the data type of the array
-        if array.dtype == object:
-            # Convert the array to a numeric type, e.g., float32
-            array = array.astype(np.float32)
-            sitk_image = sitk.GetImageFromArray(array)
+        elif array.ndim == 2:
+            # If the array is 2D, ensure it has the correct shape for an image
+            array = array.reshape((array.shape[0], array.shape[1], 1))
+        image = sitk.GetImageFromArray(array)
         return True
     except Exception as e:
         print(f"Error loading {file_path}: {e}")
