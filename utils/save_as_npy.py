@@ -9,7 +9,7 @@ def read_img_to_np(img_dir, cvflag=cv.IMREAD_GRAYSCALE):
     print(f"Reading images from directory: {img_dir}")
     imgs = []
     names = natsorted([name for name in os.listdir(img_dir) if name.endswith('.bmp')])
-    print(f"Found .bmp images: {names}")
+    #print(f"Found .bmp images: {names}")
     for name in names:
         img_path = os.path.join(img_dir, name)
         img = cv.imread(img_path, cvflag)
