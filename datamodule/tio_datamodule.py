@@ -70,7 +70,7 @@ class TioDatamodule(pl.LightningDataModule):
                     if file_name.endswith('.npy'):
                         file_path = os.path.join(folder_path, file_name)
                         file_path = str(file_path)  # Ensure file_path is a string
-                        print(f"file_path: {file_path}, type: {type(file_path)}")  # Debugging line
+                        print(f"file_path: {file_path}, type: {type(file_path)} name: {file_name}")
                         # Load the .npy file using torchio
                         try:
                             if is_valid_numpy_file(file_path):
@@ -99,7 +99,7 @@ class TioDatamodule(pl.LightningDataModule):
                         if file_name.endswith('.npy'):
                             file_path = os.path.join(folder_path, file_name)
                             file_path = str(file_path)  # Ensure file_path is a string
-                            print(f"file_path: {file_path}, type: {type(file_path)}")  # Debugging line
+                            print(f"file_path: {file_path}, type: {type(file_path)} name: {file_name}")
                             # Load the .npy file using torchio
                             try:
                                 if is_valid_numpy_file(file_path):
