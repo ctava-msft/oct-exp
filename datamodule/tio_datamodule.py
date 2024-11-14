@@ -198,27 +198,31 @@ class PatchTioDatamodule(pl.LightningDataModule):
 
 
     def load_images(self):
-        # Loop through all folders in the image_root directory
-        for folder_name in os.listdir(self.image_root):
-            folder_path = os.path.join(self.image_root, folder_name)
-            
-            # Check if the path is a directory
-            if os.path.isdir(folder_path):
-                # Loop through all .npy files in the folder
-                for file_name in os.listdir(folder_path):
-                    if file_name.endswith('.npy'):
-                        file_path = os.path.join(folder_path, file_name)
-                        
-                        # Load the .npy file
-                        try:
-                            if is_valid_numpy_file(file_path):
-                                #data = np.load(file_path, allow_pickle=True)
-                                # Process the data as needed
-                                print(f"Loaded file: {file_path}")
-                            else:
-                                print(f"Invalid file: {file_path}")
-                        except FileNotFoundError:
-                            print(f"File not found: {file_path}")
+        try:
+            # Loop through all folders in the image_root directory
+            for folder_name in os.listdir(self.image_root):
+                folder_path = os.path.join(self.image_root, folder_name)
+                
+                # Check if the path is a directory
+                if os.path.isdir(folder_path):
+                    # Loop through all .npy files in the folder
+                    for file_name in os.listdir(folder_path):
+                        if file_name.endswith('.npy'):
+                            file_path = os.path.join(folder_path, file_name)
+                            
+                            # Load the .npy file
+                            try:
+                                if is_valid_numpy_file(file_path):
+                                    #data = np.load(file_path, allow_pickle=True)
+                                    # Process the data as needed
+                                    print(f"Loaded file: {file_path}")
+                                else:
+                                    print(f"Invalid file: {file_path}")
+                            except FileNotFoundError:
+                                print(f"File not found: {file_path}")
+        except RuntimeError as e:
+            message = f"Error loading image: {str(e)}"
+            raise RuntimeError(message) from e
 
     def prepare_data(self):
             # Prepare training subjects
