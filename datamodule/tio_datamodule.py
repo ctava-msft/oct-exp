@@ -11,7 +11,7 @@ import json
 import SimpleITK as sitk
 import nibabel as nib
 
-def image_reader_old(path):
+def image_reader(path):
     data = np.load(path, allow_pickle=True)
     data = torch.from_numpy(data).float()
     data /= 255.
@@ -19,7 +19,7 @@ def image_reader_old(path):
     affine = np.eye(4)
     return data, affine
 
-def image_reader(path):
+def image_reader_new(path):
     try:
         data = np.load(path, allow_pickle=True)
         data = data.astype(np.float32)
