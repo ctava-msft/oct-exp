@@ -10,7 +10,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import tqdm
 
-from datamodule.tio_datamodule import PatchTioDatamodule
+from datamodule.tio_datamodule import TioDatamodule
 from pytorch_lightning.callbacks import ModelCheckpoint
 from networks.ldm3D_utils.vq_gan_3d.model.vqgan import DecoderSR_old_v2 as DecoderSR
 
@@ -59,7 +59,7 @@ def get_parser():
 def main(opts):
     # Set float32 matrix multiplication precision to utilize Tensor Cores
     torch.set_float32_matmul_precision('high')
-    datamodule = PatchTioDatamodule(**vars(opts))
+    datamodule = TioDatamodule(**vars(opts))
     #datamodule.load_images()
     datamodule.prepare_data()
     if opts.command == "fit":
