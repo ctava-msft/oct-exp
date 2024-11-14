@@ -54,6 +54,16 @@ def get_parser():
 
 
 def main(opts):
+    checkpoint_dir = opts.first_stage_ckpt
+    # Check if the checkpoint directory exists
+    if not os.path.exists(checkpoint_dir):
+        print(f"Checkpoint directory {checkpoint_dir} does not exist!")
+        # Handle the missing checkpoint directory case here
+        # For example, you can create the directory
+        #os.makedirs(checkpoint_dir)
+        #print(f"Created checkpoint directory {checkpoint_dir}")
+    else:
+        print(f"Checkpoint directory {checkpoint_dir} exists.")
     datamodule = trainDatamodule(**vars(opts))
     model = LDM(opts)
     checkpoint_callback = ModelCheckpoint(
