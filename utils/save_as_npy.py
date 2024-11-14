@@ -8,7 +8,7 @@ def read_img_to_np(img_dir, cvflag=cv.IMREAD_GRAYSCALE):
     assert os.path.exists(img_dir), f"Directory does not exist: {img_dir}"
     print(f"Reading images from directory: {img_dir}")
     imgs = []
-    names = natsorted(os.listdir(img_dir))
+    names = natsorted([name for name in os.listdir(img_dir) if name.endswith('.bmp')])
     print(f"Found images: {names}")
     for name in names:
         img_path = os.path.join(img_dir, name)

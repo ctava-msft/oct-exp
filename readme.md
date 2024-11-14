@@ -55,8 +55,7 @@ az storage blob download-batch \
 
 If needed, use this script to convert images to numpy arrays and store them.
 ```
-cd utils
-python ./utils/save_as_npy.py
+python ./utils/save_as_npy.py path/to/source/images path/to/destination/npy
 ```
 
 # Train models
