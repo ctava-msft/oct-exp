@@ -29,7 +29,7 @@ def get_parser():
     parser.add_argument("--exp_name", type=str, default='NHVQVAE')
     parser.add_argument('--ckpt_path', type=str, default='./checkpoints/NHAE')
     #parser.add_argument('--ckpt_path_ae2d', type=str, default='./checkpoints/AE2D')
-    parser.add_argument('--result_root', type=str, default='./checkpoints')
+    parser.add_argument('--result_root', type=str, default='./checkpoints/NHAE')
     parser.add_argument("--command", default="fit")
     # tio args
     parser.add_argument('--image_npy_root', type=str,default='./images/oct/oct-500/100')
@@ -80,6 +80,7 @@ def main(opts):
         # ckpt_path2 = './checkpoints/NHAE'
         # load_network(model, ckpt_path2, device=model.device)
         # model
+        ''' 
         model.decoder.train = disabled_train
         model.encoder.train = disabled_train
         model.post_quant_conv.train = disabled_train
@@ -99,6 +100,7 @@ def main(opts):
             param.requires_grad = False
         for param in model.decoder.conv_out.parameters():
             param.requires_grad = True
+        '''
         trainer.fit(model=model, datamodule=datamodule)
 
     elif opts.command == "test":
