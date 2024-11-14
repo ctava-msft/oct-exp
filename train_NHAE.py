@@ -23,7 +23,6 @@ from torchvision.utils import save_image
 from utils.util import load_network
 from utils.util_for_openai_diffusion import disabled_train
 
-
 def get_parser():
     parser = ArgumentParser()
     parser.add_argument("--exp_name", type=str, default='NHAE')
