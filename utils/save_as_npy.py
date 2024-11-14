@@ -1,7 +1,8 @@
-import os
+import argparse
 import cv2 as cv
 import numpy as np
 from natsort import natsorted
+import os
 
 def read_img_to_np(img_dir, cvflag=cv.IMREAD_GRAYSCALE):
     assert os.path.exists(img_dir), f"Directory does not exist: {img_dir}"
@@ -32,5 +33,13 @@ def save(src_dir, dst_dir):
         np.save(os.path.join(dst_dir, base_name + '.npy'), oct_data)
         print(f"Saved {base_name}.npy to {dst_dir}")
 
-# Example usage:
-# save('path/to/source/images', 'path/to/destination/npy')
+def main():
+    parser = argparse.ArgumentParser(description="Convert images to numpy files.")
+    parser.add_argument('src_dir', type=str, help="Source directory containing images.")
+    parser.add_argument('dst_dir', type=str, help="Destination directory to save numpy files.")
+    args = parser.parse_args()
+    
+    save(args.src_dir, args.dst_dir)
+
+if __name__ == "__main__":
+    main()
