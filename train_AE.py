@@ -69,7 +69,7 @@ def main(opts):
     if opts.command == "fit":
         checkpoint_callback = ModelCheckpoint(
             dirpath='checkpoints/ae',  # Directory to save the checkpoints
-            filename='ae-{epoch:02d}-{val_loss:.2f}',  # Descriptive filename format
+            filename='ae-{epoch:02d}',  # Descriptive filename format
             save_top_k=-1,  # Save all models
             save_weights_only=True,  # Save only the model weights
             every_n_epochs=1  # Save every epoch

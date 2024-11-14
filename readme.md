@@ -68,14 +68,19 @@ Create the checkpoints directory with 5 subfolders:
 To execute them, configure and run the following scripts:
 
 1. Train a 2DAE. Configure and run `python train_AE2D.py`.
+rename 's/=/\-/' ae2d-epoch=*.ckpt
 
 2. Train NHAE. Configure and run `python train_NHAE.py`.
+rename 's/=/\-/' nhae-epoch=*.ckpt
 
 3. Train LDM3D. Configure and run `python train_LDM3D.py`.
+rename 's/=/\-/' ldm3d-epoch=*.ckpt
 
 4. Train LDM2D. Configure and run `python train_LDM2D.py`.
+rename 's/=/\-/' ldm2d-epoch=*.ckpt
 
 5. Train AE. Configure and run `python train_AE.py`.
+rename 's/=/\-/' ae-epoch=*.ckpt
 
 # Generate Images
 
