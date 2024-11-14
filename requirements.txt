@@ -1,12 +1,8 @@
 albumentations
-azure-ai-ml
-azure-identity
-azureml-dataprep[pandas]
 cuda-python
 einops
 ftfy
 imageio
-mltable
 natsort
 opencv-python
 git+https://github.com/openai/CLIP.git
@@ -18,7 +14,7 @@ regex
 numpy
 scipy
 setuptools
-torch
-torchio 
-torchvision
+torch==2.2.2
+torchio==0.19.1
+torchvision==0.17.2
 tqdm
