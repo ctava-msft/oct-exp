@@ -275,7 +275,7 @@ class PatchTioDatamodule(pl.LightningDataModule):
                                     image = tio.ScalarImage(file_path)
                                     subject = tio.Subject(image=image, name=name)
                                     self.train_subjects.append(subject)
-                                    print(f"Loaded file: {file_path}")
+                                    print(f"Subjected Append: {file_path}")
                                 else:
                                     print(f"Invalid file: {file_path}")
                                 image = tio.ScalarImage(file_path)

@@ -57,6 +57,8 @@ def get_parser():
 
 
 def main(opts):
+    # Set float32 matrix multiplication precision to utilize Tensor Cores
+    torch.set_float32_matmul_precision('high')
     datamodule = PatchTioDatamodule(**vars(opts))
     #datamodule.load_images()
     datamodule.prepare_data()
