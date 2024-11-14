@@ -278,10 +278,10 @@ class PatchTioDatamodule(pl.LightningDataModule):
                                     print(f"Subjected Append: {file_path}")
                                 else:
                                     print(f"Invalid file: {file_path}")
-                                image = tio.ScalarImage(file_path)
-                                subject = tio.Subject(image=image, name=name)
-                                self.test_subjects.append(subject)
-                                print(f"Loaded file: {file_path}")
+                                # image = tio.ScalarImage(file_path)
+                                # subject = tio.Subject(image=image, name=name)
+                                # self.test_subjects.append(subject)
+                                # print(f"Loaded file: {file_path}")
                             except FileNotFoundError:
                                 print(f"File not found: {file_path}")
                             except ValueError as e:
