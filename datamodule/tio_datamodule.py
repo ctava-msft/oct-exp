@@ -213,9 +213,10 @@ class PatchTioDatamodule(pl.LightningDataModule):
                             # Load the .npy file
                             try:
                                 if is_valid_numpy_file(file_path):
+                                    print(f"Stored file: {file_path}")
+                                    self.train_image_names.append(file_name)
                                     #data = np.load(file_path, allow_pickle=True)
                                     # Process the data as needed
-                                    print(f"Loaded file: {file_path}")
                                 else:
                                     print(f"Invalid file: {file_path}")
                             except FileNotFoundError:
