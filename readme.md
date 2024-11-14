@@ -55,6 +55,7 @@ az storage blob download-batch \
 
 If needed, use this script to convert images to numpy arrays and store them.
 ```
+find . -name "*.npy" -type f -delete
 python ./utils/save_as_npy.py path/to/source/images path/to/destination/npy
 ```
 
