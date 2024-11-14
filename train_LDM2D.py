@@ -28,7 +28,7 @@ def get_parser():
     parser.add_argument("--exp_name", type=str, default='LDM2D')
     parser.add_argument('--result_root', type=str, default='./checkpoints/LDM2D')
     # data & tio args
-    parser.add_argument('--first_stage_ckpt', type=str, default='./checkpoints/AE2D')
+    parser.add_argument('--first_stage_ckpt', type=str, default='./checkpoints/AE2D/\'ae2d-epoch=40-val_loss=0.00.ckpt\'')
     parser.add_argument('--latent_1_root', type=str, default='/latents/3d')
     parser.add_argument('--latent_2_root', type=str, default='/latents/2d')
     parser.add_argument('--train_name_json', type=str, default='train_volume_names.json')
