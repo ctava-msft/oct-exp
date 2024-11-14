@@ -73,7 +73,7 @@ class TioDatamodule(pl.LightningDataModule):
                         try:
                             if is_valid_numpy_file(file_path):
                                 subject = tio.Subject(
-                                    image=tio.ScalarImage(path=file_path,
+                                    image=tio.ScalarImage(file_path,
                                                         reader=image_reader),
                                     name=name
                                 )
@@ -100,7 +100,7 @@ class TioDatamodule(pl.LightningDataModule):
                             try:
                                 if is_valid_numpy_file(file_path):
                                     subject = tio.Subject(
-                                        image=tio.ScalarImage(path=file_path,
+                                        image=tio.ScalarImage(file_path,
                                                             reader=image_reader),
                                         name=name
                                     )
