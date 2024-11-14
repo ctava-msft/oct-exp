@@ -15,7 +15,7 @@ pillow
 python-dotenv
 pytorch_lightning
 regex
-numpy
+numpy==1.26.4
 scipy
 setuptools
 torch
