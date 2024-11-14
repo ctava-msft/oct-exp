@@ -1,8 +1,12 @@
 albumentations
+azure-ai-ml
+azure-identity
+azureml-dataprep[pandas]
 cuda-python
 einops
 ftfy
 imageio
+mltable
 natsort
 opencv-python
 git+https://github.com/openai/CLIP.git
