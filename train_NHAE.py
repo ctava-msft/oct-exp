@@ -152,6 +152,9 @@ class VQModel(pl.LightningModule):
         print(f"Batch keys: {batch.keys()}")
         x = batch['image']
 
+        # Print the type of x
+        print(f"Type of x before conversion: {type(x)}")
+
         # Convert x to a tensor if it is a NumPy array
         if isinstance(x, np.ndarray):
             x = torch.from_numpy(x)
