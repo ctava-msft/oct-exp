@@ -230,7 +230,7 @@ class VQModel(pl.LightningModule):
 
         # Print the type of x
         print(f"Type of x before conversion: {type(x)}")
-        print(f"x keys: {x.keys()}")
+        #print(f"x keys: {x.keys()}")
 
         # Add debugging statements to trace the type of x
         # print(f"Type of x in forward before encode_3D: {type(x)}")
