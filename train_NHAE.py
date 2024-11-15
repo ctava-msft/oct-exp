@@ -278,34 +278,27 @@ class VQModel(pl.LightningModule):
             x = {'data': x}
         elif not (isinstance(x, dict) and 'data' in x and isinstance(x['data'], torch.Tensor)):
             raise TypeError("Expected 'x' to be a dictionary with a key 'data' containing a tensor or a tensor")
-
-        num = 5  # Ensure num is consistent with the forward method
-        x = x['data']
+        num = 5
         n, c, d, h, w = x.shape
 
         id = torch.randperm(d, device=self.device)[:num]
         id = id.view(1, 1, -1, 1, 1)
 
-        h_3D, emb_loss1 = self.encode_3D(x, testing=True)
+        h_3D = self.encode_3D(x, testing=True)
         n, lc, d, lh, lw = h_3D.shape
         latent_id = id.expand(n, lc, num, lh, lw)
-
-        # Ensure x is a tensor before calling torch.gather
-        if isinstance(x, dict) and 'data' in x:
-            x = x['data']
-        else:
-            raise TypeError("Expected 'x' to be a dictionary with a key 'data' containing a tensor")
-
         h_3D_selected = torch.gather(h_3D, 2, latent_id)
         h_3D_selected = h_3D_selected.squeeze(0).permute(1, 0, 2, 3)
-        frame_rec_3D, emb_loss2 = self.decode_2D(h_3D_selected)
+        frame_rec_3D = self.decode_2D(h_3D_selected, testing=True)
 
         frame_id = id.expand(n, c, num, h, w)
         frame_target = torch.gather(x, 2, frame_id)
         frame_target = frame_target.squeeze(0).permute(1, 0, 2, 3)
-        
-        return frame_target, frame_rec_3D, frame_rec_2D
 
+        h_2D = self.encode_2D(frame_target)
+        frame_rec_2D = self.decode_2D(h_2D, testing=True)
+        return frame_target, frame_rec_3D, frame_rec_2D
+    
     def training_step(self, batch, batch_idx):
         # https://github.com/pytorch/pytorch/issues/37142
         # try not to fool the heuristics
