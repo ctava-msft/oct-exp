@@ -154,6 +154,7 @@ class VQModel(pl.LightningModule):
 
         # Print the type of x
         print(f"Type of x before conversion: {type(x)}")
+        print(f"x keys: {x.keys()}")
 
         # Convert x to a tensor if it is a NumPy array
         if isinstance(x, np.ndarray):
