@@ -208,6 +208,7 @@ class VQModel(pl.LightningModule):
 
     def forward(self, x):
         num = 5
+        print(f"Keys in input dictionary: {x.keys()}")
         n, c, d, h, w = x['image'].shape
         # id2 = torch.randint(0, d, (num,), device=self.device)
         id = torch.randperm(d, device=self.device)[:num]
