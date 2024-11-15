@@ -150,8 +150,11 @@ class VQModel(pl.LightningModule):
         return self.decoder.conv_out.weight
 
     def get_input(self, batch):
-        #print(f"Batch keys: {batch.keys()}")
+        print(f"Batch keys: {batch.keys()}")
         x = batch['image']
+        # Ensure x is a tensor before returning
+        if not isinstance(x, torch.Tensor):
+            raise TypeError("Expected 'x' to be a tensor")
         return x
 
     def encode_3D(self, x, testing=False):
@@ -209,6 +212,7 @@ class VQModel(pl.LightningModule):
             return frame, emb_loss
 
     def forward(self, x):
+    
         num = 5
         # Add debugging statements to trace the type of x
         # print(f"Type of x in forward before encode_3D: {type(x)}")
