@@ -116,7 +116,7 @@ class VQModel(pl.LightningModule):
 
     @torch.no_grad()
     def get_input(self, batch):
-        x = batch['image']['data']
+        x = batch['image']
         names = batch['name']
         # print(x.shape)
         x = rearrange(x, "1 c b h w -> b c h w")
@@ -189,7 +189,7 @@ class VQModel(pl.LightningModule):
         return outputs
 
     def test_step(self, batch, batch_idx):
-        x = batch['image']['data']
+        x = batch['image']
         name = batch['name'][0]
         print(x.shape)
         hs = self.val_encode(x)
