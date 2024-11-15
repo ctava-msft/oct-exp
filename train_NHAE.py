@@ -253,6 +253,13 @@ class VQModel(pl.LightningModule):
         frame_rec_3D, emb_loss2 = self.decode_2D(h_3D_selected)
 
         frame_id = id.expand(n, c, num, h, w)
+
+        # Ensure x is a tensor before calling torch.gather
+        if isinstance(x, dict) and 'data' in x:
+            x = x['data']
+        else:
+            raise TypeError("Expected 'x' to be a dictionary with a key 'data' containing a tensor")
+
         frame_target = torch.gather(x, 2, frame_id)
         frame_target = frame_target.squeeze(0).permute(1, 0, 2, 3)
         # frame_target = x[:,:,id,:,:].squeeze(2)
