@@ -157,7 +157,7 @@ class VQModel(pl.LightningModule):
         return self.decoder.conv_out.weight
 
     def get_input(self, batch):
-        x = batch['image']
+        x = batch['data']
         return x
 
     def encode_3D(self, x, testing=False):
@@ -329,7 +329,7 @@ class VQModel(pl.LightningModule):
     def on_train_epoch_end(self):
         if self.sample_batch is None: return
         batch = self.sample_batch
-        x = batch['image']
+        x = batch['data']
         name = batch['name'][0]
 
         # save_dir = os.path.join(self.opts.default_root_dir, 'train_visual', str(self.current_epoch) + '_' + name)
@@ -351,7 +351,8 @@ class VQModel(pl.LightningModule):
                    os.path.join(self.opts.default_root_dir, 'train_progress', str(self.current_epoch) + '.png'))
 
     def validation_step(self, batch, batch_idx):
-        x = batch['image']
+        print(f"Batch keys: {batch.keys()}")
+        x = batch['data']
         name = batch['name'][0]
 
         h_3D = self.encode_3D(x, testing=True)
@@ -367,7 +368,7 @@ class VQModel(pl.LightningModule):
             save_image(visuals, os.path.join(save_dir, str(i + 1) + '.png'))
 
     def test_step(self, batch, batch_idx):
-        x = batch['image']
+        x = batch['data']
         name = batch['name'][0]
         h_3D = self.encode_3D(x, testing=True)
         # h_3D = self.encode_3D_nosr(x)
