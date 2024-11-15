@@ -240,8 +240,6 @@ class VQModel(pl.LightningModule):
                 raise KeyError("Key 'data' not found in the input dictionary")
             # Ensure x['data'] is a tensor
             x = x['data']
-        else:
-            raise TypeError("Expected 'x' to be a dictionary in forward method")
 
         if not isinstance(x, torch.Tensor):
             raise TypeError("Expected 'x['data']' to be a tensor")
