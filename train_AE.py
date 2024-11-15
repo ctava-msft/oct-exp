@@ -21,6 +21,7 @@ def get_parser():
     parser = ArgumentParser()
     parser.add_argument("--exp_name", type=str, default='AE')
     parser.add_argument('--result_root', type=str, default='./checkpoints')
+    parser.add_argument('--first_stage_ckpt', type=str, default='./checkpoints/AE2D/ae2d-epoch-49.ckpt')
     parser.add_argument("--command", default="fit")
     # tio args
     parser.add_argument('--image_npy_root', type=str, default='./images/oct/oct-500')
@@ -77,16 +78,11 @@ def main(opts):
                              precision=opts.precision, devices=opts.devices, deterministic=opts.deterministic,
                              default_root_dir=opts.default_root_dir, profiler=opts.profiler,
                              benchmark=opts.benchmark, callbacks=[checkpoint_callback, TQDMProgressBar(refresh_rate=10)])
-        ckpt_path = './checkpoints/AE2D'
-        load_network(model, ckpt_path, model.device)
+        load_network(model, opts.first_stage_ckpt, model.device)
         freeze_except_3d(model)
         trainer.fit(model=model, datamodule=datamodule)
     else:
-        ckpt_path = './checkpoints/AE2D'
-        opts.ckpt_name = ckpt_path.split('/')[-1].split('.')[0]
-        opts.img_save_dir = os.path.join(opts.default_root_dir, 'test_img2_' + opts.ckpt_name)
-        model = VQModel(opts)
-        load_network(model, ckpt_path, model.device)
+        load_network(model, opts.first_stage_ckpt, model.device)
         trainer = pl.Trainer(accelerator=opts.accelerator, devices=opts.devices, deterministic=opts.deterministic,
                              default_root_dir=opts.default_root_dir, profiler=opts.profiler, logger=False,
                              benchmark=opts.benchmark)
