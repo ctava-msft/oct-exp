@@ -27,8 +27,8 @@ def get_parser():
     parser.add_argument('--result_root', type=str, default='./checkpoints')
     # data & tio args
     parser.add_argument('--first_stage_ckpt', type=str, default='./checkpoints/AE2D/ae2d-epoch-49.ckpt')
-    parser.add_argument('--latent_1_root', type=str, default='/latents/2d')
-    parser.add_argument('--latent_2_root', type=str, default='/latents/3d')
+    parser.add_argument('--latent_1_root', type=str, default='./latents/2d')
+    parser.add_argument('--latent_2_root', type=str, default='./latents/3d')
     parser.add_argument('--train_name_json', type=str, default='train_volume_names.json')
     parser.add_argument('--test_name_json', type=str, default='train_volume_names.json')
     # train args
@@ -71,7 +71,7 @@ def main(opts):
     datamodule = trainDatamodule(**vars(opts))
     model = LDM(opts)
     checkpoint_callback = ModelCheckpoint(
-        dirpath='checkpoints',  # Directory to save the checkpoints
+        dirpath='checkpoints/ldm2d',  # Directory to save the checkpoints
         filename='ldm2d-{epoch:02d}',  # Descriptive filename format
         save_top_k=-1,  # Save all models
         save_weights_only=True,  # Save only the model weights
