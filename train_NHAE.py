@@ -216,6 +216,12 @@ class VQModel(pl.LightningModule):
 
     def forward(self, x):
         num = 5
+        # Add debugging statements to trace the type of x
+        print(f"Type of x in forward before encode_3D: {type(x)}")
+        if isinstance(x, dict):
+            print(f"Keys in x: {x.keys()}")
+        else:
+            raise TypeError("Expected 'x' to be a dictionary in forward method")
         x = x['data']
         n, c, d, h, w = x.shape
         # id2 = torch.randint(0, d, (num,), device=self.device)
