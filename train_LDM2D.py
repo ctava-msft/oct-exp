@@ -20,7 +20,6 @@ from networks.ldm3D_utils.vq_gan_3d.model.vqgan import DecoderSR_old_v2 as Decod
 from taming.modules.vqvae.quantize import VectorQuantizer2 as VectorQuantizer
 from torchvision.utils import save_image
 
-
 def get_parser():
     parser = ArgumentParser()
     parser.add_argument("--command", default="fit")
@@ -28,8 +27,8 @@ def get_parser():
     parser.add_argument('--result_root', type=str, default='./checkpoints')
     # data & tio args
     parser.add_argument('--first_stage_ckpt', type=str, default='./checkpoints/AE2D/ae2d-epoch-49.ckpt')
-    parser.add_argument('--latent_1_root', type=str, default='/latents/3d')
-    parser.add_argument('--latent_2_root', type=str, default='/latents/2d')
+    parser.add_argument('--latent_1_root', type=str, default='/latents/2d')
+    parser.add_argument('--latent_2_root', type=str, default='/latents/3d')
     parser.add_argument('--train_name_json', type=str, default='train_volume_names.json')
     parser.add_argument('--test_name_json', type=str, default='train_volume_names.json')
     # train args
@@ -55,6 +54,9 @@ def sanitize_filename(filename):
     return filename.replace("'", "")
 
 def main(opts):
+    # torch.set_num_threads(8)
+    # Set float32 matrix multiplication precision to utilize Tensor Cores
+    torch.set_float32_matmul_precision('high')
     checkpoint_dir = opts.first_stage_ckpt
     sanitized_checkpoint_dir = sanitize_filename(checkpoint_dir)
     # Check if the checkpoint directory exists

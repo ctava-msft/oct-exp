@@ -29,6 +29,13 @@ class trainDatamodule(pl.LightningDataModule):
         train_latent_1_pathes = []
         train_latent_2_pathes = []
         for cube_name in self.train_cube_names:
+
+            directory_path = os.path.join(self.latent_1_root, cube_name)
+            # Check if the directory exists, and create it if it doesn't
+            if not os.path.exists(directory_path):
+                os.makedirs(directory_path)
+                print(f"Created directory {directory_path}")
+
             img_names = natsorted(os.listdir(os.path.join(self.latent_1_root, cube_name)))
             for img_name in img_names:
                 train_latent_1_pathes.append(os.path.join(self.latent_1_root, cube_name, img_name))
