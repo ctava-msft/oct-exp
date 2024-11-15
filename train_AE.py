@@ -9,7 +9,7 @@ from einops import rearrange
 from pytorch_lightning.callbacks import ModelCheckpoint, TQDMProgressBar
 from torchvision.utils import save_image
 
-from datamodule.tio_datamodule import PatchTioDatamodule
+from datamodule.tio_datamodule import TioDatamodule
 from ldm.modules.diffusionmodules.model import Encoder
 from ldm.modules.losses.vqperceptual import VQLPIPSWithDiscriminator_no_codebookloss
 from networks.VQModel3D_adaptor_333 import Decoder
@@ -62,7 +62,7 @@ def freeze_except_3d(model):
 def main(opts):
     # torch.set_num_threads(8)
     torch.set_float32_matmul_precision('high')
-    datamodule = PatchTioDatamodule(**vars(opts))
+    datamodule = TioDatamodule(**vars(opts))
     model = VQModel(opts)
     if opts.command == "fit":
         checkpoint_callback = ModelCheckpoint(
