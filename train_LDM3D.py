@@ -26,7 +26,7 @@ def get_parser():
     parser.add_argument('--result_root', type=str, default='./checkpoints')
     # data & tio args
     parser.add_argument('--first_stage_ckpt', type=str,default='./checkpoints/AE2D/ae2d-epoch-49.ckpt')
-    parser.add_argument('--latent_root', type=str,default='./images/oct/oct-500')
+    parser.add_argument('--latent_root', type=str,default='./images/oct/oct-500/100')
     parser.add_argument('--train_name_json', type=str,
                         default='train_volume_names.json')
     parser.add_argument('--test_name_json', type=str,
