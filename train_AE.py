@@ -64,6 +64,7 @@ def main(opts):
     # torch.set_num_threads(8)
     torch.set_float32_matmul_precision('high')
     datamodule = TioDatamodule(**vars(opts))
+    datamodule.prepare_data()
     model = VQModel(opts)
     if opts.command == "fit":
         checkpoint_callback = ModelCheckpoint(
@@ -232,7 +233,6 @@ class VQModel(pl.LightningModule):
         opt_disc = torch.optim.AdamW(self.loss.discriminator.parameters(),
                                      lr=lr, betas=(.9, .95), weight_decay=0.05)
         return [opt_ae, opt_disc], []
-
 
 if __name__ == '__main__':
     parser = get_parser()
