@@ -331,7 +331,7 @@ class VQModel(pl.LightningModule):
         if self.sample_batch is None: return
         batch = self.sample_batch
         print(f"Batch keys: {batch.keys()}")
-        x = batch['data']
+        x = batch['images']
         name = batch['name'][0]
 
         # save_dir = os.path.join(self.opts.default_root_dir, 'train_visual', str(self.current_epoch) + '_' + name)
