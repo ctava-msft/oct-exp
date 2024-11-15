@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-import torchio.SubjectsLoader as SubjectsLoader
+import torchio.data.SubjectsLoader as SubjectsLoader
 import pytorch_lightning as pl
 import os
 import torchio as tio
