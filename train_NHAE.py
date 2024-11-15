@@ -227,6 +227,11 @@ class VQModel(pl.LightningModule):
     def forward(self, x):
     
         num = 5
+
+        # Print the type of x
+        print(f"Type of x before conversion: {type(x)}")
+        print(f"x keys: {x.keys()}")
+
         # Add debugging statements to trace the type of x
         # print(f"Type of x in forward before encode_3D: {type(x)}")
         if isinstance(x, dict):
