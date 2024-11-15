@@ -218,7 +218,7 @@ class VQModel(pl.LightningModule):
     def forward(self, x):
         num = 5
         # Add debugging statements to trace the type of x
-        print(f"Type of x in forward before encode_3D: {type(x)}")
+        # print(f"Type of x in forward before encode_3D: {type(x)}")
         if isinstance(x, dict):
             print(f"Keys in x: {x.keys()}")
             if 'data' not in x:
@@ -331,7 +331,7 @@ class VQModel(pl.LightningModule):
         if self.sample_batch is None: return
         batch = self.sample_batch
         print(f"Batch keys: {batch.keys()}")
-        x = batch['images']
+        x = batch['image']
         name = batch['name'][0]
 
         # save_dir = os.path.join(self.opts.default_root_dir, 'train_visual', str(self.current_epoch) + '_' + name)
