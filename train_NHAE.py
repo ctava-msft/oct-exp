@@ -324,12 +324,13 @@ class VQModel(pl.LightningModule):
                                                 last_layer=self.get_last_layer())
             self.log_dict(log_dict_disc, prog_bar=False, logger=True, on_step=True, on_epoch=True)
             return discloss
+        
     @torch.no_grad()
     def on_train_epoch_end(self):
         if self.sample_batch is None: return
         batch = self.sample_batch
         x = batch['image']
-        name = batch['name']
+        name = batch['name'][0]
 
         # save_dir = os.path.join(self.opts.default_root_dir, 'train_visual', str(self.current_epoch) + '_' + name)
         # os.makedirs(save_dir, exist_ok=True)
@@ -351,7 +352,7 @@ class VQModel(pl.LightningModule):
 
     def validation_step(self, batch, batch_idx):
         x = batch['image']
-        name = batch['name']
+        name = batch['name'][0]
 
         h_3D = self.encode_3D(x, testing=True)
         d_sr = h_3D.shape[-3]
@@ -367,7 +368,7 @@ class VQModel(pl.LightningModule):
 
     def test_step(self, batch, batch_idx):
         x = batch['image']
-        name = batch['name']
+        name = batch['name'][0]
         h_3D = self.encode_3D(x, testing=True)
         # h_3D = self.encode_3D_nosr(x)
         # latent_save_dir = os.path.join(self.opts.default_root_dir, 'gen_latent' + '_' + opts.ckpt_name)
