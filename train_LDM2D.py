@@ -55,7 +55,6 @@ def sanitize_filename(filename):
 
 def main(opts):
     # torch.set_num_threads(8)
-    # Set float32 matrix multiplication precision to utilize Tensor Cores
     torch.set_float32_matmul_precision('high')
     checkpoint_dir = opts.first_stage_ckpt
     sanitized_checkpoint_dir = sanitize_filename(checkpoint_dir)

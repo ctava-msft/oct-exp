@@ -52,7 +52,6 @@ def get_parser():
 
 def main(opts):
     # torch.set_num_threads(8)
-    # Set float32 matrix multiplication precision to utilize Tensor Cores
     torch.set_float32_matmul_precision('high')
     datamodule = TioDatamodule(**vars(opts))
     datamodule.prepare_data()

@@ -48,6 +48,8 @@ def get_parser():
 
 
 def main(opts):
+    # torch.set_num_threads(8)
+    torch.set_float32_matmul_precision('high')
     datamodule = trainDatamodule(**vars(opts))
     model = VQModel(opts)
     if opts.command == "fit":

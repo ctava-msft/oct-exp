@@ -1,6 +1,5 @@
 # -*- coding:utf-8 -*-
 import torch
-# torch.set_num_threads(2)
 import os
 from argparse import ArgumentParser
 import torch.nn.functional as F
@@ -19,7 +18,6 @@ from utils.util import save_cube_from_tensor, load_network
 from networks.ldm3D_utils.vq_gan_3d.model.vqgan import DecoderSR_old as DecoderSR
 from ldm.modules.diffusionmodules.model import Decoder as Decoder2D
 from taming.modules.vqvae.quantize import VectorQuantizer2 as VectorQuantizer
-
 
 def get_parser():
     parser = ArgumentParser()
@@ -54,8 +52,9 @@ def get_parser():
     parser.add_argument('--reproduce', type=int, default=False)
     return parser
 
-
 def main(opts):
+    # torch.set_num_threads(2)
+    torch.set_float32_matmul_precision('high')
     datamodule = trainDatamodule(**vars(opts))
     model = LDM(opts)
     checkpoint_callback = ModelCheckpoint(

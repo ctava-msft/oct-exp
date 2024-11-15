@@ -48,9 +48,7 @@ def get_parser():
     parser.add_argument('--precision', default='32')
     parser.add_argument('--devices', default=[0])
     parser.add_argument('--reproduce', type=int, default=False)
-    # torch.set_float32_matmul_precision('medium')
     return parser
-
 
 def freeze_except_3d(model):
     for name, param in model.named_parameters():
@@ -61,8 +59,9 @@ def freeze_except_3d(model):
     for name, param in model.named_parameters():
         print(f'{name}: Requires Gradient - {param.requires_grad}')
 
-
 def main(opts):
+    # torch.set_num_threads(8)
+    torch.set_float32_matmul_precision('high')
     datamodule = PatchTioDatamodule(**vars(opts))
     model = VQModel(opts)
     if opts.command == "fit":
@@ -186,12 +185,12 @@ class VQModel(pl.LightningModule):
             hs.append(self.encode(x[:,:,i,:,:]).to('cpu'))
         hs = torch.stack(hs, dim=2)
         return hs
+
     def val_decode(self, inputs):
         inputs = rearrange(inputs, "1 c b h w -> b c h w")
         outputs = self.decoder(inputs)
         outputs = rearrange(outputs, "b c h w -> 1 c b h w")
         return outputs
-
 
     def test_step(self, batch, batch_idx):
         x = batch['image']['data']
@@ -200,7 +199,6 @@ class VQModel(pl.LightningModule):
         hs = self.val_encode(x)
         print('hs',hs.shape)
         result = torch.zeros_like(x)
-
         for i in tqdm(range(2,x.shape[2]-2)):
             inputs = hs[:, :, i - 2:i + 3, :, :].to(self.device)
             print(inputs.shape)
@@ -228,14 +226,11 @@ class VQModel(pl.LightningModule):
             "Setting learning rate to {:.2e} = {:.2e} (base_lr) * {} (batchsize) * {} (accumulate_grad_batches) * {} (num_gpus) * {} (num_nodes) / {} (base_batch_size)".format(
                 lr, base_lr, batch_size, accumulate_grad_batches, devices, nodes, base_batch_size))
         print('estimated_stepping_batches:', total_steps)
-        # lr = self.cfg.lr
         params = list(filter(lambda p: p.requires_grad, self.encoder.parameters())) + \
                  list(filter(lambda p: p.requires_grad, self.decoder.parameters())) + \
                  list(filter(lambda p: p.requires_grad, self.quantize.parameters())) + \
                  list(filter(lambda p: p.requires_grad, self.quant_conv.parameters())) + \
                  list(filter(lambda p: p.requires_grad, self.post_quant_conv.parameters()))
-        # params =
-        # print(params, list(filter(lambda p: p.requires_grad, self.decoder.parameters())))
         opt_ae = torch.optim.AdamW(params,
                                    lr=lr, betas=(.9, .95), weight_decay=0.05)
         opt_disc = torch.optim.AdamW(self.loss.discriminator.parameters(),
