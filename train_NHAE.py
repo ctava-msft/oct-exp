@@ -230,18 +230,18 @@ class VQModel(pl.LightningModule):
         # Add debugging statements to trace the type of x
         # print(f"Type of x in forward before encode_3D: {type(x)}")
         if isinstance(x, dict):
-            # print(f"Keys in x: {x.keys()}")
+            print(f"Keys in x: {x.keys()}")
             if 'data' not in x:
                 raise KeyError("Key 'data' not found in the input dictionary")
+            # Ensure x['data'] is a tensor
+            x = x['data']
         else:
             raise TypeError("Expected 'x' to be a dictionary in forward method")
 
-        # Ensure x['data'] is a tensor
-        x_data = x['data']
-        if not isinstance(x_data, torch.Tensor):
+        if not isinstance(x, torch.Tensor):
             raise TypeError("Expected 'x['data']' to be a tensor")
 
-        n, c, d, h, w = x_data.shape
+        n, c, d, h, w = x.shape
         # id2 = torch.randint(0, d, (num,), device=self.device)
         id = torch.randperm(d, device=self.device)[:num]
         # print(id, id2)
