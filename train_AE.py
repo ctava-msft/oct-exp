@@ -136,7 +136,7 @@ class VQModel(pl.LightningModule):
         dec = self.decoder(quant)
         return dec
 
-    def training_step(self, batch, batch_idx, optimizer_idx):
+    def training_step(self, batch, batch_idx):
         # https://github.com/pytorch/pytorch/issues/37142
         # try not to fool the heuristics
         if batch_idx == 0:
