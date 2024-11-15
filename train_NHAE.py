@@ -163,7 +163,7 @@ class VQModel(pl.LightningModule):
 
     def encode_3D(self, x, testing=False):
         # Add debugging statements to trace the type of x
-        print(f"Type of x before assignment: {type(x)}")
+        # print(f"Type of x before assignment: {type(x)}")
         if isinstance(x, dict) and 'data' in x:
             x = x['data']
         else:
@@ -220,7 +220,7 @@ class VQModel(pl.LightningModule):
         # Add debugging statements to trace the type of x
         # print(f"Type of x in forward before encode_3D: {type(x)}")
         if isinstance(x, dict):
-            print(f"Keys in x: {x.keys()}")
+            # print(f"Keys in x: {x.keys()}")
             if 'data' not in x:
                 raise KeyError("Key 'data' not found in the input dictionary")
         else:
@@ -353,8 +353,8 @@ class VQModel(pl.LightningModule):
                    os.path.join(self.opts.default_root_dir, 'train_progress', str(self.current_epoch) + '.png'))
 
     def validation_step(self, batch, batch_idx):
-        print(f"Batch keys: {batch.keys()}")
-        x = batch['data']
+        # print(f"Batch keys: {batch.keys()}")
+        x = batch['image']
         name = batch['name'][0]
 
         h_3D = self.encode_3D(x, testing=True)
