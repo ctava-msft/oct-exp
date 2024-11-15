@@ -146,10 +146,10 @@ class TioDatamodule(pl.LightningDataModule):
         self.test_set = tio.SubjectsDataset(self.test_subjects, transform=preprocess)
 
     def train_dataloader(self):
-        return SubjectsLoader(self.patch_train_set, batch_size=self.batch_size, num_workers=self.num_workers)
+        return SubjectsLoader(self.patch_train_set, batch_size=self.batch_size)
 
     def val_dataloader(self):
-        return SubjectsLoader(self.test_set, batch_size=self.batch_size, shuffle=False, num_workers=self.num_workers)
+        return SubjectsLoader(self.test_set, batch_size=self.batch_size, shuffle=False)
     
     def test_dataloader(self):
-        return SubjectsLoader(self.test_set, batch_size=self.batch_size, shuffle=False, num_workers=self.num_workers)
+        return SubjectsLoader(self.test_set, batch_size=self.batch_size, shuffle=False)
