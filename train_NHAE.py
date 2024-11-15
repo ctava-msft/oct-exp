@@ -161,7 +161,8 @@ class VQModel(pl.LightningModule):
         return x
 
     def encode_3D(self, x, testing=False):
-        d, h, w = x['data'].shape[-3:]
+        x = x['data']
+        d, h, w = x.shape[-3:]
         x = F.interpolate(x, size=(d // 2, h // 2, w // 2))
         h = self.encoder3D(x)
         # 3D VQ
