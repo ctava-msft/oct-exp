@@ -143,13 +143,22 @@ class TioDatamodule(pl.LightningDataModule):
             shuffle_patches=True,
             shuffle_subjects=True
         )
-        self.test_set = tio.SubjectsDataset(self.test_subjects, transform=preprocess)
+        test_set = tio.SubjectsDataset(self.test_subjects, transform=preprocess)
+        self.patch_test_set = tio.Queue(
+            test_set,
+            self.queue_length,
+            self.samples_per_volume,
+            tio.data.UniformSampler(self.patch_size),
+            num_workers=self.num_workers,
+            shuffle_patches=True,
+            shuffle_subjects=True
+        )
 
     def train_dataloader(self):
         return SubjectsLoader(self.patch_train_set, batch_size=self.batch_size)
 
     def val_dataloader(self):
-        return SubjectsLoader(self.test_set, batch_size=self.batch_size, shuffle=False)
+        return SubjectsLoader(self.patch_test_set, batch_size=self.batch_size)
     
     def test_dataloader(self):
-        return SubjectsLoader(self.test_set, batch_size=self.batch_size, shuffle=False)
+        return SubjectsLoader(self.patch_test_set, batch_size=self.batch_size)
