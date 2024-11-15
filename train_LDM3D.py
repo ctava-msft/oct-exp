@@ -30,7 +30,7 @@ def get_parser():
     parser.add_argument('--train_name_json', type=str,
                         default='train_volume_names.json')
     parser.add_argument('--test_name_json', type=str,
-                        default='test_volume_names.json')
+                        default='train_volume_names.json')
     # train args
     parser.add_argument("--latent_size", default=(64, 64, 64))
     parser.add_argument("--latent_channel", default=4)

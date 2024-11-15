@@ -28,7 +28,7 @@ def get_parser():
     parser.add_argument('--train_name_json', type=str,
                         default='train_volume_names.json')
     parser.add_argument('--test_name_json', type=str,
-                        default='test_volume_names.json')
+                        default='train_volume_names.json')
     parser.add_argument('--patch_per_size', default=(5, 256, 256))
     parser.add_argument('--image_size', default=(512, 512, 512))
     parser.add_argument('--queue_length', default=40)
