@@ -353,7 +353,7 @@ class VQModel(pl.LightningModule):
                    os.path.join(self.opts.default_root_dir, 'train_progress', str(self.current_epoch) + '.png'))
 
     def validation_step(self, batch, batch_idx):
-        # print(f"Batch keys: {batch.keys()}")
+        print(f"Batch keys: {batch.keys()}")
         x = batch['image']
 
         # Ensure x is a tensor before slicing
