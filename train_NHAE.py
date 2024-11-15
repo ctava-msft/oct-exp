@@ -161,7 +161,13 @@ class VQModel(pl.LightningModule):
         return x
 
     def encode_3D(self, x, testing=False):
-        x = x['data']
+        # Add debugging statements to trace the type of x
+        print(f"Type of x before assignment: {type(x)}")
+        if isinstance(x, dict) and 'data' in x:
+            x = x['data']
+        else:
+            raise TypeError("Expected 'x' to be a dictionary with a key 'data' containing a tensor")
+            x = x['data']
         d, h, w = x.shape[-3:]
         x = F.interpolate(x, size=(d // 2, h // 2, w // 2))
         h = self.encoder3D(x)
