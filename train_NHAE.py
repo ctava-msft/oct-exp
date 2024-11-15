@@ -11,12 +11,11 @@ import tqdm
 from datamodule.tio_datamodule import TioDatamodule
 from pytorch_lightning.callbacks import ModelCheckpoint
 from networks.ldm3D_utils.vq_gan_3d.model.vqgan import DecoderSR_old_v2 as DecoderSR
-
 from networks.ldm3D_utils.vq_gan_3d.model.vqgan import Encoder as Encoder3D
 from ldm.modules.diffusionmodules.model import Decoder as Decoder2D
 from ldm.modules.diffusionmodules.model import Encoder as Encoder2D
-from taming.modules.vqvae.quantize import VectorQuantizer2 as VectorQuantizer
 from ldm.modules.losses.vqperceptual import VQLPIPSWithDiscriminator_w_latentloss as VQLPIPSWithDiscriminator
+from taming.modules.vqvae.quantize import VectorQuantizer2 as VectorQuantizer
 from torchvision.utils import save_image
 from utils.util import load_network
 from utils.util_for_openai_diffusion import disabled_train
@@ -50,7 +49,6 @@ def get_parser():
     parser.add_argument('--devices', default=[0])
     parser.add_argument('--reproduce', type=int, default=False)
     return parser
-
 
 def main(opts):
     # torch.set_num_threads(8)
@@ -151,8 +149,6 @@ class VQModel(pl.LightningModule):
     def get_input(self, batch):
         print(f"Batch keys: {batch.keys()}")
         x = batch['image']
-
-        # Print the type of x
         print(f"Type of x before conversion: {type(x)}")
         print(f"x keys: {x.keys()}")
         # If x is a dictionary, extract the tensor from the 'data' key
@@ -164,14 +160,12 @@ class VQModel(pl.LightningModule):
         # Convert x to a tensor if it is a NumPy array
         if isinstance(x, np.ndarray):
             x = torch.from_numpy(x)
-
         # Ensure x is a tensor before returning
         if not isinstance(x, torch.Tensor):
             raise TypeError("Expected 'x' to be a tensor")
         return x
 
     def encode_3D(self, x, testing=False):
-        # Add debugging statements to trace the type of x
         print(f"Type of x before assignment: {type(x)}")
         if isinstance(x, dict) and 'data' in x:
             x = x['data']
@@ -200,7 +194,11 @@ class VQModel(pl.LightningModule):
             return h_sr, emb_loss
 
     def encode_3D_nosr(self, x):
-        x = x['data']
+        print(f"Type of x before assignment: {type(x)}")
+        if isinstance(x, dict) and 'data' in x:
+            x = x['data']
+        if not isinstance(x, torch.Tensor):
+            raise TypeError("Expected 'x['data']' to be a tensor")
         d, h, w = x.shape[-3:]
         x = F.interpolate(x, size=(d // 2, h // 2, w // 2))
         h = self.encoder3D(x)
@@ -224,55 +222,31 @@ class VQModel(pl.LightningModule):
             return frame, emb_loss
 
     def forward(self, x):
-    
         num = 5
-
-        # Print the type of x
         print(f"Type of x before conversion: {type(x)}")
-        #print(f"x keys: {x.keys()}")
-
-        # Add debugging statements to trace the type of x
-        # print(f"Type of x in forward before encode_3D: {type(x)}")
         if isinstance(x, dict):
             print(f"Keys in x: {x.keys()}")
             if 'data' not in x:
                 raise KeyError("Key 'data' not found in the input dictionary")
-            # Ensure x['data'] is a tensor
             x = x['data']
-
         if not isinstance(x, torch.Tensor):
-            raise TypeError("Expected 'x['data']' to be a tensor")
+            raise TypeError("Expected 'x' to be a tensor")
+        print(f"Type of x after conversion: {type(x)}")
 
         n, c, d, h, w = x.shape
         # id2 = torch.randint(0, d, (num,), device=self.device)
         id = torch.randperm(d, device=self.device)[:num]
-        # print(id, id2)
-        # print(id.size(),id2.size())
         id = id.view(1, 1, -1, 1, 1)
         h_3D, emb_loss1 = self.encode_3D(x)
         n, lc, d, lh, lw = h_3D.shape
         latent_id = id.expand(n, lc, num, lh, lw)
         h_3D_selected = torch.gather(h_3D, 2, latent_id)
-        # print(h_3D_selected.shape)
         h_3D_selected = h_3D_selected.squeeze(0).permute(1, 0, 2, 3)
         # h_3D_selected =h_3D[:,:,id,:,:].squeeze(2)
         # h_3D_selected = h_3D_selected.permute(0, 2, 1, 3, 4).contiguous()
-        # print(h_3D_selected.shape)
-        # print(n*num,c,h,w)
         # h_3D_selected = h_3D_selected.view(n*num,c,h,w)
-        # print(h_3D_selected.shape)
-
-        # print('train', h_3D_selected.shape)
         frame_rec_3D, emb_loss2 = self.decode_2D(h_3D_selected)
-
         frame_id = id.expand(n, c, num, h, w)
-
-        # Ensure x is a tensor before calling torch.gather
-        if isinstance(x, dict) and 'data' in x:
-            x = x['data']
-        else:
-            raise TypeError("Expected 'x' to be a dictionary with a key 'data' containing a tensor")
-
         frame_target = torch.gather(x, 2, frame_id)
         frame_target = frame_target.squeeze(0).permute(1, 0, 2, 3)
         # frame_target = x[:,:,id,:,:].squeeze(2)
@@ -280,17 +254,22 @@ class VQModel(pl.LightningModule):
         # frame_target = frame_target.view(n*num,c,h,w)
 
         h_2D = self.encode_2D(frame_target)
-
         latent_loss = self.l1(h_3D_selected, h_2D.detach())
         # frame_rec_2D, emb_loss2 = self.decode_2D(h_2D)
         return frame_target, frame_rec_3D, latent_loss, emb_loss1 + emb_loss2
 
     def check_forward(self, x):
-        # Ensure x is a dictionary with a key 'data' containing a tensor
-        if isinstance(x, torch.Tensor):
-            x = {'data': x}
-        elif not (isinstance(x, dict) and 'data' in x and isinstance(x['data'], torch.Tensor)):
-            raise TypeError("Expected 'x' to be a dictionary with a key 'data' containing a tensor or a tensor")
+
+        print(f"Type of x before conversion: {type(x)}")
+        if isinstance(x, dict):
+            print(f"Keys in x: {x.keys()}")
+            if 'data' not in x:
+                raise KeyError("Key 'data' not found in the input dictionary")
+            x = x['data']
+        if not isinstance(x, torch.Tensor):
+            raise TypeError("Expected 'x' to be a tensor")
+        print(f"Type of x after conversion: {type(x)}")
+
         num = 5
         x_data = x['data']
         n, c, d, h, w = x_data.shape
@@ -320,12 +299,13 @@ class VQModel(pl.LightningModule):
             self.sample_batch = batch
 
         x = self.get_input(batch)
+
         frame_target, frame_rec_3D, latent_loss, emb_loss = self(x)
         target = frame_target
         rec = frame_rec_3D
         optimizer_idx = self.trainer.current_epoch % 2
         if optimizer_idx == 0:
-            # autoencode
+            # autoencoder
             aeloss, log_dict_ae = self.loss(emb_loss, latent_loss, target, rec, optimizer_idx, self.global_step,
                                             last_layer=self.get_last_layer())
             self.log_dict(log_dict_ae, prog_bar=True, logger=True, on_step=True, on_epoch=True)
@@ -345,20 +325,6 @@ class VQModel(pl.LightningModule):
         # print(f"Batch keys: {batch.keys()}")
         x = batch['image']
         name = batch['name'][0]
-
-        # save_dir = os.path.join(self.opts.default_root_dir, 'train_visual', str(self.current_epoch) + '_' + name)
-        # os.makedirs(save_dir, exist_ok=True)
-
-        # h_sr = self.encode_3D(x)
-        # d_sr = h_sr.shape[-3]
-        # for i in tqdm.tqdm(range(d_sr)):
-        #     h_frame = h_sr[:, :, i, :, :]
-        #     # print('eval',h_frame.shape)
-        #     frame_rec = self.decode_2D(h_frame, testing=True)
-        #     frame_target = x[:, :, i, :, :]
-        #     visuals = torch.cat([frame_target, frame_rec]) * 0.5 + 0.5
-        #     save_image(visuals, os.path.join(save_dir, str(i + 1) + '.png'))
-
         frame_target, frame_rec_3D, frame_rec_2D = self.check_forward(x)
         visuals = torch.cat([frame_target, frame_rec_3D, frame_rec_2D], dim=0) * 0.5 + 0.5
         save_image(visuals,
@@ -392,11 +358,6 @@ class VQModel(pl.LightningModule):
         x = batch['data']
         name = batch['name'][0]
         h_3D = self.encode_3D(x, testing=True)
-        # h_3D = self.encode_3D_nosr(x)
-        # latent_save_dir = os.path.join(self.opts.default_root_dir, 'gen_latent' + '_' + opts.ckpt_name)
-        # os.makedirs(latent_save_dir, exist_ok=True)
-        # h_np = h_3D.cpu().numpy()
-        # np.save(os.path.join(latent_save_dir, name + '.npy'), h_np)
         d_sr = h_3D.shape[-3]
         save_dir = os.path.join(self.opts.default_root_dir, 'test_visual' + '_' + opts.ckpt_name, name)
         os.makedirs(save_dir, exist_ok=True)
