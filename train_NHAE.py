@@ -220,10 +220,17 @@ class VQModel(pl.LightningModule):
         print(f"Type of x in forward before encode_3D: {type(x)}")
         if isinstance(x, dict):
             print(f"Keys in x: {x.keys()}")
+            if 'data' not in x:
+                raise KeyError("Key 'data' not found in the input dictionary")
         else:
             raise TypeError("Expected 'x' to be a dictionary in forward method")
-        x = x['data']
-        n, c, d, h, w = x.shape
+
+        # Ensure x['data'] is a tensor
+        x_data = x['data']
+        if not isinstance(x_data, torch.Tensor):
+            raise TypeError("Expected 'x['data']' to be a tensor")
+
+        n, c, d, h, w = x_data.shape
         # id2 = torch.randint(0, d, (num,), device=self.device)
         id = torch.randperm(d, device=self.device)[:num]
         # print(id, id2)
