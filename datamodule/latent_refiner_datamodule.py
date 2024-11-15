@@ -45,6 +45,9 @@ class trainDatamodule(pl.LightningDataModule):
         self.train_set = latent_Dataset(latent_1_pathes=train_latent_1_pathes, latent_2_pathes=train_latent_2_pathes)
 
     def train_dataloader(self):
+        print(f"Train set length: {len(self.train_set)}")
+        print(f"Batch size: {self.batch_size}")
+        print(f"Num workers: {self.num_workers}")
         return DataLoader(self.train_set, batch_size=self.batch_size, shuffle=True, num_workers=self.num_workers)
 
 
