@@ -271,8 +271,7 @@ class VQModel(pl.LightningModule):
         print(f"Type of x after conversion: {type(x)}")
 
         num = 5
-        x_data = x['data']
-        n, c, d, h, w = x_data.shape
+        n, c, d, h, w = x.shape
 
         id = torch.randperm(d, device=self.device)[:num]
         id = id.view(1, 1, -1, 1, 1)
@@ -285,7 +284,7 @@ class VQModel(pl.LightningModule):
         frame_rec_3D = self.decode_2D(h_3D_selected, testing=True)
 
         frame_id = id.expand(n, c, num, h, w)
-        frame_target = torch.gather(x_data, 2, frame_id)
+        frame_target = torch.gather(x, 2, frame_id)
         frame_target = frame_target.squeeze(0).permute(1, 0, 2, 3)
 
         h_2D = self.encode_2D(frame_target)
