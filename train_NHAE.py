@@ -330,7 +330,7 @@ class VQModel(pl.LightningModule):
     def on_train_epoch_end(self):
         if self.sample_batch is None: return
         batch = self.sample_batch
-        print(f"Batch keys: {batch.keys()}")
+        # print(f"Batch keys: {batch.keys()}")
         x = batch['image']
         name = batch['name'][0]
 
@@ -355,6 +355,11 @@ class VQModel(pl.LightningModule):
     def validation_step(self, batch, batch_idx):
         # print(f"Batch keys: {batch.keys()}")
         x = batch['image']
+
+        # Ensure x is a tensor before slicing
+        if not isinstance(x, torch.Tensor):
+            raise TypeError("Expected 'x' to be a tensor")
+    
         name = batch['name'][0]
 
         h_3D = self.encode_3D(x, testing=True)
@@ -370,7 +375,7 @@ class VQModel(pl.LightningModule):
             save_image(visuals, os.path.join(save_dir, str(i + 1) + '.png'))
 
     def test_step(self, batch, batch_idx):
-        print(f"Batch keys: {batch.keys()}")
+        # print(f"Batch keys: {batch.keys()}")
         x = batch['data']
         name = batch['name'][0]
         h_3D = self.encode_3D(x, testing=True)
