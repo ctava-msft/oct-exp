@@ -157,6 +157,7 @@ class VQModel(pl.LightningModule):
         return self.decoder.conv_out.weight
 
     def get_input(self, batch):
+        print(f"Batch keys: {batch.keys()}")
         x = batch['data']
         return x
 
