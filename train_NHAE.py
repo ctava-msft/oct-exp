@@ -273,6 +273,12 @@ class VQModel(pl.LightningModule):
         return frame_target, frame_rec_3D, latent_loss, emb_loss1 + emb_loss2
 
     def check_forward(self, x):
+    # Ensure x is a dictionary with a key 'data' containing a tensor
+        if isinstance(x, torch.Tensor):
+            x = {'data': x}
+        elif not (isinstance(x, dict) and 'data' in x and isinstance(x['data'], torch.Tensor)):
+            raise TypeError("Expected 'x' to be a dictionary with a key 'data' containing a tensor or a tensor")
+
         num = 3
         x = x['data']
         n, c, d, h, w = x.shape
@@ -283,6 +289,13 @@ class VQModel(pl.LightningModule):
         h_3D = self.encode_3D(x, testing=True)
         n, lc, d, lh, lw = h_3D.shape
         latent_id = id.expand(n, lc, num, lh, lw)
+
+        # Ensure x is a tensor before calling torch.gather
+        if isinstance(x, dict) and 'data' in x:
+            x = x['data']
+        else:
+            raise TypeError("Expected 'x' to be a dictionary with a key 'data' containing a tensor")
+
         h_3D_selected = torch.gather(h_3D, 2, latent_id)
         h_3D_selected = h_3D_selected.squeeze(0).permute(1, 0, 2, 3)
         frame_rec_3D = self.decode_2D(h_3D_selected, testing=True)
