@@ -58,7 +58,6 @@ def main(opts):
     # Set float32 matrix multiplication precision to utilize Tensor Cores
     torch.set_float32_matmul_precision('high')
     datamodule = TioDatamodule(**vars(opts))
-    #datamodule.load_images()
     datamodule.prepare_data()
     if opts.command == "fit":
         model = VQModel(opts)
@@ -75,12 +74,7 @@ def main(opts):
                              precision=opts.precision, devices=opts.devices, deterministic=opts.deterministic,
                              default_root_dir=opts.default_root_dir, profiler=opts.profiler,
                              benchmark=opts.benchmark, callbacks=[checkpoint_callback])
-        #load_network(model, opts.ckpt_path_ae2d, device=model.device)
 
-        # ckpt_path2 = './checkpoints/NHAE'
-        # load_network(model, ckpt_path2, device=model.device)
-        # model
-        
         model.decoder.train = disabled_train
         model.encoder.train = disabled_train
         model.post_quant_conv.train = disabled_train
@@ -89,7 +83,6 @@ def main(opts):
 
         for param in model.decoder.parameters():
             param.requires_grad = False
-        # for param in model.decoder.
         for param in model.encoder.parameters():
             param.requires_grad = False
         for param in model.post_quant_conv.parameters():
@@ -353,6 +346,7 @@ class VQModel(pl.LightningModule):
                    os.path.join(self.opts.default_root_dir, 'train_progress', str(self.current_epoch) + '.png'))
 
     def validation_step(self, batch, batch_idx):
+
         print(f"Batch keys: {batch.keys()}")
         x = batch['image']
 
@@ -409,7 +403,6 @@ class VQModel(pl.LightningModule):
             "Setting learning rate to {:.2e} = {:.2e} (base_lr) * {} (batchsize) * {} (accumulate_grad_batches) * {} (num_gpus) * {} (num_nodes) / {} (base_batch_size)".format(
                 lr, base_lr, batch_size, accumulate_grad_batches, devices, nodes, base_batch_size))
         print('estimated_stepping_batches:', total_steps)
-        # lr = self.cfg.lr
         opt_ae = torch.optim.AdamW(list(self.encoder3D.parameters()) +
                                    list(self.SR3D.parameters())+
                                    list(self.quant_conv_3D.parameters())+
@@ -437,12 +430,4 @@ if __name__ == '__main__':
         opts.deterministic = False
         opts.benchmark = True
     opts.default_root_dir = os.path.join(opts.result_root, opts.exp_name)
-    # if opts.command == 'fit':
-    #     if os.getenv("LOCAL_RANK", '0') == '0':
-    #         if not os.path.exists(opts.default_root_dir):
-    #             os.makedirs(opts.default_root_dir)
-    #             code_dir = os.path.abspath(os.getcwd())
-    #             print(code_dir)
-    #             shutil.copytree(code_dir, os.path.join(opts.default_root_dir, 'code'))
-    #             print('save in', opts.default_root_dir)
     main(opts)
