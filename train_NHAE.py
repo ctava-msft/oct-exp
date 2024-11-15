@@ -185,7 +185,8 @@ class VQModel(pl.LightningModule):
             return h_sr, emb_loss
 
     def encode_3D_nosr(self, x):
-        d, h, w = x['data'].shape[-3:]
+        x = x['data']
+        d, h, w = x.shape[-3:]
         x = F.interpolate(x, size=(d // 2, h // 2, w // 2))
         h = self.encoder3D(x)
         return h
@@ -209,8 +210,8 @@ class VQModel(pl.LightningModule):
 
     def forward(self, x):
         num = 5
-        print(f"Keys in input dictionary: {x.keys()}")
-        n, c, d, h, w = x['data'].shape
+        x = x['data']
+        n, c, d, h, w = x.shape
         # id2 = torch.randint(0, d, (num,), device=self.device)
         id = torch.randperm(d, device=self.device)[:num]
         # print(id, id2)
@@ -247,7 +248,8 @@ class VQModel(pl.LightningModule):
 
     def check_forward(self, x):
         num = 3
-        n, c, d, h, w = x['data'].shape
+        x = x['data']
+        n, c, d, h, w = x.shape
 
         id = torch.randperm(d, device=self.device)[:num]
         id = id.view(1, 1, -1, 1, 1)
