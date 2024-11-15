@@ -344,10 +344,15 @@ class VQModel(pl.LightningModule):
 
         print(f"Batch keys: {batch.keys()}")
         x = batch['image']
-
-        # Ensure x is a tensor before slicing
+        print(f"Type of x before conversion: {type(x)}")
+        if isinstance(x, dict):
+            print(f"Keys in x: {x.keys()}")
+            if 'data' not in x:
+                raise KeyError("Key 'data' not found in the input dictionary")
+            x = x['data']
         if not isinstance(x, torch.Tensor):
             raise TypeError("Expected 'x' to be a tensor")
+        print(f"Type of x after conversion: {type(x)}")
     
         name = batch['name'][0]
 
