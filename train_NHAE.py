@@ -279,7 +279,8 @@ class VQModel(pl.LightningModule):
         elif not (isinstance(x, dict) and 'data' in x and isinstance(x['data'], torch.Tensor)):
             raise TypeError("Expected 'x' to be a dictionary with a key 'data' containing a tensor or a tensor")
         num = 5
-        n, c, d, h, w = x.shape
+        x_data = x['data']
+        n, c, d, h, w = x_data.shape
 
         id = torch.randperm(d, device=self.device)[:num]
         id = id.view(1, 1, -1, 1, 1)
