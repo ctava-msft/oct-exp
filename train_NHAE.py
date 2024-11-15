@@ -1,11 +1,9 @@
 # -*- coding:utf-8 -*-
-import torch
-# torch.set_num_threads(8)
 from argparse import ArgumentParser
+import numpy as np
 import os
-import shutil
-
 import pytorch_lightning as pl
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import tqdm
@@ -55,6 +53,7 @@ def get_parser():
 
 
 def main(opts):
+    # torch.set_num_threads(8)
     # Set float32 matrix multiplication precision to utilize Tensor Cores
     torch.set_float32_matmul_precision('high')
     datamodule = TioDatamodule(**vars(opts))
@@ -152,6 +151,11 @@ class VQModel(pl.LightningModule):
     def get_input(self, batch):
         print(f"Batch keys: {batch.keys()}")
         x = batch['image']
+
+        # Convert x to a tensor if it is a NumPy array
+        if isinstance(x, np.ndarray):
+            x = torch.from_numpy(x)
+
         # Ensure x is a tensor before returning
         if not isinstance(x, torch.Tensor):
             raise TypeError("Expected 'x' to be a tensor")
