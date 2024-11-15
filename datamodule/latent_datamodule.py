@@ -25,17 +25,17 @@ class trainDatamodule(pl.LightningDataModule):
             self.test_cube_names = json.load(f)
 
     def setup(self, stage=None):
-        train_latent_pathes = []
+        train_latent_paths = []
         for cube_name in self.train_cube_names:
-            train_latent_pathes.append(os.path.join(self.latent_root, cube_name + '.npy'))
+            train_latent_paths.append(os.path.join(self.latent_root, cube_name + '.npy'))
 
-        test_latent_pathes = []
+        test_latent_paths = []
         for cube_name in self.test_cube_names:
-            test_latent_pathes.append(os.path.join(self.latent_root, cube_name+ '.npy'))
+            test_latent_paths.append(os.path.join(self.latent_root, cube_name+ '.npy'))
 
-        print(f'train len: {len(train_latent_pathes)}  test len: {len(test_latent_pathes)}')
-        self.train_set = latent_Dataset(latent_pathes=train_latent_pathes)
-        self.test_set = latent_Dataset(latent_pathes=test_latent_pathes)
+        print(f'train len: {len(train_latent_paths)}  test len: {len(test_latent_paths)}')
+        self.train_set = latent_Dataset(latent_paths=train_latent_paths)
+        self.test_set = latent_Dataset(latent_paths=test_latent_paths)
 
     def train_dataloader(self):
         return DataLoader(self.train_set, batch_size=self.batch_size, shuffle=True, num_workers=self.num_workers)
@@ -56,27 +56,27 @@ class testDatamodule(pl.LightningDataModule):
 
     def setup(self, stage=None):
         self.test_cube_names = os.listdir(self.latent_root)
-        test_latent_pathes = []
+        test_latent_paths = []
         for cube_name in self.test_cube_names:
-            test_latent_pathes.append(os.path.join(self.latent_root, cube_name))
+            test_latent_paths.append(os.path.join(self.latent_root, cube_name))
 
-        print(f'  test len: {len(test_latent_pathes)}')
-        self.test_set = latent_Dataset(latent_pathes=test_latent_pathes)
+        print(f'  test len: {len(test_latent_paths)}')
+        self.test_set = latent_Dataset(latent_paths=test_latent_paths)
 
     def test_dataloader(self):
         return DataLoader(self.test_set, batch_size=self.batch_size, shuffle=False, num_workers=self.num_workers)
 class latent_Dataset(Dataset):
-    def __init__(self, latent_pathes):
-        self.latent_pathes = latent_pathes
+    def __init__(self, latent_paths):
+        self.latent_paths = latent_paths
 
     def __getitem__(self, index):
-        # print(self.img_pathes[index], self.latent_pathes[index])
+        # print(self.img_paths[index], self.latent_paths[index])
 
-        latent = np.load(self.latent_pathes[index])
+        latent = np.load(self.latent_paths[index])
         latent = torch.from_numpy(latent).float()[0,:,:,:]
 
         return {'latent':latent,
-                'latent_path': self.latent_pathes[index]}
+                'latent_path': self.latent_paths[index]}
 
     def __len__(self):
-        return len(self.latent_pathes)
+        return len(self.latent_paths)

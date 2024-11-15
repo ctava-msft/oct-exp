@@ -26,8 +26,8 @@ class trainDatamodule(pl.LightningDataModule):
             self.test_cube_names = json.load(f)
 
     def setup(self, stage=None):
-        train_latent_1_pathes = []
-        train_latent_2_pathes = []
+        train_latent_1_paths = []
+        train_latent_2_paths = []
         for cube_name in self.train_cube_names:
 
             directory_path = os.path.join(self.latent_1_root, cube_name)
@@ -38,11 +38,11 @@ class trainDatamodule(pl.LightningDataModule):
 
             img_names = natsorted(os.listdir(os.path.join(self.latent_1_root, cube_name)))
             for img_name in img_names:
-                train_latent_1_pathes.append(os.path.join(self.latent_1_root, cube_name, img_name))
-                train_latent_2_pathes.append(os.path.join(self.latent_2_root, cube_name, img_name))
+                train_latent_1_paths.append(os.path.join(self.latent_1_root, cube_name, img_name))
+                train_latent_2_paths.append(os.path.join(self.latent_2_root, cube_name, img_name))
 
-        print(f'train len: {len(train_latent_1_pathes)} {len(train_latent_2_pathes)}')
-        self.train_set = latent_Dataset(latent_1_pathes=train_latent_1_pathes, latent_2_pathes=train_latent_2_pathes)
+        print(f'train len: {len(train_latent_1_paths)} {len(train_latent_2_paths)}')
+        self.train_set = latent_Dataset(latent_1_paths=train_latent_1_paths, latent_2_paths=train_latent_2_paths)
 
     def train_dataloader(self):
         print(f"Train set length: {len(self.train_set)}")
@@ -52,20 +52,20 @@ class trainDatamodule(pl.LightningDataModule):
 
 
 class latent_Dataset(Dataset):
-    def __init__(self, latent_1_pathes, latent_2_pathes):
-        self.latent_1_pathes = latent_1_pathes
-        self.latent_2_pathes = latent_2_pathes
+    def __init__(self, latent_1_paths, latent_2_paths):
+        self.latent_1_paths = latent_1_paths
+        self.latent_2_paths = latent_2_paths
 
     def __getitem__(self, index):
 
-        latent_1 = np.load(self.latent_1_pathes[index])
+        latent_1 = np.load(self.latent_1_paths[index])
         latent_1 = torch.from_numpy(latent_1).float()[0,:,:,:]
 
-        latent_2 = np.load(self.latent_2_pathes[index])
+        latent_2 = np.load(self.latent_2_paths[index])
         latent_2 = torch.from_numpy(latent_2).float()[0,:,:,:]
         return {'latent_1':latent_1,'latent_2':latent_2,
-                'latent_1_path': self.latent_1_pathes[index],
-                'latent_2_path': self.latent_2_pathes[index]}
+                'latent_1_path': self.latent_1_paths[index],
+                'latent_2_path': self.latent_2_paths[index]}
 
     def __len__(self):
-        return len(self.latent_1_pathes)
+        return len(self.latent_1_paths)

@@ -192,7 +192,7 @@ class VQModel(pl.LightningModule):
                        os.path.join(self.opts.default_root_dir, 'train_progress', str(self.current_epoch)+str(i) + '.png'))
     def test_step(self, batch, batch_idx):
         x = batch['image']
-        pathes = batch['path']
+        paths = batch['path']
         h = self.encoder(x)
         h = self.quant_conv(h)
         quant, emb_loss, info = self.quantize(h)
@@ -201,8 +201,8 @@ class VQModel(pl.LightningModule):
         #
         quant = quant.cpu().numpy()
         xrec = xrec*0.5+0.5
-        for i, path in enumerate(pathes):
-            names = pathes[i].split('/')
+        for i, path in enumerate(paths):
+            names = paths[i].split('/')
             save_dir = '/'.join([self.opts.img_save_dir] + [names[-2]])
             os.makedirs(save_dir, exist_ok=True)
             save_image(xrec, os.path.join(save_dir, names[-1]))

@@ -60,9 +60,9 @@ class CascadeLDM(pl.LightningModule):
         os.makedirs(self.save_dir_3, exist_ok=True)
 
     def test_step(self, batch, batch_idx):
-        pathes = batch['latent_3D_path'][0]
-        name =pathes.split('/')[-1][:-4]
-        print(pathes, name)
+        paths = batch['latent_3D_path'][0]
+        name =paths.split('/')[-1][:-4]
+        print(paths, name)
         z_3d = batch['latent_3D']
         print(z_3d.shape)
         d_sr = z_3d.shape[-3]

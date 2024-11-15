@@ -66,9 +66,9 @@ class CascadeLDM(pl.LightningModule):
         self.save_dir_2_latent = os.path.join(opts.result_save_dir, 'ldm2_latent')
 
     def test_step(self, batch, batch_idx):
-        full_pathes = batch['latent_path'][0]
+        full_paths = batch['latent_path'][0]
 
-        path = full_pathes.split('/')[-1][:-4]
+        path = full_paths.split('/')[-1][:-4]
         print(path)
         z_3d = batch['latent']
         # print(z_3d.shape)
@@ -87,7 +87,7 @@ class CascadeLDM(pl.LightningModule):
             refine_frame_rec = self.first_stage_model.decode_2D(h_refine, testing=True)*0.5+0.5
 
             names = [str(i + l+1) + '.png' for l in range(bz)]
-            # self.save_batch_images(frame_rec,os.path.join(self.save_dir_1, pathes[j]), names)
+            # self.save_batch_images(frame_rec,os.path.join(self.save_dir_1, paths[j]), names)
             self.save_batch_images(refine_frame_rec,os.path.join(self.save_dir_2, path), names)
 
             h_refine = h_refine.permute(1,0,2,3).unsqueeze(0)
@@ -106,9 +106,9 @@ class CascadeLDM(pl.LightningModule):
         for i in range(images.shape[0]):
             np.save(os.path.join(save_dir, names[i]),images[i])
     # def test_step(self, batch, batch_idx):
-    #     pathes = batch['path']
+    #     paths = batch['path']
     #     c = None
-    #     batch_size = len(pathes)
+    #     batch_size = len(paths)
     #     z_3d = self.ldm1.sample(c=c, batch_size=batch_size, return_intermediates=False,
     #                                                clip_denoised=True)
     #     # print(z_3d.shape)
@@ -131,10 +131,10 @@ class CascadeLDM(pl.LightningModule):
     #     # x_samples = x_samples.to('cpu')
     #     # print(img_samples.shape)
     #     for i in range(batch_size):
-    #         save_cube_from_tensor(x_samples[i].squeeze()*0.5+0.5, os.path.join(self.no_refine_img_save_dir, pathes[i]))
+    #         save_cube_from_tensor(x_samples[i].squeeze()*0.5+0.5, os.path.join(self.no_refine_img_save_dir, paths[i]))
     #
     #     for i in range(batch_size):
-    #         save_cube_from_tensor(x_samples_refine[i].squeeze()*0.5+0.5, os.path.join(self.refine_img_save_dir, pathes[i]))
+    #         save_cube_from_tensor(x_samples_refine[i].squeeze()*0.5+0.5, os.path.join(self.refine_img_save_dir, paths[i]))
 
 class VQModelInterface(nn.Module):
     def __init__(self):

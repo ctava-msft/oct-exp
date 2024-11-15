@@ -20,10 +20,10 @@ class uncond_gen_Datamodule(pl.LightningDataModule):
 
 class uncond_gen_Dataset(Dataset):
     def __init__(self, total_num):
-        self.pathes = [str(i) for i in range(total_num)]
+        self.paths = [str(i) for i in range(total_num)]
 
     def __getitem__(self, index):
-        return {'path': self.pathes[index]}
+        return {'path': self.paths[index]}
 
     def __len__(self):
-        return len(self.pathes)
+        return len(self.paths)

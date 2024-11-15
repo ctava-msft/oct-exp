@@ -33,17 +33,17 @@ class trainDatamodule(pl.LightningDataModule):
         ])
 
     def setup(self, stage=None):
-        train_pathes = []
+        train_paths = []
         for cube_name in self.train_cube_names:
             img_names = natsorted(os.listdir(os.path.join(self.data_root, cube_name)))
-            train_pathes += [os.path.join(self.data_root, cube_name, img_name) for img_name in img_names]
-        test_pathes = []
+            train_paths += [os.path.join(self.data_root, cube_name, img_name) for img_name in img_names]
+        test_paths = []
         for cube_name in self.test_cube_names:
             img_names = natsorted(os.listdir(os.path.join(self.data_root, cube_name)))
-            test_pathes += [os.path.join(self.data_root, cube_name, img_name) for img_name in img_names]
-        print(f'train len: {len(train_pathes)}  test len: {len(test_pathes)}')
-        self.train_set = unlabeled_Dataset(pathes=train_pathes, transform=self.train_transform)
-        self.test_set = unlabeled_Dataset(pathes=test_pathes, transform=self.test_transform)
+            test_paths += [os.path.join(self.data_root, cube_name, img_name) for img_name in img_names]
+        print(f'train len: {len(train_paths)}  test len: {len(test_paths)}')
+        self.train_set = unlabeled_Dataset(paths=train_paths, transform=self.train_transform)
+        self.test_set = unlabeled_Dataset(paths=test_paths, transform=self.test_transform)
 
     def train_dataloader(self):
         return DataLoader(self.train_set, batch_size=self.batch_size, shuffle=True, num_workers=self.num_workers)
@@ -56,12 +56,12 @@ class trainDatamodule(pl.LightningDataModule):
 
 
 class unlabeled_Dataset(Dataset):
-    def __init__(self, pathes, transform):
-        self.pathes = pathes
+    def __init__(self, paths, transform):
+        self.paths = paths
         self.transform = transform
 
     def __getitem__(self, index):
-        img = cv.imread(self.pathes[index], cv.IMREAD_GRAYSCALE)
+        img = cv.imread(self.paths[index], cv.IMREAD_GRAYSCALE)
 
         if self.transform is not None:
             transformed = self.transform(image=img)
@@ -69,7 +69,7 @@ class unlabeled_Dataset(Dataset):
 
         img = transforms.ToTensor()(img)
 
-        return {'image': img, 'path': self.pathes[index]}
+        return {'image': img, 'path': self.paths[index]}
 
     def __len__(self):
-        return len(self.pathes)
+        return len(self.paths)

@@ -59,7 +59,7 @@ def surf(Z, cmap='rainbow', figsize=None):
 
 '''
 # --------------------------------------------
-# get image pathes
+# get image paths
 # --------------------------------------------
 '''
 

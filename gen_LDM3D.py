@@ -64,9 +64,9 @@ class CascadeLDM(pl.LightningModule):
         os.makedirs(self.save_dir_1_latent, exist_ok=True)
 
     def test_step(self, batch, batch_idx):
-        pathes = batch['path']
+        paths = batch['path']
         c = None
-        batch_size = len(pathes)
+        batch_size = len(paths)
         z_3d = self.ldm1.sample(c=c, batch_size=batch_size, return_intermediates=False,
                                                    clip_denoised=True)
         # print(z_3d.shape)
@@ -85,12 +85,12 @@ class CascadeLDM(pl.LightningModule):
                 # refine_frame_rec = self.first_stage_model.decode_2D(h_refine, testing=True)*0.5+0.5
 
                 names = [str(i + l+1) + '.png' for l in range(bz)]
-                self.save_batch_images(frame_rec,os.path.join(self.save_dir_1, pathes[j]), names)
-                # self.save_batch_images(refine_frame_rec,os.path.join(self.save_dir_2, pathes[j]), names)
+                self.save_batch_images(frame_rec,os.path.join(self.save_dir_1, paths[j]), names)
+                # self.save_batch_images(refine_frame_rec,os.path.join(self.save_dir_2, paths[j]), names)
         save_3d = z_3d.cpu().numpy()
         print(z_3d.shape)
         for i in range(z_3d.shape[0]):
-            np.save(os.path.join(self.save_dir_1_latent, pathes[i]), save_3d)
+            np.save(os.path.join(self.save_dir_1_latent, paths[i]), save_3d)
 
 
     def save_batch_images(self, images, save_dir, names):
@@ -99,9 +99,9 @@ class CascadeLDM(pl.LightningModule):
             save_image(images[i],os.path.join(save_dir, names[i]))
 
     # def test_step(self, batch, batch_idx):
-    #     pathes = batch['path']
+    #     paths = batch['path']
     #     c = None
-    #     batch_size = len(pathes)
+    #     batch_size = len(paths)
     #     z_3d = self.ldm1.sample(c=c, batch_size=batch_size, return_intermediates=False,
     #                                                clip_denoised=True)
     #     # print(z_3d.shape)
@@ -124,10 +124,10 @@ class CascadeLDM(pl.LightningModule):
     #     # x_samples = x_samples.to('cpu')
     #     # print(img_samples.shape)
     #     for i in range(batch_size):
-    #         save_cube_from_tensor(x_samples[i].squeeze()*0.5+0.5, os.path.join(self.no_refine_img_save_dir, pathes[i]))
+    #         save_cube_from_tensor(x_samples[i].squeeze()*0.5+0.5, os.path.join(self.no_refine_img_save_dir, paths[i]))
     #
     #     for i in range(batch_size):
-    #         save_cube_from_tensor(x_samples_refine[i].squeeze()*0.5+0.5, os.path.join(self.refine_img_save_dir, pathes[i]))
+    #         save_cube_from_tensor(x_samples_refine[i].squeeze()*0.5+0.5, os.path.join(self.refine_img_save_dir, paths[i]))
 
 class VQModelInterface(nn.Module):
     def __init__(self):
