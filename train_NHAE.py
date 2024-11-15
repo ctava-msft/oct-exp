@@ -324,6 +324,17 @@ class VQModel(pl.LightningModule):
         batch = self.sample_batch
         # print(f"Batch keys: {batch.keys()}")
         x = batch['image']
+
+        print(f"Type of x before conversion: {type(x)}")
+        if isinstance(x, dict):
+            print(f"Keys in x: {x.keys()}")
+            if 'data' not in x:
+                raise KeyError("Key 'data' not found in the input dictionary")
+            x = x['data']
+        if not isinstance(x, torch.Tensor):
+            raise TypeError("Expected 'x' to be a tensor")
+        print(f"Type of x after conversion: {type(x)}")
+
         name = batch['name'][0]
         frame_target, frame_rec_3D, frame_rec_2D = self.check_forward(x)
         visuals = torch.cat([frame_target, frame_rec_3D, frame_rec_2D], dim=0) * 0.5 + 0.5
