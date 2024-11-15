@@ -293,7 +293,7 @@ class VQModel(pl.LightningModule):
         frame_rec_3D = self.decode_2D(h_3D_selected, testing=True)
 
         frame_id = id.expand(n, c, num, h, w)
-        frame_target = torch.gather(x, 2, frame_id)
+        frame_target = torch.gather(x_data, 2, frame_id)
         frame_target = frame_target.squeeze(0).permute(1, 0, 2, 3)
 
         h_2D = self.encode_2D(frame_target)
