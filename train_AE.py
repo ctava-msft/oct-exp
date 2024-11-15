@@ -20,7 +20,7 @@ from utils.util import load_network, save_cube_from_tensor
 def get_parser():
     parser = ArgumentParser()
     parser.add_argument("--exp_name", type=str, default='AE')
-    parser.add_argument('--result_root', type=str, default='./checkpoints/AE')
+    parser.add_argument('--result_root', type=str, default='./checkpoints')
     parser.add_argument("--command", default="fit")
     # tio args
     parser.add_argument('--image_npy_root', type=str, default='./images/oct/oct-500')
