@@ -70,7 +70,9 @@ To execute them, configure and run the following scripts:
 1. Train a 2DAE. Configure and run `python train_AE2D.py`.
 rename 's/=/\-/' ae2d-epoch=*.ckpt
 
-2. Train NHAE. Configure and run `python train_NHAE.py`.
+2. Train NHAE.
+python ./utils/save_as_npy.py path/to/source/images
+Configure and run `python train_NHAE.py`.
 rename 's/=/\-/' nhae-epoch=*.ckpt
 
 3. Train LDM3D. Configure and run `python train_LDM3D.py`.
