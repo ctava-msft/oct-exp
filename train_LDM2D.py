@@ -2,7 +2,6 @@
 import torch
 torch.set_num_threads(2)
 import os
-import shutil
 from argparse import ArgumentParser
 import torch.nn.functional as F
 import pytorch_lightning as pl
@@ -26,9 +25,9 @@ def get_parser():
     parser = ArgumentParser()
     parser.add_argument("--command", default="fit")
     parser.add_argument("--exp_name", type=str, default='LDM2D')
-    parser.add_argument('--result_root', type=str, default='./checkpoints/LDM2D')
+    parser.add_argument('--result_root', type=str, default='./checkpoints')
     # data & tio args
-    parser.add_argument('--first_stage_ckpt', type=str, default='./checkpoints/AE2D/ae2d-epoch-13.ckpt')
+    parser.add_argument('--first_stage_ckpt', type=str, default='./checkpoints/AE2D/ae2d-epoch-49.ckpt')
     parser.add_argument('--latent_1_root', type=str, default='/latents/3d')
     parser.add_argument('--latent_2_root', type=str, default='/latents/2d')
     parser.add_argument('--train_name_json', type=str, default='train_volume_names.json')
@@ -156,17 +155,12 @@ class LDM(DDPM_base):
     def get_input(self, batch):
         c = batch['latent_1'] # condition
         z = batch['latent_2'] # target
-        # print(c.shape, z.shape)
-        # exit()
         return z, c
-        # return z
 
     def training_step(self, batch, batch_idx):
         z, c = self.get_input(batch)
-
         t = torch.randint(0, self.num_timesteps, (z.shape[0],), device=self.device).long()
         loss = self.p_losses(z, t, c)
-
         if batch_idx == 0:
             self.sample_z = z[:1]
             self.sample_c = c[:1]
@@ -334,10 +328,4 @@ if __name__ == '__main__':
         opts.benchmark = True
     if opts.command == 'fit':
         opts.default_root_dir = os.path.join(opts.result_root, opts.exp_name)
-        # if os.getenv("LOCAL_RANK", '0') == '0':
-        #     if not os.path.exists(opts.default_root_dir):
-        #         os.makedirs(opts.default_root_dir)
-        #         code_dir = os.path.abspath(os.path.dirname(os.getcwd()))
-        #         shutil.copytree(code_dir, os.path.join(opts.default_root_dir, 'code'))
-        #         print('save in', opts.default_root_dir)
     main(opts)
