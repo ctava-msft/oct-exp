@@ -2,7 +2,6 @@
 import torch
 # torch.set_num_threads(2)
 import os
-import shutil
 from argparse import ArgumentParser
 import torch.nn.functional as F
 import pytorch_lightning as pl
@@ -72,7 +71,6 @@ def main(opts):
                          default_root_dir=opts.default_root_dir, profiler=opts.profiler, benchmark=opts.benchmark,
                          callbacks=[checkpoint_callback, TQDMProgressBar(refresh_rate=10)])
     model.instantiate_first_stage(opts)
-    # del model.sample_batch
     trainer.fit(model=model, datamodule=datamodule)
 
 
@@ -378,12 +376,4 @@ if __name__ == '__main__':
     else:
         opts.deterministic = False
         opts.benchmark = True
-    # if opts.command == 'fit':
-    #     opts.default_root_dir = os.path.join(opts.result_root, opts.exp_name)
-    #     if os.getenv("LOCAL_RANK", '0') == '0':
-    #         if not os.path.exists(opts.default_root_dir):
-    #             os.makedirs(opts.default_root_dir)
-    #             code_dir = os.path.abspath(os.path.dirname(os.getcwd()))
-    #             shutil.copytree(code_dir, os.path.join(opts.default_root_dir, 'code'))
-    #             print('save in', opts.default_root_dir)
     main(opts)
