@@ -8,6 +8,7 @@ import torch
 from einops import rearrange
 from pytorch_lightning.callbacks import ModelCheckpoint, TQDMProgressBar
 from torchvision.utils import save_image
+import numpy as np
 
 from datamodule.tio_datamodule import TioDatamodule
 from ldm.modules.diffusionmodules.model import Encoder

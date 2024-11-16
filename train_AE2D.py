@@ -14,6 +14,7 @@ from datamodule.uncond2D_datamodule import trainDatamodule
 from torchvision.utils import save_image
 from utils.util import load_network
 import numpy as np
+
 def get_parser():
     parser = ArgumentParser()
     parser.add_argument("--exp_name", type=str, default='AE2D')
