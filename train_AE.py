@@ -117,9 +117,24 @@ class VQModel(pl.LightningModule):
 
     @torch.no_grad()
     def get_input(self, batch):
+        print(f"Batch keys: {batch.keys()}")
         x = batch['image']
+        print(f"Type of x before conversion: {type(x)}")
+        print(f"x keys: {x.keys()}")
+        # If x is a dictionary, extract the tensor from the 'data' key
+        if isinstance(x, dict):
+            x = x.get('data', None)
+            if x is None:
+                raise KeyError("Expected key 'data' in the dictionary")
+        print(f"Type of x after deconstruction: {type(x)}")
+        # Convert x to a tensor if it is a NumPy array
+        if isinstance(x, np.ndarray):
+            x = torch.from_numpy(x)
+        # Ensure x is a tensor before returning
+        if not isinstance(x, torch.Tensor):
+            raise TypeError("Expected 'x' to be a tensor")
+
         names = batch['name']
-        # print(x.shape)
         x = rearrange(x, "1 c b h w -> b c h w")
         h = self.encode(x)
         return x.detach(), h.detach(), names
