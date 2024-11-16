@@ -152,7 +152,7 @@ class VQModel(pl.LightningModule):
         dec = self.decoder(quant)
         return dec
 
-    def training_step(self, batch, batch_idx, optimizer_idx):
+    def training_step(self, batch, batch_idx):
         # https://github.com/pytorch/pytorch/issues/37142
         # try not to fool the heuristics
         if batch_idx == 0:
@@ -160,6 +160,7 @@ class VQModel(pl.LightningModule):
 
         x, h, _ = self.get_input(batch)
         xrec = self.decode(h)
+        optimizer_idx = self.trainer.current_epoch % 2
         if optimizer_idx == 0:
             # qloss = 0
             # autoencode
