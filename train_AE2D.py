@@ -46,7 +46,6 @@ def get_parser():
     # torch.set_float32_matmul_precision('medium')
     return parser
 
-
 def main(opts):
     # torch.set_num_threads(8)
     torch.set_float32_matmul_precision('high')
@@ -77,7 +76,6 @@ def main(opts):
                              default_root_dir=opts.default_root_dir, profiler=opts.profiler, logger=False,
                              benchmark=opts.benchmark)
         trainer.test(model=model, datamodule=datamodule)
-
 
 class VQModel(pl.LightningModule):
     def __init__(self, opts):
@@ -164,9 +162,7 @@ class VQModel(pl.LightningModule):
         x = self.get_input(batch)
         if batch_idx == 0:
             self.x_sample = x
-        # print(x.shape)
         xrec, qloss, ind = self(x, return_pred_indices=True)
-        # print(x.shape, xrec.shape)
         d_loss = self.cal_d_loss(x, xrec, qloss)
         d_opt.zero_grad()
         self.manual_backward(d_loss)
@@ -190,6 +186,7 @@ class VQModel(pl.LightningModule):
         for i in range(x.shape[0]):
             save_image([x[i] * 0.5 + 0.5, xrec[i] * 0.5 + 0.5],
                        os.path.join(self.opts.default_root_dir, 'train_progress', str(self.current_epoch)+str(i) + '.png'))
+
     def test_step(self, batch, batch_idx):
         x = batch['image']
         paths = batch['path']
@@ -198,7 +195,6 @@ class VQModel(pl.LightningModule):
         quant, emb_loss, info = self.quantize(h)
         quant = self.post_quant_conv(quant)
         xrec = self.decoder(quant)
-        #
         quant = quant.cpu().numpy()
         xrec = xrec*0.5+0.5
         for i, path in enumerate(paths):
@@ -222,7 +218,6 @@ class VQModel(pl.LightningModule):
             "Setting learning rate to {:.2e} = {:.2e} (base_lr) * {} (batchsize) * {} (accumulate_grad_batches) * {} (num_gpus) * {} (num_nodes) / {} (base_batch_size)".format(
                 lr, base_lr, batch_size, accumulate_grad_batches, devices, nodes, base_batch_size))
         print('estimated_stepping_batches:', total_steps)
-        # lr = self.cfg.lr
         opt_ae = torch.optim.AdamW(list(self.encoder.parameters()) +
                                    list(self.decoder.parameters()) +
                                    list(self.quantize.parameters()) +
