@@ -96,7 +96,12 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
             if isinstance(layer, TimestepBlock):
                 x = layer(x, emb)
             elif isinstance(layer, SpatialTransformer):
-                x = layer(x, context)
+                x = layer(x, emb, context)
+            elif isinstance(layer, nn.AvgPool3d):
+                # Check input dimensions before pooling
+                if x.shape[2] < 2 or x.shape[3] < 2 or x.shape[4] < 2:
+                    raise ValueError("Input dimensions are smaller than the kernel size for avg_pool3d")
+                x = layer(x)
             else:
                 x = layer(x)
         return x
