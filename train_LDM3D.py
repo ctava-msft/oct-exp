@@ -226,6 +226,12 @@ class LDM(DDPM_base):
             x = x.repeat(1, expected_channels, 1, 1, 1)
             print(f"Adjusted input shape: {x.shape}")
         
+        # Ensure the input tensor has appropriate dimensions for pooling
+        min_depth, min_height, min_width = 2, 2, 2
+        if x.shape[2] < min_depth or x.shape[3] < min_height or x.shape[4] < min_width:
+            x = F.interpolate(x, size=(max(min_depth, x.shape[2]), max(min_height, x.shape[3]), max(min_width, x.shape[4])), mode='trilinear', align_corners=False)
+            print(f"Resized input shape: {x.shape}")
+        
         out = self.model(x=x, timesteps=t)
         return out
 
