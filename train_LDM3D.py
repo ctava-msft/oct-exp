@@ -287,7 +287,18 @@ class LDM(DDPM_base):
 
     def training_step(self, batch, batch_idx):
         # Forward pass
-        z = self(batch)
+        x, y = self(batch)
+
+        # Check if x is None
+        if x is None:
+            raise ValueError("Input x is None. Ensure the batch contains valid data.")
+
+        # Example assignment of z
+        z = self.model.encode(x)
+
+        # Check if z is None
+        if z is None:
+            raise ValueError("z is None after encoding. Ensure the model's encode method returns a valid tensor.")
         
         # Generate random timesteps
         t = torch.randint(0, self.num_timesteps, (z.shape[0],), device=self.device).long()
