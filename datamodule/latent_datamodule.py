@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 import json
+import glob
 import os
-
 import cv2 as cv
 import pytorch_lightning as pl
 import torch
@@ -27,11 +27,13 @@ class trainDatamodule(pl.LightningDataModule):
     def setup(self, stage=None):
         train_latent_paths = []
         for cube_name in self.train_cube_names:
-            train_latent_paths.append(os.path.join(self.latent_root, cube_name + '.npy'))
+            npy_files = glob.glob(os.path.join(self.latent_root, cube_name, '*.npy'))
+            train_latent_paths.extend(npy_files)
 
         test_latent_paths = []
         for cube_name in self.test_cube_names:
-            test_latent_paths.append(os.path.join(self.latent_root, cube_name+ '.npy'))
+            npy_files = glob.glob(os.path.join(self.latent_root, cube_name, '*.npy'))
+            test_latent_paths.extend(npy_files)
 
         print(f'train len: {len(train_latent_paths)}  test len: {len(test_latent_paths)}')
         self.train_set = latent_Dataset(latent_paths=train_latent_paths)
