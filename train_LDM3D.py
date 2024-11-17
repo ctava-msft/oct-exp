@@ -283,16 +283,29 @@ class LDM(DDPM_base):
         return z
 
     def training_step(self, batch, batch_idx):
-        z = self.get_input(batch)
-        # print(torch.max(z), torch.min(z))
-        # exit()
+        # Forward pass
+        z = self(batch)
+        
+        # Generate random timesteps
         t = torch.randint(0, self.num_timesteps, (z.shape[0],), device=self.device).long()
-        loss = self.p_losses(z, t)
-
-        # if batch_idx == 0 and self.current_epoch==0:
-        #     self.sample_batch = batch
-        lr = self.optimizers().param_groups[0]['lr']
-        self.log('lr_abs', lr, prog_bar=True, logger=True, on_step=True, on_epoch=False)
+        
+        # Compute loss
+        loss = self.compute_loss(z, t, batch)
+        
+        # Debug: Check if loss requires grad
+        if not loss.requires_grad:
+            print("Loss does not require grad")
+        
+        return loss
+    
+    def compute_loss(self, z, t, batch):
+        # Example loss computation
+        loss = F.mse_loss(z, batch['target'])
+        
+        # Ensure loss requires grad
+        if not loss.requires_grad:
+            print("Loss does not require grad in compute_loss")
+        
         return loss
 
     def on_train_batch_end(self, *args, **kwargs):
