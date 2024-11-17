@@ -178,6 +178,24 @@ class DDPM_base(pl.LightningModule):
                     print(f"{context}: Restored training weights")
 
     def get_loss(self, pred, target, mean=True):
+        # Print shapes of pred and target
+        print(f"Shape of pred: {pred.shape}")
+        print(f"Shape of target: {target.shape}")
+
+        # Ensure dimensions match
+        if pred.shape != target.shape:
+            # Adjust dimensions if necessary (example: broadcasting or reshaping)
+            # This is a placeholder, adjust according to your specific needs
+            target = target.view_as(pred)
+
+        loss = (target - pred).abs()
+
+        if mean:
+            return loss.mean()
+        else:
+            return loss
+
+    def get_lossOLD(self, pred, target, mean=True):
         if self.loss_type == 'l1':
             loss = (target - pred).abs()
             if mean:
