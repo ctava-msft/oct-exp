@@ -222,8 +222,9 @@ class LDM(DDPM_base):
         # Ensure the input tensor has the correct number of channels
         expected_channels = 4
         if x.shape[1] != expected_channels:
-            x = x.expand(-1, expected_channels, -1, -1, -1)
-            print(f"Expanded input shape: {x.shape}")
+            # Adjust the number of channels to match the expected channels
+            x = x.repeat(1, expected_channels, 1, 1, 1)
+            print(f"Adjusted input shape: {x.shape}")
         
         out = self.model(x=x, timesteps=t)
         return out
