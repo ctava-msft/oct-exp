@@ -216,7 +216,9 @@ class DDPM_base(pl.LightningModule):
             print(f"target shape: {target.shape}")
 
         # Reshape target to match pred
-        target = target.view(pred.shape)
+        # target = target.view(pred.shape)
+        # Expand target to match pred
+        target = target.unsqueeze(2).unsqueeze(3).expand_as(pred)
 
         if self.loss_type == 'l1':
             loss = (target - pred).abs()
