@@ -76,15 +76,15 @@ python ./utils/save_as_npy.py path/to/source/images
 Configure and run `python train_NHAE.py`.
 rename 's/=/\-/' nhae-epoch=*.ckpt
 
-3. Train LDM2D.
+3. Train LDM3D.
+Configure and run `python train_LDM3D.py`.
+rename 's/=/\-/' ldm3d-epoch=*.ckpt
+
+4. Train LDM2D.
 mkdir latents/2d
 mkdir latents/3d
 Configure and run `python train_LDM2D.py`.
 rename 's/=/\-/' ldm2d-epoch=*.ckpt
-
-4. Train LDM3D.
-Configure and run `python train_LDM3D.py`.
-rename 's/=/\-/' ldm3d-epoch=*.ckpt
 
 5. Train AE. 
 Configure and run `python train_AE.py`.

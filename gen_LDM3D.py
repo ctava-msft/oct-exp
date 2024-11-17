@@ -17,7 +17,6 @@ from taming.modules.vqvae.quantize import VectorQuantizer2 as VectorQuantizer
 from torchvision.utils import save_image
 import numpy as np
 
-
 def get_parser():
     parser = ArgumentParser()
     parser.add_argument('--result_save_dir', type=str, default='./results')
@@ -39,14 +38,12 @@ def get_parser():
     # torch.set_float32_matmul_precision('medium')
     return parser
 
-
 def main(opts):
     model = CascadeLDM(opts)
     datamodule = uncond_gen_Datamodule(total_num=100)
     trainer = pl.Trainer(accelerator=opts.accelerator, devices=opts.devices, deterministic=opts.deterministic,
                         logger=False, profiler=opts.profiler, benchmark=opts.benchmark)
     trainer.test(model=model, datamodule=datamodule)
-
 
 class CascadeLDM(pl.LightningModule):
     def __init__(self, opts):
@@ -58,7 +55,6 @@ class CascadeLDM(pl.LightningModule):
         load_network(self.first_stage_model, opts.first_stage_ckpt, self.device)
         print('loading ldm1')
         load_network(self.ldm1, opts.ldm1_ckpt, self.device)
-
         self.save_dir_1 = os.path.join(opts.result_save_dir, 'ldm1')
         self.save_dir_1_latent = os.path.join(opts.result_save_dir, 'ldm1_latent')
         os.makedirs(self.save_dir_1_latent, exist_ok=True)
@@ -69,7 +65,6 @@ class CascadeLDM(pl.LightningModule):
         batch_size = len(paths)
         z_3d = self.ldm1.sample(c=c, batch_size=batch_size, return_intermediates=False,
                                                    clip_denoised=True)
-        # print(z_3d.shape)
         h_sr = self.first_stage_model.quant_sr_3D(z_3d)
 
         d_sr = h_sr.shape[-3]
@@ -79,19 +74,13 @@ class CascadeLDM(pl.LightningModule):
                 h_frame = h_sr[j, :, i:i+k, :, :].permute(1,0,2,3)
                 bz = h_frame.shape[0]
                 h_frame = self.first_stage_model.quant_conv(h_frame)
-                # h_refine = self.ldm2.sample(c=h_frame, batch_size=bz, return_intermediates=False,
-                #                                        clip_denoised=True)
                 frame_rec = self.first_stage_model.decode_2D(h_frame, testing=True) * 0.5 + 0.5
-                # refine_frame_rec = self.first_stage_model.decode_2D(h_refine, testing=True)*0.5+0.5
-
                 names = [str(i + l+1) + '.png' for l in range(bz)]
                 self.save_batch_images(frame_rec,os.path.join(self.save_dir_1, paths[j]), names)
-                # self.save_batch_images(refine_frame_rec,os.path.join(self.save_dir_2, paths[j]), names)
         save_3d = z_3d.cpu().numpy()
         print(z_3d.shape)
         for i in range(z_3d.shape[0]):
             np.save(os.path.join(self.save_dir_1_latent, paths[i]), save_3d)
-
 
     def save_batch_images(self, images, save_dir, names):
         os.makedirs(save_dir, exist_ok=True)
@@ -143,7 +132,6 @@ class VQModelInterface(nn.Module):
         self.quant_conv = torch.nn.Conv2d(self.embed_dim, self.embed_dim, 1)
         self.post_quant_conv = torch.nn.Conv2d(self.embed_dim, self.embed_dim, 1)
         self.quantize3D = VectorQuantizer(n_embed, self.embed_dim, beta=0.25)
-        # self.quant_conv_3D = torch.nn.Conv3d(self.embed_dim, self.embed_dim, 1)
         self.post_quant_conv_3D = torch.nn.Conv3d(self.embed_dim, self.embed_dim, 1)
 
     def encode(self, x):
@@ -153,7 +141,6 @@ class VQModelInterface(nn.Module):
         return h
 
     def decode_2D(self, z, testing=False):
-        # z = self.quant_conv(h_frame)
         if testing:
             quant = self.quantize(z, testing=True)
             quant = self.post_quant_conv(quant)
@@ -177,35 +164,28 @@ class VQModelInterface(nn.Module):
         return h_sr
 
     def decode(self, z):
-        # z = self.quant_conv_3D(h)
         h_sr = self.quant_sr_3D(z)
         d_sr = h_sr.shape[-3]
         ret = []
         for i in tqdm(range(d_sr)):
             h_frame = h_sr[:, :, i, :, :]
-            # print('eval',h_frame.shape)
             frame_rec = self.decode_2D(h_frame, testing=True)
             ret.append(frame_rec.cpu())
         ret = torch.stack(ret, dim=2)
         return ret
 
-
 class LDM1(DDPM_base):
     def __init__(self):
         super().__init__()
-
         latent_size = (64, 64, 64)
         latent_channel = 4
-
         unet_config = {'image_size': latent_size, 'dims': 3, 'in_channels': latent_channel,
                        'out_channels': latent_channel, 'model_channels': 128,
                        'attention_resolutions': [4, 8], 'num_res_blocks': 2, 'channel_mult': [1, 2, 4, 8],
                        'num_heads': 8, 'use_scale_shift_norm': True, 'resblock_updown': True}
         self.model = UNetModel(**unet_config)
-
         self.latent_size = latent_size
         self.channels = latent_channel
-
         self.log_every_t=100
         self.v_posterior = 0.  # weight for choosing posterior variance as sigma = (1-v) * beta_tilde + v * beta
         self.parameterization = "eps"  # all assuming fixed variance schedules
@@ -232,10 +212,8 @@ class LDM2(DDPM_base):
                        'num_heads': 8, 'use_scale_shift_norm': True, 'resblock_updown': True,
                        }
         self.model = UNetModel(**unet_config)
-
         self.latent_size = latent_size
         self.channels = latent_channel
-
         self.v_posterior = 0.  # weight for choosing posterior variance as sigma = (1-v) * beta_tilde + v * beta
         self.parameterization = "eps"  # all assuming fixed variance schedules
         self.log_every_t = 100
@@ -250,7 +228,6 @@ class LDM2(DDPM_base):
         print("Switched to EMA weights")
 
     def apply_model(self, x, t, c):
-
         out = self.model(x=torch.cat([x,c], dim=1), timesteps=t)
         return out
 

@@ -14,7 +14,6 @@ from datamodule.latent_datamodule import trainDatamodule
 from utils.util_for_openai_diffusion import DDPM_base, disabled_train, default, LambdaLinearScheduler, \
     extract_into_tensor, noise_like
 from utils.util import save_cube_from_tensor, load_network
-# from networks.ldm3D_utils.vq_gan_3d.model.vqgan import Encoder as Encoder3D
 from networks.ldm3D_utils.vq_gan_3d.model.vqgan import DecoderSR_old as DecoderSR
 from ldm.modules.diffusionmodules.model import Decoder as Decoder2D
 from taming.modules.vqvae.quantize import VectorQuantizer2 as VectorQuantizer
@@ -87,7 +86,6 @@ class VQModelInterface(nn.Module):
         self.quant_conv = torch.nn.Conv2d(self.embed_dim, self.embed_dim, 1)
         self.post_quant_conv = torch.nn.Conv2d(self.embed_dim, self.embed_dim, 1)
         self.quantize3D = VectorQuantizer(n_embed, self.embed_dim, beta=0.25)
-        # self.quant_conv_3D = torch.nn.Conv3d(self.embed_dim, self.embed_dim, 1)
         self.post_quant_conv_3D = torch.nn.Conv3d(self.embed_dim, self.embed_dim, 1)
 
     def encode(self, x):
@@ -121,13 +119,11 @@ class VQModelInterface(nn.Module):
         return h_sr
 
     def decode(self, z):
-        # z = self.quant_conv_3D(h)
         h_sr = self.quant_sr_3D(z)
         d_sr = h_sr.shape[-3]
         ret = []
         for i in tqdm(range(d_sr)):
             h_frame = h_sr[:, :, i, :, :]
-            # print('eval',h_frame.shape)
             frame_rec = self.decode_2D(h_frame, testing=True)
             ret.append(frame_rec.cpu())
         ret = torch.stack(ret, dim=2)
@@ -139,8 +135,6 @@ class LDM(DDPM_base):
         super().__init__()
         self.opts = opts
         self.save_hyperparameters()
-        #
-        # self.instantiate_first_stage(opts)
 
         unet_config = {'image_size': opts.paded_size, 'dims': 3, 'in_channels': opts.latent_channel,
                        'out_channels': opts.latent_channel, 'model_channels': 128,
@@ -158,7 +152,6 @@ class LDM(DDPM_base):
             self.p3d.append(l)
             self.p3d.append(r)
         print(f'current size: {opts.latent_size}, target size: {opts.paded_size}, calculated pad: {self.p3d}')
-        # exit()
 
         self.channels = opts.latent_channel
 

@@ -17,6 +17,7 @@ from taming.modules.vqvae.quantize import VectorQuantizer2 as VectorQuantizer
 from torchvision.utils import save_image
 import numpy as np
 from einops import rearrange
+
 def get_parser():
     parser = ArgumentParser()
     parser.add_argument('--result_save_dir', type=str, default='./results')
@@ -37,14 +38,12 @@ def get_parser():
     parser.add_argument('--reproduce', type=int, default=False)
     return parser
 
-
 def main(opts):
     model = CascadeLDM(opts)
     datamodule = testDatamodule(latent_root='./latents/3D')
     trainer = pl.Trainer(accelerator=opts.accelerator, devices=opts.devices, deterministic=opts.deterministic,
                         logger=False, profiler=opts.profiler, benchmark=opts.benchmark)
     trainer.test(model=model, datamodule=datamodule)
-
 
 class CascadeLDM(pl.LightningModule):
     def __init__(self, opts):
