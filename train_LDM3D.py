@@ -209,7 +209,7 @@ class LDM(DDPM_base):
                 print(f"setting self.scale_factor to {self.scale_factor}")
             print("### USING STD-RESCALING ###")
 
-    def apply_model(self, x):
+    def apply_model(self, x, t, context):
         # Check the shape of the input tensor
         if len(x.shape) == 3:  # Assuming the input tensor is in (N, C, W) format
             # Reshape the tensor to (N, C, 1, 1, W) to add the missing dimensions
