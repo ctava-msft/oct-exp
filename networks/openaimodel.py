@@ -745,10 +745,6 @@ class UNetModel(nn.Module):
         self.middle_block.apply(convert_module_to_f32)
         self.output_blocks.apply(convert_module_to_f32)
 
-    def compute_t_emb(self, x):
-        # Define the logic for computing t_emb here
-        pass
-
     def forward(self, x, timesteps=None, context=None, y=None,**kwargs):
         """
         Apply the model to an input batch.
@@ -766,14 +762,11 @@ class UNetModel(nn.Module):
         # Ensure x is on the correct device
         x = x.to(self.device)
 
-        # Compute t_emb and ensure it is on the correct device
-        t_emb = self.compute_t_emb(x)
-        t_emb = t_emb.to(self.device)
-
         # Ensure timesteps is not None before calling timestep_embedding
         if timesteps is None:
             timesteps = th.tensor([0])
         t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
+        t_emb = t_emb.to(self.device)
         emb = self.time_embed(t_emb)
 
         if self.num_classes is not None:
