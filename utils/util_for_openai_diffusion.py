@@ -211,6 +211,9 @@ class DDPM_base(pl.LightningModule):
         return loss
 
     def get_loss(self, pred, target, mean=True):
+        if hasattr(pred, 'shape') and hasattr(target, 'shape'):
+            print(f"pred shape: {pred.shape}")
+            print(f"target shape: {target.shape}")
         if self.loss_type == 'l1':
             loss = (target - pred).abs()
             if mean:
