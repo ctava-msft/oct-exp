@@ -178,46 +178,39 @@ class DDPM_base(pl.LightningModule):
                 if context is not None:
                     print(f"{context}: Restored training weights")
 
-    def get_loss(self, pred, target, mean=True):
-        # Print shapes of pred and target
-        print(f"Shape of pred: {pred.shape}")
-        print(f"Shape of target: {target.shape}")
+    def get_loss(pred, target, mean=True):
+        # Print initial shapes of target and pred
+        print(f"Initial target shape: {target.shape}")
+        print(f"Initial pred shape: {pred.shape}")
 
-        # Ensure the target can be reshaped to the same shape as pred
-        if target.numel() != pred.numel():
-            print(f"Resizing target from {target.shape} to {pred.shape}")
-            # Ensure target has the same number of dimensions as pred
-            if len(target.shape) == 2:
-                target = target.unsqueeze(0).unsqueeze(0)  # Add batch and channel dimensions
-            elif len(target.shape) == 3:
-                target = target.unsqueeze(0)  # Add batch dimension
-            elif len(target.shape) == 4:
-                target = target.unsqueeze(1)  # Add channel dimension
+        # Add channel dimension if necessary
+        if len(target.shape) < len(pred.shape):
+            target = target.unsqueeze(1)  # Add channel dimension
 
-            # Ensure target has the same number of dimensions as pred before interpolation
-            while len(target.shape) < len(pred.shape):
-                target = target.unsqueeze(0)
+        # Ensure target has the same number of dimensions as pred before interpolation
+        while len(target.shape) < len(pred.shape):
+            target = target.unsqueeze(0)
 
-            print(f"Target shape before interpolation: {target.shape}")
-            target = F.interpolate(target, size=pred.shape[2:], mode='nearest')
-            print(f"Target shape after interpolation: {target.shape}")
+        print(f"Target shape before interpolation: {target.shape}")
+        target = F.interpolate(target, size=pred.shape[2:], mode='nearest')
+        print(f"Target shape after interpolation: {target.shape}")
 
-            # Remove channel dimension if added
-            if len(target.shape) > len(pred.shape):
-                target = target.squeeze(1)
-                print(f"Target shape after squeezing: {target.shape}")
+        # Remove channel dimension if added
+        if len(target.shape) > len(pred.shape):
+            target = target.squeeze(1)
+            print(f"Target shape after squeezing: {target.shape}")
 
         # Ensure the target can be reshaped to the same shape as pred
         if target.numel() != pred.numel():
             raise RuntimeError(f"Cannot reshape target of shape {target.shape} to match pred of shape {pred.shape}")
-        
+
         target = target.view_as(pred)
         loss = F.mse_loss(pred, target, reduction='none')
 
         if mean:
-            return loss.mean()
-        else:
-            return loss
+            loss = loss.mean(dim=[1, 2, 3])
+
+        return loss
 
     def get_lossOLD(self, pred, target, mean=True):
         if self.loss_type == 'l1':
