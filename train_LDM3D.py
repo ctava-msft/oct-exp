@@ -193,7 +193,6 @@ class LDM(DDPM_base):
             print(f"Keeping EMAs of {len(list(self.model_ema.buffers()))}.")
 
     def __call__(self, batch):
-        # Example processing
         if batch is None:
             return None
 
@@ -202,7 +201,9 @@ class LDM(DDPM_base):
         return x, y
 
     def process_batch(self, batch):
-        # Example processing logic
+
+        # Print the batch to inspect its structure
+        print("Batch contents:", batch)
         x = batch['input']
         y = batch['target']
         return x, y
