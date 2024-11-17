@@ -179,26 +179,27 @@ class DDPM_base(pl.LightningModule):
                     print(f"{context}: Restored training weights")
 
     def get_loss(pred, target, mean=True):
-        # Print initial shapes of target and pred
-        print(f"Initial target shape: {target.shape}")
-        print(f"Initial pred shape: {pred.shape}")
+        # Check the type of pred
+        print(f"Type of pred: {type(pred)}")
+        print(f"Type of target: {type(target)}")
 
-        # Add channel dimension if necessary
-        if len(target.shape) < len(pred.shape):
-            target = target.unsqueeze(1)  # Add channel dimension
+        if hasattr(pred, 'shape') and hasattr(target, 'shape'):
+            # Add channel dimension if necessary
+            if len(target.shape) < len(pred.shape):
+                target = target.unsqueeze(1)  # Add channel dimension
 
-        # Ensure target has the same number of dimensions as pred before interpolation
-        while len(target.shape) < len(pred.shape):
-            target = target.unsqueeze(0)
+            # Ensure target has the same number of dimensions as pred before interpolation
+            while len(target.shape) < len(pred.shape):
+                target = target.unsqueeze(0)
 
-        print(f"Target shape before interpolation: {target.shape}")
-        target = F.interpolate(target, size=pred.shape[2:], mode='nearest')
-        print(f"Target shape after interpolation: {target.shape}")
+            print(f"Target shape before interpolation: {target.shape}")
+            target = F.interpolate(target, size=pred.shape[2:], mode='nearest')
+            print(f"Target shape after interpolation: {target.shape}")
 
-        # Remove channel dimension if added
-        if len(target.shape) > len(pred.shape):
-            target = target.squeeze(1)
-            print(f"Target shape after squeezing: {target.shape}")
+            # Remove channel dimension if added
+            if len(target.shape) > len(pred.shape):
+                target = target.squeeze(1)
+                print(f"Target shape after squeezing: {target.shape}")
 
         # Ensure the target can be reshaped to the same shape as pred
         if target.numel() != pred.numel():
