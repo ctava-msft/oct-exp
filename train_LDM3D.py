@@ -306,8 +306,8 @@ class LDM(DDPM_base):
         model_out = self.apply_model(x_noisy, t, None)
         target = noise
 
-        loss = self.get_loss(model_out, target, mean=False).mean(dim=[1, 2, 3])
-        loss = loss.mean()
+        loss = self.get_loss(model_out, target, mean=False)
+        #loss = loss.mean()
         self.log('diffusion loss', loss, prog_bar=True, logger=True, on_step=True, on_epoch=True)
         return loss
 
