@@ -212,6 +212,10 @@ class LDM(DDPM_base):
     def apply_model(self, x, t, context):
         # Print the shape of the input tensor
         print(f"Original input shape: {x.shape}")
+
+        # Ensure input dimensions are at least 2x2x2
+        if x.shape[-3] < 2 or x.shape[-2] < 2 or x.shape[-1] < 2:
+            raise ValueError(f"Input dimensions {x.shape} are smaller than the kernel size (2x2x2)")
         
         # Check if the input needs to be reshaped
         if len(x.shape) == 3:
