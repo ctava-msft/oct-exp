@@ -77,6 +77,17 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
     """
 
     def forward(self, x, emb, context=None):
+
+        print(f"Input shape before conv3d: {x.shape}")
+        # Ensure the input tensor has the correct dimensions
+        if len(x.shape) == 3:
+            # Add batch and channel dimensions if missing
+            x = x.unsqueeze(0).unsqueeze(0)
+        elif len(x.shape) == 4:
+            # Add batch dimension if missing
+            x = x.unsqueeze(0)
+        print(f"Input shape after adjustment: {x.shape}")
+    
         for layer in self:
             if isinstance(layer, TimestepBlock):
                 x = layer(x, emb)
