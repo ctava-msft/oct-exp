@@ -178,7 +178,7 @@ class DDPM_base(pl.LightningModule):
                 if context is not None:
                     print(f"{context}: Restored training weights")
 
-    def get_loss(pred, target, mean=True):
+    def get_lossNew(pred, target, mean=True):
         # Check the type of pred
         print(f"Type of pred: {type(pred)}")
         print(f"Type of target: {type(target)}")
@@ -210,7 +210,7 @@ class DDPM_base(pl.LightningModule):
         print(f"Loss shape: {loss.shape}")
         return loss
 
-    def get_lossOLD(self, pred, target, mean=True):
+    def get_loss(self, pred, target, mean=True):
         if self.loss_type == 'l1':
             loss = (target - pred).abs()
             if mean:
