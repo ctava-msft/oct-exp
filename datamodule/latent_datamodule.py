@@ -28,12 +28,14 @@ class trainDatamodule(pl.LightningDataModule):
         train_latent_paths = []
         for cube_name in self.train_cube_names:
             npy_files = glob.glob(os.path.join(self.latent_root, cube_name, '*.npy'))
-            train_latent_paths.extend(npy_files)
+            for npy_file in npy_files:
+                train_latent_paths.append(npy_file)
 
         test_latent_paths = []
         for cube_name in self.test_cube_names:
             npy_files = glob.glob(os.path.join(self.latent_root, cube_name, '*.npy'))
-            test_latent_paths.extend(npy_files)
+            for npy_file in npy_files:
+                test_latent_paths.append(npy_file)
 
         print(f'train len: {len(train_latent_paths)}  test len: {len(test_latent_paths)}')
         self.train_set = latent_Dataset(latent_paths=train_latent_paths)
