@@ -213,6 +213,10 @@ class LDM(DDPM_base):
         # Print the shape of the input tensor
         print(f"Original input shape: {x.shape}")
 
+        # Resize input to at least 2x2x2 if necessary
+        if x.shape[-3] < 2 or x.shape[-2] < 2 or x.shape[-1] < 2:
+            x = F.interpolate(x, size=(max(2, x.shape[-3]), max(2, x.shape[-2]), max(2, x.shape[-1])), mode='trilinear', align_corners=False)
+
         # Ensure input dimensions are at least 2x2x2
         if x.shape[-3] < 2 or x.shape[-2] < 2 or x.shape[-1] < 2:
             raise ValueError(f"Input dimensions {x.shape} are smaller than the kernel size (2x2x2)")
