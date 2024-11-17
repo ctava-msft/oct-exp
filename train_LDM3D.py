@@ -316,6 +316,9 @@ class LDM(DDPM_base):
         if x is None or y is None:
             raise ValueError("The model's call method returned a tuple with None values. Ensure it returns valid data.")
 
+        # Move x to the correct device
+        x = x.to(self.device)
+
         # Example assignment of z
         z = self.model.forward(x)
 
