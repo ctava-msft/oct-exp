@@ -209,7 +209,16 @@ class LDM(DDPM_base):
                 print(f"setting self.scale_factor to {self.scale_factor}")
             print("### USING STD-RESCALING ###")
 
-    def apply_model(self, x, t, c):
+    def apply_model(self, x, t, context):
+        # Print the shape of the input tensor
+        print(f"Original input shape: {x.shape}")
+        
+        # Check if the input needs to be reshaped
+        if len(x.shape) == 3:
+            # Reshape the input to 5D (batch_size, channels, depth, height, width)
+            x = x.unsqueeze(1).unsqueeze(2)
+            print(f"Reshaped input shape: {x.shape}")
+        
         out = self.model(x=x, timesteps=t)
         return out
 
