@@ -182,13 +182,12 @@ class DDPM_base(pl.LightningModule):
         print(f"Shape of pred: {pred.shape}")
         print(f"Shape of target: {target.shape}")
 
-        # Ensure dimensions match
-        if pred.shape != target.shape:
-            # Adjust dimensions if necessary (example: broadcasting or reshaping)
-            # This is a placeholder, adjust according to your specific needs
-            target = target.view_as(pred)
-
-        loss = (target - pred).abs()
+        # Ensure the target can be reshaped to the same shape as pred
+        if target.numel() != pred.numel():
+            raise ValueError(f"Target and prediction must have the same number of elements. Got {target.numel()} and {pred.numel()} respectively.")
+        
+        target = target.view_as(pred)
+        loss = F.mse_loss(pred, target, reduction='none')
 
         if mean:
             return loss.mean()
