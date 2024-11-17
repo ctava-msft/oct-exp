@@ -206,10 +206,7 @@ class DDPM_base(pl.LightningModule):
 
         target = target.view_as(pred)
         loss = F.mse_loss(pred, target, reduction='none')
-
-        if mean:
-            loss = loss.mean(dim=[1, 2, 3])
-
+        print(f"Loss shape: {loss.shape}")
         return loss
 
     def get_lossOLD(self, pred, target, mean=True):
