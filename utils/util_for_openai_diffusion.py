@@ -214,6 +214,10 @@ class DDPM_base(pl.LightningModule):
         if hasattr(pred, 'shape') and hasattr(target, 'shape'):
             print(f"pred shape: {pred.shape}")
             print(f"target shape: {target.shape}")
+
+        # Reshape target to match pred
+        target = target.view(pred.shape)
+
         if self.loss_type == 'l1':
             loss = (target - pred).abs()
             if mean:
