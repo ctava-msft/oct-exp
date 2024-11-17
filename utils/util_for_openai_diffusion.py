@@ -198,8 +198,16 @@ class DDPM_base(pl.LightningModule):
             while len(target.shape) < len(pred.shape):
                 target = target.unsqueeze(0)
 
+            print(f"Target shape before interpolation: {target.shape}")
             target = F.interpolate(target, size=pred.shape[2:], mode='nearest')
+            print(f"Target shape after interpolation: {target.shape}")
+
             target = target.squeeze(1)  # Remove channel dimension if added
+            print(f"Target shape after squeezing: {target.shape}")
+
+        # Ensure the target can be reshaped to the same shape as pred
+        if target.numel() != pred.numel():
+            raise RuntimeError(f"Cannot reshape target of shape {target.shape} to match pred of shape {pred.shape}")
         
         target = target.view_as(pred)
         loss = F.mse_loss(pred, target, reduction='none')
