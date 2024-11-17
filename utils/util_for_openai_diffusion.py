@@ -186,8 +186,13 @@ class DDPM_base(pl.LightningModule):
         # Ensure the target can be reshaped to the same shape as pred
         if target.numel() != pred.numel():
             print(f"Resizing target from {target.shape} to {pred.shape}")
-            target = F.interpolate(target.unsqueeze(0), size=pred.shape[1:], mode='nearest').squeeze(0)
-            #raise ValueError(f"Target and prediction must have the same number of elements. Got {target.numel()} and {pred.numel()} respectively.")
+            # Ensure target has the same number of dimensions as pred
+            if len(target.shape) == 2:
+                target = target.unsqueeze(0).unsqueeze(0)  # Add batch and channel dimensions
+            elif len(target.shape) == 3:
+                target = target.unsqueeze(0)  # Add batch dimension
+            target = F.interpolate(target, size=pred.shape[2:], mode='nearest')
+            target = target.squeeze(0)  # Remove batch dimension if added
         
         target = target.view_as(pred)
         loss = F.mse_loss(pred, target, reduction='none')
