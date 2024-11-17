@@ -213,6 +213,10 @@ class LDM(DDPM_base):
         # Print the shape of the input tensor
         print(f"Original input shape: {x.shape}")
 
+        # Ensure input tensor has 5 dimensions (N, C, D, H, W)
+        if len(x.shape) == 4:
+            x = x.unsqueeze(2)  # Add a dimension for depth if missing
+            
         # Resize input to at least 2x2x2 if necessary
         if x.shape[-3] < 2 or x.shape[-2] < 2 or x.shape[-1] < 2:
             x = F.interpolate(x, size=(max(2, x.shape[-3]), max(2, x.shape[-2]), max(2, x.shape[-1])), mode='trilinear', align_corners=False)
