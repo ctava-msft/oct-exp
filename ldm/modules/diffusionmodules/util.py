@@ -158,6 +158,8 @@ def timestep_embedding(timesteps, dim, max_period=10000, repeat_only=False):
     """
     if not repeat_only:
         half = dim // 2
+        if timesteps is None:
+            raise ValueError("timesteps is None, ensure it is properly initialized before calling timestep_embedding")
         freqs = torch.exp(
             -math.log(max_period) * torch.arange(start=0, end=half, dtype=torch.float32) / half
         ).to(device=timesteps.device)
