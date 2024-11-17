@@ -86,6 +86,10 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
         elif len(x.shape) == 4:
             # Add batch dimension if missing
             x = x.unsqueeze(0)
+        # Adjust the number of channels if necessary
+        if x.shape[1] == 1:
+            x = x.repeat(1, 4, 1, 1, 1)
+        
         print(f"Input shape after adjustment: {x.shape}")
     
         for layer in self:
