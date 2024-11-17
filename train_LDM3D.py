@@ -287,11 +287,18 @@ class LDM(DDPM_base):
 
     def training_step(self, batch, batch_idx):
         # Forward pass
-        x, y = self(batch)
+        result = self(batch)
 
-        # Check if x is None
-        if x is None:
-            raise ValueError("Input x is None. Ensure the batch contains valid data.")
+        # Check if result is None
+        if result is None:
+            raise ValueError("Input result is None. Ensure the batch contains valid data.")
+
+        # Unpack the result
+        x, y = result
+
+        # Check if x or y is None
+        if x is None or y is None:
+            raise ValueError("The model's call method returned a tuple with None values. Ensure it returns valid data.")
 
         # Example assignment of z
         z = self.model.encode(x)
