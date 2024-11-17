@@ -71,7 +71,7 @@ class latent_Dataset(Dataset):
         self.latent_paths = latent_paths
 
     def __getitem__(self, index):
-        print(self.img_paths[index], self.latent_paths[index])
+        print(self.latent_paths[index])
 
         latent = np.load(self.latent_paths[index])
         latent = torch.from_numpy(latent).float()[0,:,:,:]
