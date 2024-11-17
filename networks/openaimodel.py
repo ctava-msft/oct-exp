@@ -87,13 +87,18 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
             # Add batch dimension if missing
             x = x.unsqueeze(0)
         # Adjust the number of channels if necessary
-        if x.shape[1] == 1:
-            x = x.repeat(1, 4, 1)
+        if x.dim() == 2:
+            x = x.repeat(1, 4)  # Adjust for 2D tensor
+        elif x.dim() == 3:
+            x = x.repeat(1, 4, 1)  # Adjust for 3D tensor
         
         x = x.unsqueeze(0)
         # Adjust the number of channels if necessary
         if x.shape[1] == 1:
-            x = x.repeat(1, 4, 1)
+            if x.dim() == 2:
+                x = x.repeat(1, 4)  # Adjust for 2D tensor
+            elif x.dim() == 3:
+                x = x.repeat(1, 4, 1)  # Adjust for 3D tensor
 
         print(f"Input shape after adjustment: {x.shape}")
 
