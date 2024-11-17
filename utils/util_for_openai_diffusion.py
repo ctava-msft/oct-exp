@@ -191,8 +191,10 @@ class DDPM_base(pl.LightningModule):
                 target = target.unsqueeze(0).unsqueeze(0)  # Add batch and channel dimensions
             elif len(target.shape) == 3:
                 target = target.unsqueeze(0)  # Add batch dimension
+            elif len(target.shape) == 4:
+                target = target.unsqueeze(1)  # Add channel dimension
             target = F.interpolate(target, size=pred.shape[2:], mode='nearest')
-            target = target.squeeze(0)  # Remove batch dimension if added
+            target = target.squeeze(1)  # Remove channel dimension if added
         
         target = target.view_as(pred)
         loss = F.mse_loss(pred, target, reduction='none')
