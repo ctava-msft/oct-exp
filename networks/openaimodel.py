@@ -467,7 +467,8 @@ class UNetModel(nn.Module):
         disable_self_attentions=None,
         num_attention_blocks=None
     ):
-        super().__init__()
+        #super().__init__()
+        super(UNetModel, self).__init__()
         if use_spatial_transformer:
             assert context_dim is not None, 'Fool!! You forgot to include the dimension of your cross-attention conditioning...'
 
@@ -712,6 +713,9 @@ class UNetModel(nn.Module):
                     ds //= 2
                 self.output_blocks.append(TimestepEmbedSequential(*layers))
                 self._feature_size += ch
+                self.device = th.device("cuda" if th.cuda.is_available() else "cpu")
+                # Move the model to the device
+                self.to(self.device)
 
         self.out = nn.Sequential(
             normalization(ch),
