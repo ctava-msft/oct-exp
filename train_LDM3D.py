@@ -219,6 +219,12 @@ class LDM(DDPM_base):
             x = x.unsqueeze(1).unsqueeze(2)
             print(f"Reshaped input shape: {x.shape}")
         
+        # Ensure the input tensor has the correct number of channels
+        expected_channels = 4
+        if x.shape[1] != expected_channels:
+            x = x.expand(-1, expected_channels, -1, -1, -1)
+            print(f"Expanded input shape: {x.shape}")
+        
         out = self.model(x=x, timesteps=t)
         return out
 
