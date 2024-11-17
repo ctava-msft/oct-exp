@@ -79,7 +79,7 @@ class latent_Dataset(Dataset):
         print(self.latent_paths[index])
 
         latent = np.load(self.latent_paths[index])
-        latent = torch.from_numpy(latent).float()[0,:,:,:]
+        latent = torch.from_numpy(latent).float()[0,:,:]
 
         return {'latent':latent,
                 'latent_path': self.latent_paths[index]}
