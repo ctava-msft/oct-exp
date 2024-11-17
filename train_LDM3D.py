@@ -282,6 +282,9 @@ class LDM(DDPM_base):
         z = batch['latent']
         return z
 
+    def forward(self, batch):
+        pass
+
     def training_step(self, batch, batch_idx):
         # Forward pass
         z = self(batch)
