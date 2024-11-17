@@ -69,6 +69,23 @@ def main(opts):
                          default_root_dir=opts.default_root_dir, profiler=opts.profiler, benchmark=opts.benchmark,
                          callbacks=[checkpoint_callback, TQDMProgressBar(refresh_rate=10)])
     model.instantiate_first_stage(opts)
+
+    # Debug: Check requires_grad for model parameters
+    for name, param in model.named_parameters():
+        if not param.requires_grad:
+            print(f"Parameter {name} does not require grad")
+
+    # Debug: Wrap the training step to check loss requires_grad
+    original_training_step = model.training_step
+
+    def wrapped_training_step(*args, **kwargs):
+        loss = original_training_step(*args, **kwargs)
+        if not loss.requires_grad:
+            print("Loss does not require grad")
+        return loss
+
+    model.training_step = wrapped_training_step
+
     trainer.fit(model=model, datamodule=datamodule)
 
 
