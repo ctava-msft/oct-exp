@@ -209,14 +209,28 @@ class LDM(DDPM_base):
                 print(f"setting self.scale_factor to {self.scale_factor}")
             print("### USING STD-RESCALING ###")
 
-    def apply_model(self, x, t, context):
+    def apply_model(self, x):
+        # Check the shape of the input tensor
+        if len(x.shape) == 3:  # Assuming the input tensor is in (N, C, W) format
+            # Reshape the tensor to (N, C, 1, 1, W) to add the missing dimensions
+            x = x.unsqueeze(2).unsqueeze(3)
+        elif len(x.shape) == 4:  # Assuming the input tensor is in (N, C, H, W) format
+            # Reshape the tensor to (N, C, 1, H, W) to add the missing dimension
+            x = x.unsqueeze(2)
+        
+        # Now the tensor should be in (N, C, D, H, W) format
+        x = F.interpolate(x, size=(max(2, x.shape[-3]), max(2, x.shape[-2]), max(2, x.shape[-1])), mode='trilinear', align_corners=False)
+        
+        return x
+
+    def apply_modelold(self, x, t, context):
         # Print the shape of the input tensor
         print(f"Original input shape: {x.shape}")
 
         # Ensure input tensor has 5 dimensions (N, C, D, H, W)
         if len(x.shape) == 4:
             x = x.unsqueeze(2)  # Add a dimension for depth if missing
-            
+
         # Resize input to at least 2x2x2 if necessary
         if x.shape[-3] < 2 or x.shape[-2] < 2 or x.shape[-1] < 2:
             x = F.interpolate(x, size=(max(2, x.shape[-3]), max(2, x.shape[-2]), max(2, x.shape[-1])), mode='trilinear', align_corners=False)
