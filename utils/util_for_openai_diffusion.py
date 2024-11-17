@@ -202,8 +202,10 @@ class DDPM_base(pl.LightningModule):
             target = F.interpolate(target, size=pred.shape[2:], mode='nearest')
             print(f"Target shape after interpolation: {target.shape}")
 
-            target = target.squeeze(1)  # Remove channel dimension if added
-            print(f"Target shape after squeezing: {target.shape}")
+            # Remove channel dimension if added
+            if len(target.shape) > len(pred.shape):
+                target = target.squeeze(1)
+                print(f"Target shape after squeezing: {target.shape}")
 
         # Ensure the target can be reshaped to the same shape as pred
         if target.numel() != pred.numel():
