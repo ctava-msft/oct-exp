@@ -193,6 +193,11 @@ class DDPM_base(pl.LightningModule):
                 target = target.unsqueeze(0)  # Add batch dimension
             elif len(target.shape) == 4:
                 target = target.unsqueeze(1)  # Add channel dimension
+
+            # Ensure target has the same number of dimensions as pred before interpolation
+            while len(target.shape) < len(pred.shape):
+                target = target.unsqueeze(0)
+
             target = F.interpolate(target, size=pred.shape[2:], mode='nearest')
             target = target.squeeze(1)  # Remove channel dimension if added
         
