@@ -192,6 +192,21 @@ class LDM(DDPM_base):
             self.model_ema = LitEma(self.model)
             print(f"Keeping EMAs of {len(list(self.model_ema.buffers()))}.")
 
+    def __call__(self, batch):
+        # Example processing
+        if batch is None:
+            return None
+
+        # Process the batch and return x, y
+        x, y = self.process_batch(batch)
+        return x, y
+
+    def process_batch(self, batch):
+        # Example processing logic
+        x = batch['input']
+        y = batch['target']
+        return x, y
+
     def instantiate_first_stage(self, opts):
         model = VQModelInterface()
         print('load vq from', opts.first_stage_ckpt)
