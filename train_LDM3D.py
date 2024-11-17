@@ -203,9 +203,9 @@ class LDM(DDPM_base):
     def process_batch(self, batch):
 
         # Print the batch to inspect its structure
-        print("Batch contents:", batch)
-        x = batch['input']
-        y = batch['target']
+        # print("Batch contents:", batch)
+        x = batch['latent']
+        y = batch['latent_path']
         return x, y
 
     def instantiate_first_stage(self, opts):
