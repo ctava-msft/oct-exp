@@ -757,6 +757,11 @@ class UNetModel(nn.Module):
 
         # Ensure x is on the correct device
         x = x.to(self.device)
+
+        # Compute t_emb and ensure it is on the correct device
+        t_emb = self.compute_t_emb(x)
+        t_emb = t_emb.to(self.device)
+
         # Ensure timesteps is not None before calling timestep_embedding
         if timesteps is None:
             timesteps = th.tensor([0])
