@@ -1,4 +1,5 @@
 import torch
+import torch.nn.functional as F
 from networks.openaimodel import UNetModel
 import pytorch_lightning as pl
 import numpy as np
@@ -184,7 +185,9 @@ class DDPM_base(pl.LightningModule):
 
         # Ensure the target can be reshaped to the same shape as pred
         if target.numel() != pred.numel():
-            raise ValueError(f"Target and prediction must have the same number of elements. Got {target.numel()} and {pred.numel()} respectively.")
+            print(f"Resizing target from {target.shape} to {pred.shape}")
+            target = F.interpolate(target.unsqueeze(0), size=pred.shape[1:], mode='nearest').squeeze(0)
+            #raise ValueError(f"Target and prediction must have the same number of elements. Got {target.numel()} and {pred.numel()} respectively.")
         
         target = target.view_as(pred)
         loss = F.mse_loss(pred, target, reduction='none')
