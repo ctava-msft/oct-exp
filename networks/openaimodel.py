@@ -754,6 +754,9 @@ class UNetModel(nn.Module):
             self.num_classes is not None
         ), "must specify y if and only if the model is class-conditional"
         hs = []
+
+        # Ensure x is on the correct device
+        x = x.to(self.device)
         # Ensure timesteps is not None before calling timestep_embedding
         if timesteps is None:
             timesteps = th.tensor([0])
