@@ -90,8 +90,13 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
         if x.shape[1] == 1:
             x = x.repeat(1, 4, 1, 1, 1)
         
+        x = x.unsqueeze(0)
+        # Adjust the number of channels if necessary
+        if x.shape[1] == 1:
+            x = x.repeat(1, 4, 1, 1, 1)
+
         print(f"Input shape after adjustment: {x.shape}")
-    
+
         for layer in self:
             if isinstance(layer, TimestepBlock):
                 x = layer(x, emb)
@@ -100,10 +105,12 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
             elif isinstance(layer, nn.AvgPool3d):
                 # Adjust kernel size if input dimensions are smaller
                 kernel_size = (min(2, x.shape[2]), min(2, x.shape[3]), min(2, x.shape[4]))
+                if kernel_size == (1, 1, 1):
+                    raise RuntimeError(f"Input image dimensions are too small for avg_pool3d: {x.shape[2:]}")
                 x = F.avg_pool3d(x, kernel_size)
             else:
                 x = layer(x)
-                
+
         return x
 
 
