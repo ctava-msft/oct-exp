@@ -745,6 +745,10 @@ class UNetModel(nn.Module):
         self.middle_block.apply(convert_module_to_f32)
         self.output_blocks.apply(convert_module_to_f32)
 
+    def compute_t_emb(self, x):
+        # Define the logic for computing t_emb here
+        pass
+
     def forward(self, x, timesteps=None, context=None, y=None,**kwargs):
         """
         Apply the model to an input batch.
