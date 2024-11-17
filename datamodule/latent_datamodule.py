@@ -25,6 +25,7 @@ class trainDatamodule(pl.LightningDataModule):
             self.test_cube_names = json.load(f)
 
     def setup(self, stage=None):
+        print(f'latent_root: {self.latent_root}  train_cube_names: {self.train_cube_names}')
         train_latent_paths = []
         for cube_name in self.train_cube_names:
             npy_files = glob.glob(os.path.join(self.latent_root, cube_name, '*.npy'))
