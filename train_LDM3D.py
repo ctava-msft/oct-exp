@@ -317,7 +317,7 @@ class LDM(DDPM_base):
             raise ValueError("The model's call method returned a tuple with None values. Ensure it returns valid data.")
 
         # Example assignment of z
-        z = self.model.encode(x)
+        z = self.model.forward(x)
 
         # Check if z is None
         if z is None:
