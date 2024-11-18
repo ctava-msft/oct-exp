@@ -197,6 +197,7 @@ class Downsample(nn.Module):
         self.out_channels = out_channels or channels
         self.use_conv = use_conv
         self.dims = dims
+        self.kernel_size = 2
         self.pool = th.nn.AvgPool3d(kernel_size=(2, 2, 2))
         stride = 2 if dims != 3 else (2, 2, 2)
         if use_conv:
@@ -212,7 +213,10 @@ class Downsample(nn.Module):
         print(f"self.channels: {self.channels}")
 
         # Check input dimensions
-        if x.size(2) < 2 or x.size(3) < 2 or x.size(4) < 2:
+        #if x.size(2) < 2 or x.size(3) < 2 or x.size(4) < 2:
+        #    raise ValueError("Input dimensions are smaller than the kernel size.")
+        
+        if x.size(2) < self.kernel_size or x.size(3) < self.kernel_size:
             raise ValueError("Input dimensions are smaller than the kernel size.")
         
         if x.shape[1] != self.channels:
