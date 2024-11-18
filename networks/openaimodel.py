@@ -331,8 +331,8 @@ class ResBlock(TimestepBlock):
         kernel_size = (min(2, x.shape[2]), min(2, x.shape[3]), min(2, x.shape[4]))
         print(f"Input shape: {x.shape}, kernel_size: {kernel_size}")
         kernel_depth, kernel_height, kernel_width = kernel_size
-        if x.shape[-1] <= kernel_width or x.shape[-2] <= kernel_height or x.shape[-3] <= kernel_depth:
-            raise ValueError(f"Input dimensions {x.shape[-3:]}, are smaller than or equal to the kernel size {kernel_size}.")
+        if x.shape[2] <= kernel_depth or x.shape[3] <= kernel_height or x.shape[4] <= kernel_width:
+            raise ValueError(f"Input dimensions {x.shape[2:]}, are smaller than or equal to the kernel size {kernel_size}.")
         if self.updown:
             in_rest, in_conv = self.in_layers[:-1], self.in_layers[-1]
             h = in_rest(x)
