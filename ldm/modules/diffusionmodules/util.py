@@ -217,11 +217,15 @@ class GroupNorm32(nn.GroupNorm):
     def __init__(self, num_channels, num_groups=32):
         super(GroupNorm32, self).__init__(num_groups, num_channels)
         self.num_groups = num_groups
-        self.weight = nn.Parameter(torch.ones(num_channels))
-        self.bias = nn.Parameter(torch.zeros(num_channels))
+        self.weight = None
+        self.bias = None
         self.eps = 1e-5
 
     def forward(self, x):
+        if self.weight is None or self.bias is None:
+            self.num_channels = x.size(1)
+            self.weight = nn.Parameter(torch.ones(self.num_channels))
+            self.bias = nn.Parameter(torch.zeros(self.num_channels))
         return F.group_norm(x, self.num_groups, self.weight, self.bias, self.eps)
         # print(f"Input shape: {x.shape}")
         # x = x.float()
