@@ -53,7 +53,7 @@ def get_parser():
 
 def main(opts):
     # torch.set_num_threads(2)
-    torch.set_float32_matmul_precision('high')
+    torch.set_float32_matmul_precision('medium')
     datamodule = trainDatamodule(**vars(opts))
     model = LDM(opts)
     checkpoint_callback = ModelCheckpoint(
