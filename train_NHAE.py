@@ -61,7 +61,6 @@ def main(opts):
             dirpath='./checkpoints/NHAE',  # Directory to save the checkpoints
             filename='nhae-{epoch:02d}',  # Descriptive filename format
             save_top_k=-1,  # Save all models
-            save_on_train_epoch_end=True,  # Save at the end of the epoch
             save_weights_only=True,  # Save only the model weights
             every_n_epochs=1  # Save every epoch
         )
@@ -294,8 +293,17 @@ class VQModel(pl.LightningModule):
             self.log_dict(log_dict_disc, prog_bar=False, logger=True, on_step=True, on_epoch=True)
             return discloss
         
-    @torch.no_grad()
+    @torch.inference_mode()
     def on_train_epoch_end(self):
+        x = self.x_sample.to(self.device)
+        xrec, _ = self(x, return_pred_indices=False)
+        os.makedirs(os.path.join(self.opts.default_root_dir, 'train_progress'), exist_ok=True)
+        for i in range(x.shape[0]):
+            save_image([x[i] * 0.5 + 0.5, xrec[i] * 0.5 + 0.5],
+                       os.path.join(self.opts.default_root_dir, 'train_progress', str(self.current_epoch)+str(i) + '.png'))
+            
+    @torch.no_grad()
+    def on_train_epoch_endOLD(self):
         if self.sample_batch is None: return
         batch = self.sample_batch
         # print(f"Batch keys: {batch.keys()}")
