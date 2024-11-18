@@ -8,7 +8,7 @@ from tqdm import tqdm
 import torch.nn as nn
 from networks.ema import LitEma
 from networks.openaimodel import UNetModel
-from datamodule.uncound_gen_3D import uncond_gen_Datamodule
+from datamodule.uncound_gen_3D_datamodule import uncond_gen_Datamodule
 from utils.util_for_openai_diffusion import DDPM_base
 from utils.util import load_network
 from networks.ldm3D_utils.vq_gan_3d.model.vqgan import DecoderSR_old as DecoderSR
