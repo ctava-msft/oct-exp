@@ -141,6 +141,7 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
                     x = x.squeeze(2)  # Remove the third dimension (index 2)
                 # Print the shape of the input tensor before passing it through the layer
                 print(f"Shape before layer: {x.shape}")
+                x = x.view(-1, 11, 640, 400)  # Adjust the dimensions as needed
                 x = layer(x)
                 # Print the shape of the tensor after passing it through the layer
                 print(f"Shape after layer: {x.shape}")
