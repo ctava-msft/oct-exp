@@ -91,6 +91,7 @@ class VQModel(pl.LightningModule):
         self.post_quant_conv = torch.nn.Conv2d(self.embed_dim, ddconfig["z_channels"], 1)
         self.lr_g_factor = 1.0
         self.automatic_optimization = False
+        self.batch = None
         if opts.command == 'fit':
             self.save_hyperparameters()
             lossconfig = dict(disc_conditional=False, disc_in_channels=1, disc_num_layers=2, disc_start=1, disc_weight=0.6,

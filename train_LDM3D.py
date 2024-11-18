@@ -168,6 +168,7 @@ class LDM(DDPM_base):
             self.p3d.append(l)
             self.p3d.append(r)
         print(f'current size: {opts.latent_size}, target size: {opts.paded_size}, calculated pad: {self.p3d}')
+        self.batch = None
         self.channels = opts.latent_channel
         self.parameterization = "eps"  # all assuming fixed variance schedules
         self.loss_type = "l1"
@@ -256,6 +257,8 @@ class LDM(DDPM_base):
         pass
 
     def training_step(self, batch, batch_idx):
+        if batch_idx == 0:
+            self.batch = batch
         # Forward pass
         result = self(batch)
         # Check if result is None

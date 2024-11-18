@@ -105,6 +105,7 @@ class VQModel(pl.LightningModule):
         self.quant_conv = torch.nn.Conv2d(self.embed_dim, self.embed_dim, 1)
         self.post_quant_conv = torch.nn.Conv2d(self.embed_dim, self.embed_dim, 1)
         self.automatic_optimization = False
+        self.batch = None
         self.lr_g_factor = 1.0
         if opts.command == 'fit':
             self.save_hyperparameters()
@@ -258,6 +259,8 @@ class VQModel(pl.LightningModule):
         return frame_target, frame_rec_3D, frame_rec_2D
     
     def training_step(self, batch, batch_idx):
+        if batch_idx == 0:
+            self.batch = batch
         x = self.get_input(batch)
         frame_target, frame_rec_3D, latent_loss, emb_loss = self(x)
         target = frame_target

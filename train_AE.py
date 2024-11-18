@@ -109,6 +109,7 @@ class VQModel(pl.LightningModule):
         self.post_quant_conv = torch.nn.Conv2d(self.embed_dim, ddconfig["z_channels"], 1)
         self.lr_g_factor = 1.0
         self.automatic_optimization = False
+        self.batch = None
         self.save_hyperparameters()
 
     @torch.no_grad()

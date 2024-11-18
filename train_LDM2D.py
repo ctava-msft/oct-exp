@@ -120,6 +120,7 @@ class LDM(DDPM_base):
         self.model = UNetModel(**unet_config)
         self.SR3D = DecoderSR(in_channels=4, upsample=[8, 1, 1], norm_type='group', num_groups=4)
         self.latent_size = opts.latent_size
+        self.batch = None
         self.channels = opts.latent_channel
         self.parameterization = "eps"  # all assuming fixed variance schedules
         self.loss_type = "l1"
