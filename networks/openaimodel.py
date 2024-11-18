@@ -76,8 +76,8 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
     support it as an extra input.
     """
 
-    def __init__(self):
-        super(TimestepEmbedSequential, self).__init__()
+    def __init__(self, *args):
+        super(TimestepEmbedSequential, self).__init__(*args)
         self.adjust_channels = nn.Conv2d(in_channels=11, out_channels=8, kernel_size=1)
         self.layer = nn.Conv2d(in_channels=8, out_channels=192, kernel_size=3, padding=1)
 
