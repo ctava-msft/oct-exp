@@ -61,6 +61,7 @@ def main(opts):
             dirpath='./checkpoints/NHAE',  # Directory to save the checkpoints
             filename='nhae-{epoch:02d}',  # Descriptive filename format
             save_top_k=-1,  # Save all models
+            save_on_train_epoch_end=True,  # Save at the end of the epoch
             save_weights_only=True,  # Save only the model weights
             every_n_epochs=1  # Save every epoch
         )
