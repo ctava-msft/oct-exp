@@ -58,11 +58,9 @@ def main(opts):
     if opts.command == "fit":
         model = VQModel(opts)
         checkpoint_callback = ModelCheckpoint(
-            dirpath='checkpoints/NHAE',  # Directory to save the checkpoints
+            dirpath='./checkpoints/NHAE',  # Directory to save the checkpoints
             filename='nhae-{epoch:02d}',  # Descriptive filename format
-            monitor='val_loss',  # Quantity to monitor
             save_top_k=-1,  # Save all models
-            save_best_only=False,  # Save all models
             save_weights_only=True,  # Save only the model weights
             every_n_epochs=1  # Save every epoch
         )
