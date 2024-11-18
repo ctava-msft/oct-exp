@@ -35,11 +35,17 @@ class trainDatamodule(pl.LightningDataModule):
     def setup(self, stage=None):
         train_paths = []
         for cube_name in self.train_cube_names:
-            img_names = natsorted(os.listdir(os.path.join(self.data_root, cube_name)))
+            img_names = natsorted([
+                img_name for img_name in os.listdir(os.path.join(self.data_root, cube_name))
+                if img_name.lower().endswith('.bmp')
+            ])
             train_paths += [os.path.join(self.data_root, cube_name, img_name) for img_name in img_names]
         test_paths = []
         for cube_name in self.test_cube_names:
-            img_names = natsorted(os.listdir(os.path.join(self.data_root, cube_name)))
+            img_names = natsorted([
+                img_name for img_name in os.listdir(os.path.join(self.data_root, cube_name))
+                if img_name.lower().endswith('.bmp')
+            ])
             test_paths += [os.path.join(self.data_root, cube_name, img_name) for img_name in img_names]
         print(f'train len: {len(train_paths)}  test len: {len(test_paths)}')
         self.train_set = unlabeled_Dataset(paths=train_paths, transform=self.train_transform)
