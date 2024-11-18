@@ -50,7 +50,7 @@ class CascadeLDM(pl.LightningModule):
         self.opts = opts
         self.first_stage_model = VQModelInterface()
         print('loading first_stage_model')
-        load_network(self.first_stage_model, opts.first_stage_ckpt, self.device)s
+        load_network(self.first_stage_model, opts.first_stage_ckpt, self.device)
         self.save_dir_3 = os.path.join(opts.result_save_dir, opts.result_save_name)
         os.makedirs(self.save_dir_3, exist_ok=True)
 

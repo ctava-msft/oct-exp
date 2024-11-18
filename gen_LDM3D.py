@@ -22,11 +22,11 @@ def get_parser():
     parser.add_argument('--result_save_dir', type=str, default='./results')
     # data & tio args
     parser.add_argument('--first_stage_ckpt', type=str,
-                        default='./checkpoints/NHAE')
+                        default='./checkpoints/NHAE/nhae-epoch-40.ckpt')
     parser.add_argument('--ldm1_ckpt', type=str,
-                        default='./checkpoints/LDM3D')
+                        default='./checkpoints/LDM2D/ldm2d-epoch-49.ckpt')
     parser.add_argument('--ldm2_ckpt', type=str,
-                        default='./checkpoints/LDM2D')
+                        default='.//checkpoints/LDM2D/ldm3d-epoch-49.ckpt')
     # train args
     parser.add_argument("--batch_size", default=1)
     # lightning args
@@ -56,7 +56,7 @@ class CascadeLDM(pl.LightningModule):
         print('loading ldm1')
         load_network(self.ldm1, opts.ldm1_ckpt, self.device)
         self.save_dir_1 = os.path.join(opts.result_save_dir, 'ldm1')
-        self.save_dir_1_latent = os.path.join(opts.result_save_dir, 'ldm1_latent')
+        self.save_dir_1_latent = os.path.join(opts.result_save_dir, 'ldm1_latents')
         os.makedirs(self.save_dir_1_latent, exist_ok=True)
 
     def test_step(self, batch, batch_idx):

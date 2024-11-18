@@ -23,11 +23,11 @@ def get_parser():
     parser.add_argument('--result_save_dir', type=str, default='./results')
     # data & tio args
     parser.add_argument('--first_stage_ckpt', type=str,
-                        default='./checkpoints/NHAE')
+                        default='./checkpoints/NHAE/nhae-epoch-40.ckpt')
     parser.add_argument('--ldm1_ckpt', type=str,
-                        default='./checkpoints/LDM3D')
+                        default='./checkpoints/LDM2D/ldm2d-epoch-49.ckpt')
     parser.add_argument('--ldm2_ckpt', type=str,
-                        default='./checkpoints/LDM2D')
+                        default='.//checkpoints/LDM2D/ldm3d-epoch-49.ckpt')
     # train args
     parser.add_argument("--batch_size", default=1)
     # lightning args
@@ -40,7 +40,7 @@ def get_parser():
 
 def main(opts):
     model = CascadeLDM(opts)
-    datamodule = testDatamodule(latent_root='./latents/3D')
+    datamodule = testDatamodule(latent_root='./images/oct/oct-500')
     trainer = pl.Trainer(accelerator=opts.accelerator, devices=opts.devices, deterministic=opts.deterministic,
                         logger=False, profiler=opts.profiler, benchmark=opts.benchmark)
     trainer.test(model=model, datamodule=datamodule)
@@ -54,15 +54,14 @@ class CascadeLDM(pl.LightningModule):
         self.ldm2 = LDM2()
         print('loading first_stage_model')
         load_network(self.first_stage_model, opts.first_stage_ckpt, self.device)
-        # print('loading ldm1')
-        # load_network(self.ldm1, opts.ldm1_ckpt, self.device)
-        print('loading ldm2')
-        load_network(self.ldm2, opts.ldm2_ckpt, self.device)
-        self.ldm2.switch_to_ema()
-
+        print('loading ldm1')
+        load_network(self.ldm1, opts.ldm1_ckpt, self.device)
+        self.ldm1.switch_to_ema()
+        #print('loading ldm2')
+        #load_network(self.ldm2, opts.ldm2_ckpt, self.device)
         # self.save_dir_1 = os.path.join(opts.result_save_dir, 'ldm1')
-        self.save_dir_2 = os.path.join(opts.result_save_dir, 'ldm2')
-        self.save_dir_2_latent = os.path.join(opts.result_save_dir, 'ldm2_latent')
+        self.save_dir_1 = os.path.join(opts.result_save_dir, 'ldm1')
+        self.save_dir_1_latent = os.path.join(opts.result_save_dir, 'ldm1_latents')
 
     def test_step(self, batch, batch_idx):
         full_paths = batch['latent_path'][0]
@@ -86,8 +85,8 @@ class CascadeLDM(pl.LightningModule):
             refine_frame_rec = self.first_stage_model.decode_2D(h_refine, testing=True)*0.5+0.5
 
             names = [str(i + l+1) + '.png' for l in range(bz)]
-            # self.save_batch_images(frame_rec,os.path.join(self.save_dir_1, paths[j]), names)
-            self.save_batch_images(refine_frame_rec,os.path.join(self.save_dir_2, path), names)
+            #self.save_batch_images(refine_frame_rec,os.path.join(self.save_dir_1, paths[j]), names)
+            self.save_batch_images(refine_frame_rec,os.path.join(self.save_dir_1, path), names)
 
             h_refine = h_refine.permute(1,0,2,3).unsqueeze(0)
             print(h_refine.shape)
@@ -95,7 +94,7 @@ class CascadeLDM(pl.LightningModule):
             # names = [str(i + l+1) + '.npy' for l in range(bz)]
             # self.save_batch_npys(h_refine.cpu().numpy(),os.path.join(self.save_dir_2_latent, path), names)
         result = result.cpu().numpy()
-        np.save(os.path.join(self.save_dir_2_latent, path), result)
+        np.save(os.path.join(self.save_dir_1_latent, path), result)
     def save_batch_images(self, images, save_dir, names):
         os.makedirs(save_dir, exist_ok=True)
         for i in range(images.shape[0]):
