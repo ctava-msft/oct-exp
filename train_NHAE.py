@@ -171,7 +171,7 @@ class VQModel(pl.LightningModule):
             return h_sr, emb_loss
 
     def encode_3D_nosr(self, x):
-        print(f"Type of x before assignment: {type(x)}")
+        #print(f"Type of x before assignment: {type(x)}")
         if isinstance(x, dict) and 'data' in x:
             x = x['data']
         if not isinstance(x, torch.Tensor):
@@ -200,15 +200,15 @@ class VQModel(pl.LightningModule):
 
     def forward(self, x):
         num = 5
-        print(f"Type of x before conversion: {type(x)}")
+        #print(f"Type of x before conversion: {type(x)}")
         if isinstance(x, dict):
-            print(f"Keys in x: {x.keys()}")
+            #print(f"Keys in x: {x.keys()}")
             if 'data' not in x:
                 raise KeyError("Key 'data' not found in the input dictionary")
             x = x['data']
         if not isinstance(x, torch.Tensor):
             raise TypeError("Expected 'x' to be a tensor")
-        print(f"Type of x after conversion: {type(x)}")
+        #print(f"Type of x after conversion: {type(x)}")
 
         n, c, d, h, w = x.shape
         # id2 = torch.randint(0, d, (num,), device=self.device)
@@ -236,16 +236,15 @@ class VQModel(pl.LightningModule):
         return frame_target, frame_rec_3D, latent_loss, emb_loss1 + emb_loss2
 
     def check_forward(self, x):
-
-        print(f"Type of x before conversion: {type(x)}")
+        #print(f"Type of x before conversion: {type(x)}")
         if isinstance(x, dict):
-            print(f"Keys in x: {x.keys()}")
+            #print(f"Keys in x: {x.keys()}")
             if 'data' not in x:
                 raise KeyError("Key 'data' not found in the input dictionary")
             x = x['data']
         if not isinstance(x, torch.Tensor):
             raise TypeError("Expected 'x' to be a tensor")
-        print(f"Type of x after conversion: {type(x)}")
+        #print(f"Type of x after conversion: {type(x)}")
 
         num = 5
         n, c, d, h, w = x.shape
@@ -301,15 +300,15 @@ class VQModel(pl.LightningModule):
         # print(f"Batch keys: {batch.keys()}")
         x = batch['image']
 
-        print(f"Type of x before conversion: {type(x)}")
+        #print(f"Type of x before conversion: {type(x)}")
         if isinstance(x, dict):
-            print(f"Keys in x: {x.keys()}")
+            #print(f"Keys in x: {x.keys()}")
             if 'data' not in x:
                 raise KeyError("Key 'data' not found in the input dictionary")
             x = x['data']
         if not isinstance(x, torch.Tensor):
             raise TypeError("Expected 'x' to be a tensor")
-        print(f"Type of x after conversion: {type(x)}")
+        #print(f"Type of x after conversion: {type(x)}")
 
         name = batch['name'][0]
         frame_target, frame_rec_3D, frame_rec_2D = self.check_forward(x)
@@ -319,17 +318,17 @@ class VQModel(pl.LightningModule):
 
     def validation_step(self, batch, batch_idx):
 
-        print(f"Batch keys: {batch.keys()}")
+        #print(f"Batch keys: {batch.keys()}")
         x = batch['image']
-        print(f"Type of x before conversion: {type(x)}")
+        #print(f"Type of x before conversion: {type(x)}")
         if isinstance(x, dict):
-            print(f"Keys in x: {x.keys()}")
+            #print(f"Keys in x: {x.keys()}")
             if 'data' not in x:
                 raise KeyError("Key 'data' not found in the input dictionary")
             x = x['data']
         if not isinstance(x, torch.Tensor):
             raise TypeError("Expected 'x' to be a tensor")
-        print(f"Type of x after conversion: {type(x)}")
+        #print(f"Type of x after conversion: {type(x)}")
     
         name = batch['name'][0]
 
@@ -353,7 +352,7 @@ class VQModel(pl.LightningModule):
         d_sr = h_3D.shape[-3]
         save_dir = os.path.join(self.opts.default_root_dir, 'test_visual' + '_' + opts.ckpt_name, name)
         os.makedirs(save_dir, exist_ok=True)
-        print(save_dir)
+        #print(save_dir)
 
         for i in tqdm.tqdm(range(d_sr)):
             h_frame = h_3D[:, :, i, :, :]
