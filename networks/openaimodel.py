@@ -91,6 +91,8 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
             x = x.repeat(1, 4)  # Adjust for 2D tensor
         elif x.dim() == 3:
             x = x.repeat(1, 4, 1)  # Adjust for 3D tensor
+        elif x.dim() == 5:
+            x = x.repeat(1, 4, 1, 1, 1)  # Adjust for 5D tensor
         else:
             raise ValueError(f"Unsupported tensor dimension: {x.dim()}")
         
@@ -101,6 +103,8 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
                 x = x.repeat(1, 4)  # Adjust for 2D tensor
             elif x.dim() == 3:
                 x = x.repeat(1, 4, 1)  # Adjust for 3D tensor
+            elif x.dim() == 5:
+                x = x.repeat(1, 4, 1, 1, 1)  # Adjust for 5D tensor
             else:
                 raise ValueError(f"Unsupported tensor dimension: {x.dim()}")
             
