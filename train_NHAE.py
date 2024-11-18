@@ -143,7 +143,7 @@ class VQModel(pl.LightningModule):
         return x
 
     def encode_3D(self, x, testing=False):
-        print(f"Type of x before assignment: {type(x)}")
+        # print(f"Type of x before assignment: {type(x)}")
         if isinstance(x, dict) and 'data' in x:
             x = x['data']
         if not isinstance(x, torch.Tensor):
