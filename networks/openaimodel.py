@@ -373,6 +373,7 @@ class ResBlock(TimestepBlock):
             x = self.x_upd(x)
             h = in_conv(h)
         else:
+            print(f"Input shape before reduce_channels: {x.shape}")
             x = self.reduce_channels(x)
             h = self.in_layers(x)
         emb_out = self.emb_layers(emb).type(h.dtype)
