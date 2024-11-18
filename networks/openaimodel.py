@@ -154,18 +154,18 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
                 #new_shape = (total_elements // (11 * 640 * 400), 11, 640, 400)
                 #new_shape = (32, 10, 640, 400)
                 new_shape = (10, 10, 640, -1)
-                print(f"Original shape: {x.shape}")
-                print(f"Total elements: {total_elements}")
-                print(f"New shape: {new_shape}")
+                # print(f"Original shape: {x.shape}")
+                # print(f"Total elements: {total_elements}")
+                # print(f"New shape: {new_shape}")
 
-                product_new_shape = 1
-                for dim in new_shape:
-                    product_new_shape *= dim
-                print(f"Product of new_shape dimensions: {product_new_shape}")
-                if total_elements != product_new_shape:
-                    raise ValueError("Total elements do not match the product of new_shape dimensions.")
+                # product_new_shape = 1
+                # for dim in new_shape:
+                #     product_new_shape *= dim
+                # print(f"Product of new_shape dimensions: {product_new_shape}")
+                # if total_elements != product_new_shape:
+                #     raise ValueError("Total elements do not match the product of new_shape dimensions.")
 
-                x = x.view(10, 10, 640, -1)
+                x = x.view(new_shape)
                 print(f"New tensor shape: {x.shape}")
 
                 # Calculate the expected number of elements for the target shape
