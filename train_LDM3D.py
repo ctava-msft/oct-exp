@@ -44,7 +44,7 @@ def get_parser():
     # lightning args
     parser.add_argument("--max_epochs", type=int, default=50)
     parser.add_argument("--limit_train_batches", type=int, default=1000)
-    parser.add_argument("--eval_save_every_n_epoch", type=int, default=10)
+    parser.add_argument("--eval_save_every_n_epoch", type=int, default=1)
     parser.add_argument('--profiler', default='simple')
     parser.add_argument('--accelerator', default='gpu')
     parser.add_argument('--precision', default=32)
