@@ -13,6 +13,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 from einops import repeat
+import torch.nn.functional as F
 
 from ldm.util import instantiate_from_config
 
@@ -213,12 +214,20 @@ class SiLU(nn.Module):
 
 
 class GroupNorm32(nn.GroupNorm):
+    def __init__(self, num_channels):
+        super(GroupNorm32, self).__init__()
+        self.num_groups = 32  # Example value, adjust as needed
+        self.weight = nn.Parameter(torch.ones(num_channels))
+        self.bias = nn.Parameter(torch.zeros(num_channels))
+        self.eps = 1e-5
+
     def forward(self, x):
-        print(f"Input shape: {x.shape}")
-        x = x.float()
-        output = super().forward(x)
-        print(f"Output shape: {output.shape}")
-        return output.type(x.dtype)
+        return F.group_norm(x, self.num_groups, self.weight, self.bias, self.eps)
+        # print(f"Input shape: {x.shape}")
+        # x = x.float()
+        # output = super().forward(x)
+        # print(f"Output shape: {output.shape}")
+        # return output.type(x.dtype)
 
 def conv_nd(dims, *args, **kwargs):
     """
