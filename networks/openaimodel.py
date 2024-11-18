@@ -957,10 +957,12 @@ class UNetModel(nn.Module):
         target_shape = (29, 11, 640, 400)
         total_elements_target_shape = 29 * 11 * 640 * 400
         
-        if total_elements != total_elements_target_shape:
-            raise ValueError(f"Cannot reshape tensor of total size {total_elements} to shape {target_shape}")
-        
         h = h.view(target_shape)
+        
+        # if total_elements != total_elements_target_shape:
+        #     raise ValueError(f"Cannot reshape tensor of total size {total_elements} to shape {target_shape}")
+        
+
 
 
         for module in self.input_blocks:
