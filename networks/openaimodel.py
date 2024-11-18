@@ -165,12 +165,19 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
                 product = desired_dims[0] * desired_dims[1] * desired_dims[2]
 
                 if remaining_elements % product != 0:
-                    # Adjust new_dim to ensure the product matches remaining_elements
-                    new_dim = remaining_elements // product
-                    if new_dim * product != remaining_elements:
-                        new_dim += 1
-                    if new_dim == 0:
-                        raise RuntimeError("Cannot reshape tensor with the given desired dimensions.")
+                    # Calculate the required new_dim
+                    new_dim = (remaining_elements + product - 1) // product  # Ceiling division
+
+                    # Calculate the total required elements
+                    required_elements = new_dim * product
+
+                    # Calculate the number of padding elements
+                    padding_elements = required_elements - remaining_elements
+
+                    if padding_elements > 0:
+                        # Pad the tensor with zeros
+                        x = torch.nn.functional.pad(x, (0, padding_elements))
+
                     new_shape = desired_dims + (new_dim,)
                 else:
                     new_shape = desired_dims + (remaining_elements // product,)
