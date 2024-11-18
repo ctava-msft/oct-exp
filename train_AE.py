@@ -36,7 +36,7 @@ def get_parser():
     parser.add_argument('--samples_per_volume', default=20)
     # train args
     parser.add_argument("--batch_size", default=1)
-    parser.add_argument("--num_workers", default=16)
+    parser.add_argument("--num_workers", default=8)
     parser.add_argument("--pin_memory", default=True)
     parser.add_argument("--base_lr", type=float, default=3e-4,
                         help='base learning rate: absolute_lr = base_lr * total_batch_size')

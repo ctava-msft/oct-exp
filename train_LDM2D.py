@@ -34,7 +34,7 @@ def get_parser():
     parser.add_argument("--latent_size", default=(64, 64))
     parser.add_argument("--latent_channel", default=4)
     parser.add_argument("--batch_size", default=1)
-    parser.add_argument("--num_workers", default=32)
+    parser.add_argument("--num_workers", default=8)
     parser.add_argument("--pin_memory", default=True)
     parser.add_argument("--base_lr", type=float, default=4.5e-6)
     parser.add_argument('--accumulate_grad_batches', type=int, default=4)
