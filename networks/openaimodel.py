@@ -954,17 +954,35 @@ class UNetModel(nn.Module):
         h = x.type(self.dtype)
 
         total_elements = h.numel()
-        target_shape = (29, 11, 640, 400)
+        #target_shape = (29, 11, 640, 400)
         # Print the number of elements and the target shape
-        print(f"Number of elements in h: {total_elements}")
-        print(f"Target shape: {target_shape}")
-        print(f"Product of target shape dimensions: {np.prod(target_shape)}")
+        # print(f"Number of elements in h: {total_elements}")
+        # print(f"Target shape: {target_shape}")
+        # print(f"Product of target shape dimensions: {np.prod(target_shape)}")
 
-        # Ensure the target shape is valid
-        if total_elements != np.prod(target_shape):
-            raise ValueError(f"Invalid target shape {target_shape} for input of size {total_elements}")
+        # # Ensure the target shape is valid
+        # if total_elements != np.prod(target_shape):
+        #     raise ValueError(f"Invalid target shape {target_shape} for input of size {total_elements}")
         
-        h = h.view(target_shape)
+
+        target_shapes = [
+            (29, 11, 640, 400),
+            (29, 11, 400, 640),
+            (29, 11, 320, 800),
+            (29, 11, 800, 320)
+        ]
+        # Check if any of the target shapes match the total elements
+        valid_shape = None
+        for shape in target_shapes:
+            expected_elements = shape[0] * shape[1] * shape[2] * shape[3]
+            if total_elements == expected_elements:
+                valid_shape = shape
+                break
+        
+        if valid_shape is None:
+            raise ValueError(f"Invalid target shape for input of size {total_elements}")
+
+        h = h.view(valid_shape)
         
         # if total_elements != total_elements_target_shape:
         #     raise ValueError(f"Cannot reshape tensor of total size {total_elements} to shape {target_shape}")
