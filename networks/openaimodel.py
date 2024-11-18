@@ -379,6 +379,10 @@ class ResBlock(TimestepBlock):
             # Define a 1x1 convolution to increase the number of channels from 1 to 128
             conv1x1 = nn.Conv3d(1, 128, kernel_size=1)
 
+            # Ensure `h` is on the same device as `conv1x1`
+            device = next(conv1x1.parameters()).device
+            h = h.to(device)
+
             # Apply the 1x1 convolution
             h = conv1x1(h)
 
