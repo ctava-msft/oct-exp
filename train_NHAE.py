@@ -75,28 +75,26 @@ def main(opts):
                             precision=opts.precision, devices=opts.devices, deterministic=opts.deterministic,
                             default_root_dir=opts.default_root_dir, profiler=opts.profiler,
                             benchmark=opts.benchmark, callbacks=[checkpoint_callback, TQDMProgressBar(refresh_rate=10)])
-
-        model.decoder.train = disabled_train
-        model.encoder.train = disabled_train
-        model.post_quant_conv.train = disabled_train
-        model.quant_conv.train = disabled_train
-        model.quantize.train = disabled_train
-
-        for param in model.decoder.parameters():
-            param.requires_grad = False
-        for param in model.encoder.parameters():
-            param.requires_grad = False
-        for param in model.post_quant_conv.parameters():
-            param.requires_grad = False
-        for param in model.quant_conv.parameters():
-            param.requires_grad = False
-        for param in model.quantize.parameters():
-            param.requires_grad = False
-        for param in model.decoder.conv_out.parameters():
-            param.requires_grad = True
-        
         trainer.fit(model=model, datamodule=datamodule)
+        # model.decoder.train = disabled_train
+        # model.encoder.train = disabled_train
+        # model.post_quant_conv.train = disabled_train
+        # model.quant_conv.train = disabled_train
+        # model.quantize.train = disabled_train
 
+        # for param in model.decoder.parameters():
+        #     param.requires_grad = False
+        # for param in model.encoder.parameters():
+        #     param.requires_grad = False
+        # for param in model.post_quant_conv.parameters():
+        #     param.requires_grad = False
+        # for param in model.quant_conv.parameters():
+        #     param.requires_grad = False
+        # for param in model.quantize.parameters():
+        #     param.requires_grad = False
+        # for param in model.decoder.conv_out.parameters():
+        #     param.requires_grad = True
+        
     elif opts.command == "test":
         ckpt_path = ''
         opts.ckpt_name = ckpt_path.split('/')[-1].split('.')[0]
