@@ -1,6 +1,8 @@
 # -*- coding:utf-8 -*-
-import torch
 import os
+# Enable the V8 API for cuDNN
+os.environ['CUDNN_V8_API_ENABLED'] = '1'
+import torch
 from argparse import ArgumentParser
 import torch.nn.functional as F
 import pytorch_lightning as pl
