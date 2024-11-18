@@ -290,6 +290,7 @@ class ResBlock(TimestepBlock):
         self.dropout = dropout
         self.out_channels = out_channels or channels
         self.reduce_channels = nn.Conv3d(in_channels=512, out_channels=128, kernel_size=1)
+        self.in_conv = nn.Conv3d(in_channels=1, out_channels=128, kernel_size=3, padding=1)
         self.use_conv = use_conv
         self.use_checkpoint = use_checkpoint
         self.use_scale_shift_norm = use_scale_shift_norm
@@ -343,6 +344,9 @@ class ResBlock(TimestepBlock):
         :param emb: an [N x emb_channels] Tensor of timestep embeddings.
         :return: an [N x C x ...] Tensor of outputs.
         """
+
+        if x.shape[1] != 128:
+            x = self.in_conv(x)
         return checkpoint(
             self._forward, (x, emb), self.parameters(), self.use_checkpoint
         )
