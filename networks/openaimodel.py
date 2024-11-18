@@ -162,9 +162,15 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
                 remaining_elements = x.numel()
 
                 product = desired_dims[0] * desired_dims[1] * desired_dims[2]
-                if remaining_elements % product != 0:
-                    raise RuntimeError("Total elements are not divisible by the desired shape dimensions.")
 
+                if remaining_elements % product != 0:
+                    # Find the largest divisor for the last dimension
+                    new_dim = remaining_elements // product
+                    if new_dim == 0:
+                        raise RuntimeError("Cannot reshape tensor with the given desired dimensions.")
+                    new_shape = desired_dims + (new_dim,)
+                else:
+                    new_shape = desired_dims + (remaining_elements // product,)
                 new_dim = remaining_elements // product
                 new_shape = desired_dims + (new_dim,)
                 x = x.view(new_shape)
