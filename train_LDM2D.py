@@ -152,12 +152,14 @@ class LDM(DDPM_base):
 
         print(f"x shape: {x.shape}, c shape: {c.shape}")
     
-        # Adjust dimensions if necessary
+        # Compare and adjust dimensions
         if x.dim() != c.dim():
             if x.dim() < c.dim():
-                x = x.unsqueeze(1)  # Example adjustment, modify as needed
+                x = x.unsqueeze(1)
             else:
-                c = c.unsqueeze(1)  # Example adjustment, modify as needed
+                c = c.unsqueeze(1)
+
+        print(f"x shape: {x.shape}, c shape: {c.shape}")
         out = self.model(x=torch.cat([x,c], dim=1), timesteps=t)
         print(f"Concatenated shape: {out.shape}")
         return out
