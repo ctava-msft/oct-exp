@@ -405,13 +405,7 @@ class VQModel(pl.LightningModule):
         opt_ae = torch.optim.AdamW(list(self.encoder3D.parameters()) +
                                    list(self.SR3D.parameters())+
                                    list(self.quant_conv_3D.parameters())+
-                                   list(self.post_quant_conv_3D.parameters())
-                                   # list(self.encoder.parameters()) +
-                                   # list(self.decoder.parameters()) +
-                                   # list(self.quant_conv.parameters()) +
-                                   # list(self.post_quant_conv.parameters()) +
-                                   # list(self.quantize.parameters()),
-                                   ,
+                                   list(self.post_quant_conv_3D.parameters()),
                                    lr=lr, betas=(.9, .95), weight_decay=0.05)
         opt_disc = torch.optim.AdamW(self.loss.discriminator.parameters(),
                                      lr=lr, betas=(.9, .95), weight_decay=0.05)
