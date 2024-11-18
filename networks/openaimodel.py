@@ -290,7 +290,8 @@ class ResBlock(TimestepBlock):
         self.dropout = dropout
         self.out_channels = out_channels or channels
         self.reduce_channels = nn.Conv3d(in_channels=512, out_channels=128, kernel_size=1)
-        self.in_conv = nn.Conv3d(in_channels=1, out_channels=128, kernel_size=3, padding=1)
+        self.in_conv = nn.Conv3d(in_channels=512, out_channels=128, kernel_size=3, stride=1, padding=1)
+        #self.in_conv = nn.Conv3d(in_channels=1, out_channels=128, kernel_size=3, padding=1)
         self.use_conv = use_conv
         self.use_checkpoint = use_checkpoint
         self.use_scale_shift_norm = use_scale_shift_norm
