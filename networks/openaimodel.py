@@ -183,6 +183,7 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
                 # x = x.view(new_shape)
 
                 layer = nn.Conv2d(in_channels=10, out_channels=192, kernel_size=3, stride=1, padding=1)
+                layer = layer.cuda()
                 x = layer(x)
                 # Print the shape of the tensor after passing it through the layer
                 print(f"Shape after layer: {x.shape}")
