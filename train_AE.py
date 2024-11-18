@@ -179,7 +179,7 @@ class VQModel(pl.LightningModule):
         # Save images
         xrec, _ = self(x, return_pred_indices=False)
         os.makedirs(os.path.join(self.opts.default_root_dir, 'train_progress'), exist_ok=True)
-        for i in range(x.shape[0]):
+        for i in range(x[0].shape[0]):
             save_image([x[i] * 0.5 + 0.5, xrec[i] * 0.5 + 0.5],
                        os.path.join(self.opts.default_root_dir, 'train_progress', str(self.current_epoch)+str(i) + '.png'))
         # Save checkpoint
