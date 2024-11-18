@@ -164,11 +164,11 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
                 product = desired_dims[0] * desired_dims[1] * desired_dims[2]
                 if remaining_elements % product != 0:
                     raise RuntimeError("Total elements are not divisible by the desired shape dimensions.")
-                else:
-                    new_dim = remaining_elements // product
 
+                new_dim = remaining_elements // product
                 new_shape = desired_dims + (new_dim,)
                 x = x.view(new_shape)
+                print(f"New tensor shape: {x.shape}")
                 # print(f"Original shape: {x.shape}")
                 # print(f"Total elements: {total_elements}")
                 # print(f"New shape: {new_shape}")
