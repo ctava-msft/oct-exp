@@ -159,6 +159,7 @@ class LDM(DDPM_base):
             else:
                 c = c.unsqueeze(1)  # Example adjustment, modify as needed
         out = self.model(x=torch.cat([x,c], dim=1), timesteps=t)
+        print(f"Concatenated shape: {out.shape}")
         return out
 
     def get_input(self, batch):
