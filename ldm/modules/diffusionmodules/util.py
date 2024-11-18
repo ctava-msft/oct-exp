@@ -229,9 +229,9 @@ class GroupNorm32(nn.GroupNorm):
 
         # Ensure weight and bias are on the same device as x
         if self.weight.device != x.device:
-            self.weight = self.weight.to(x.device)
+            self.weight.data = self.weight.data.to(x.device)
         if self.bias.device != x.device:
-            self.bias = self.bias.to(x.device)
+            self.bias.data = self.bias.data.to(x.device)
 
         return F.group_norm(x, self.num_groups, self.weight, self.bias, self.eps)
         # print(f"Input shape: {x.shape}")
