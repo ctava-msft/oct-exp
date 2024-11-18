@@ -158,13 +158,13 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
                 print(f"New shape: {new_shape}")
 
                 # Calculate the expected number of elements for the target shape
-                expected_elements = 1
-                for dim in new_shape:
-                    if dim != -1:
-                        expected_elements *= dim
+                # expected_elements = 1
+                # for dim in new_shape:
+                #     if dim != -1:
+                #         expected_elements *= dim
 
                 # Check if the reshaping is possible
-                if total_elements != 29 * 11 * 640 * 400:
+                if total_elements != new_shape:
                     raise ValueError(f"Cannot reshape tensor of total size {total_elements} to shape {new_shape}")
 
                 # Reshape the tensor
