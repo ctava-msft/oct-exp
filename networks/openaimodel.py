@@ -289,6 +289,7 @@ class ResBlock(TimestepBlock):
         self.emb_channels = emb_channels
         self.dropout = dropout
         self.out_channels = out_channels or channels
+        self.adjust_channels = nn.Conv3d(in_channels=128, out_channels=512, kernel_size=1)
         self.reduce_channels = nn.Conv3d(in_channels=512, out_channels=128, kernel_size=1)
         self.in_conv = nn.Conv3d(in_channels=512, out_channels=128, kernel_size=3, stride=1, padding=1)
         #self.in_conv = nn.Conv3d(in_channels=1, out_channels=128, kernel_size=3, padding=1)
@@ -373,6 +374,8 @@ class ResBlock(TimestepBlock):
             x = self.x_upd(x)
             h = in_conv(h)
         else:
+            print(f"Input shape before adjust_channels: {x.shape}")
+            x = self.adjust_channels(x)
             print(f"Input shape before reduce_channels: {x.shape}")
             x = self.reduce_channels(x)
             h = self.in_layers(x)
