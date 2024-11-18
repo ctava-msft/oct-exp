@@ -207,6 +207,8 @@ class Downsample(nn.Module):
             self.op = avg_pool_nd(dims, kernel_size=stride, stride=stride)
 
     def forward(self, x):
+        print(f"x.shape: {x.shape}")
+        print(f"self.channels: {self.channels}")
         assert x.shape[1] == self.channels
         return self.op(x)
 
