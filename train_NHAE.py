@@ -9,7 +9,7 @@ import torch.nn.functional as F
 import tqdm
 
 from datamodule.tio_datamodule import TioDatamodule
-from pytorch_lightning.callbacks import ModelCheckpoint
+from pytorch_lightning.callbacks import ModelCheckpoint, TQDMProgressBar
 from networks.ldm3D_utils.vq_gan_3d.model.vqgan import DecoderSR_old_v2 as DecoderSR
 from networks.ldm3D_utils.vq_gan_3d.model.vqgan import Encoder as Encoder3D
 from ldm.modules.diffusionmodules.model import Decoder as Decoder2D
@@ -64,12 +64,17 @@ def main(opts):
             save_weights_only=True,  # Save only the model weights
             every_n_epochs=1  # Save every epoch
         )
+        # trainer = pl.Trainer(max_epochs=opts.max_epochs, limit_train_batches=opts.limit_train_batches,
+        #                      num_sanity_val_steps=0, limit_val_batches=1,
+        #                      accelerator=opts.accelerator, check_val_every_n_epoch=opts.check_val_every_n_epoch,
+        #                      precision=opts.precision, devices=opts.devices, deterministic=opts.deterministic,
+        #                      default_root_dir=opts.default_root_dir, profiler=opts.profiler,
+        #                      benchmark=opts.benchmark, callbacks=[checkpoint_callback])
         trainer = pl.Trainer(max_epochs=opts.max_epochs, limit_train_batches=opts.limit_train_batches,
-                             num_sanity_val_steps=0, limit_val_batches=1,
-                             accelerator=opts.accelerator, check_val_every_n_epoch=opts.check_val_every_n_epoch,
-                             precision=opts.precision, devices=opts.devices, deterministic=opts.deterministic,
-                             default_root_dir=opts.default_root_dir, profiler=opts.profiler,
-                             benchmark=opts.benchmark, callbacks=[checkpoint_callback])
+                            accelerator=opts.accelerator,  # strategy=opts.strategy,
+                            precision=opts.precision, devices=opts.devices, deterministic=opts.deterministic,
+                            default_root_dir=opts.default_root_dir, profiler=opts.profiler,
+                            benchmark=opts.benchmark, callbacks=[checkpoint_callback, TQDMProgressBar(refresh_rate=10)])
 
         model.decoder.train = disabled_train
         model.encoder.train = disabled_train
