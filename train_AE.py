@@ -9,14 +9,12 @@ from pytorch_lightning.callbacks import ModelCheckpoint, TQDMProgressBar
 from torchvision.utils import save_image
 import torch.optim as optim
 import numpy as np
-
-from datamodule.tio_datamodule import TioDatamodule
+from datamodules.tio_datamodule import TioDatamodule
 from ldm.modules.diffusionmodules.model import Encoder
 from ldm.modules.losses.vqperceptual import VQLPIPSWithDiscriminator_no_codebookloss
 from networks.VQModel3D_adaptor_333 import Decoder
 from taming.modules.vqvae.quantize import VectorQuantizer2 as VectorQuantizer
 from utils.util import load_network, save_cube_from_tensor
-
 
 def get_parser():
     parser = ArgumentParser()
@@ -54,16 +52,17 @@ def get_parser():
 
 def freeze_except_3d(model):
     for name, param in model.named_parameters():
-        if '3d' not in name and 'loss' not in name:  # Check if '3d' is not in parameter name
+        # Check if '3d' is not in parameter name
+        if '3d' not in name and 'loss' not in name:
             param.requires_grad = False
-        # else:
-        #     param.requires_grad = True
     for name, param in model.named_parameters():
         print(f'{name}: Requires Gradient - {param.requires_grad}')
 
 def main(opts):
     # torch.set_num_threads(8)
     # torch.set_float32_matmul_precision('medium')
+    os.environ['CUDNN_V8_API_ENABLED'] = '1'
+    os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
     datamodule = TioDatamodule(**vars(opts))
     datamodule.prepare_data()
     model = VQModel(opts)
@@ -92,31 +91,25 @@ def main(opts):
 
 
 class VQModel(pl.LightningModule):
+
     def __init__(self, opts):
         super().__init__()
         self.opts = opts
-
         ddconfig = {'double_z': False, 'z_channels': 4, 'resolution': 512, 'in_channels': 1, 'out_ch': 1, 'ch': 128,
                     'ch_mult': [1, 2, 4, 4], 'num_res_blocks': 2, 'attn_resolutions': [], 'dropout': 0.0}
-        # 400 200 100 50 25
         self.encoder = Encoder(**ddconfig)
         self.decoder = Decoder(**ddconfig)
-
         lossconfig = dict(disc_conditional=False, disc_in_channels=1, disc_num_layers=2, disc_start=1, disc_weight=0.6,
                           codebook_weight=1.0, perceptual_weight=0.1)
         self.loss = VQLPIPSWithDiscriminator_no_codebookloss(**lossconfig)
-
         self.embed_dim = ddconfig["z_channels"]
         n_embed = 16384
         self.quantize = VectorQuantizer(n_embed, self.embed_dim, beta=0.25)
         self.quant_conv = torch.nn.Conv2d(ddconfig["z_channels"], self.embed_dim, 1)
         self.post_quant_conv = torch.nn.Conv2d(self.embed_dim, ddconfig["z_channels"], 1)
-
         self.lr_g_factor = 1.0
         self.automatic_optimization = False
         self.save_hyperparameters()
-        # Initialize optimizer
-        self.optimizer = optim.Adam(self.parameters(), lr=opts.base_lr)
 
     @torch.no_grad()
     def get_input(self, batch):
@@ -155,11 +148,8 @@ class VQModel(pl.LightningModule):
         return dec
 
     def training_step(self, batch, batch_idx):
-        # https://github.com/pytorch/pytorch/issues/37142
-        # try not to fool the heuristics
         if batch_idx == 0:
-            self.batch_sample = batch
-
+            self.batch = batch
         x, h, _ = self.get_input(batch)
         xrec = self.decode(h)
         optimizer_idx = self.trainer.current_epoch % 2
@@ -168,10 +158,8 @@ class VQModel(pl.LightningModule):
             # autoencode
             aeloss, log_dict_ae = self.loss(x, xrec, optimizer_idx, self.global_step,
                                             last_layer=self.get_last_layer(), split="train")
-
             self.log_dict(log_dict_ae, prog_bar=True, logger=True, on_step=True, on_epoch=True)
             return aeloss
-
         if optimizer_idx == 1:
             qloss = 0
             # discriminator
@@ -183,9 +171,10 @@ class VQModel(pl.LightningModule):
     def get_last_layer(self):
         return self.decoder.conv_out_3d.weight
 
-    @torch.inference_mode()
+    @torch.no_grad()
     def on_train_epoch_end(self):
-        x = self.x_sample.to(self.device)
+        x = self.get_input(self.batch)
+        # Save images
         xrec, _ = self(x, return_pred_indices=False)
         os.makedirs(os.path.join(self.opts.default_root_dir, 'train_progress'), exist_ok=True)
         for i in range(x.shape[0]):
@@ -195,8 +184,6 @@ class VQModel(pl.LightningModule):
         checkpoint = {
             'epoch': self.current_epoch,
             'model_state_dict': self.state_dict(),
-            'optimizer_state_dict': self.optimizer.state_dict(),
-            # Add other items if needed
         }
         checkpoint_path = os.path.join(self.opts.default_root_dir, 'checkpoints', f'checkpoint_epoch_{self.current_epoch}.pt')
         os.makedirs(os.path.dirname(checkpoint_path), exist_ok=True)

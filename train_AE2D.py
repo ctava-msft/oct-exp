@@ -1,20 +1,16 @@
 # -*- coding:utf-8 -*-
 import os
 from argparse import ArgumentParser
-
 import torch
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint, TQDMProgressBar
-
 from ldm.modules.diffusionmodules.model import Encoder, Decoder
 from ldm.modules.losses.vqperceptual import VQLPIPSWithDiscriminator
 from taming.modules.vqvae.quantize import VectorQuantizer2 as VectorQuantizer
-
-from datamodule.uncond2D_datamodule import trainDatamodule
+from datamodules.uncond2D_datamodule import trainDatamodule
 from torchvision.utils import save_image
 from utils.util import load_network
 import numpy as np
-import torch.optim as optim
 
 def get_parser():
     parser = ArgumentParser()
@@ -49,6 +45,8 @@ def get_parser():
 def main(opts):
     # torch.set_num_threads(8)
     # torch.set_float32_matmul_precision('medium')
+    os.environ['CUDNN_V8_API_ENABLED'] = '1'
+    os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
     datamodule = trainDatamodule(**vars(opts))
     model = VQModel(opts)
     if opts.command == "fit":
@@ -78,6 +76,7 @@ def main(opts):
         trainer.test(model=model, datamodule=datamodule)
 
 class VQModel(pl.LightningModule):
+
     def __init__(self, opts):
         super().__init__()
         self.opts = opts
@@ -90,18 +89,13 @@ class VQModel(pl.LightningModule):
         self.quantize = VectorQuantizer(n_embed, self.embed_dim, beta=0.25)
         self.quant_conv = torch.nn.Conv2d(ddconfig["z_channels"], self.embed_dim, 1)
         self.post_quant_conv = torch.nn.Conv2d(self.embed_dim, ddconfig["z_channels"], 1)
-
         self.lr_g_factor = 1.0
-
         self.automatic_optimization = False
         if opts.command == 'fit':
             self.save_hyperparameters()
-
             lossconfig = dict(disc_conditional=False, disc_in_channels=1, disc_num_layers=2, disc_start=1, disc_weight=0.6,
                       codebook_weight=1.0, perceptual_weight=0.1)
             self.loss = VQLPIPSWithDiscriminator(**lossconfig)
-        # Initialize optimizer
-        self.optimizer = optim.Adam(self.parameters(), lr=opts.base_lr)
 
     def get_input(self, batch):
         x = batch['image']
@@ -153,10 +147,9 @@ class VQModel(pl.LightningModule):
         return aeloss
 
     def training_step(self, batch, batch_idx):
-        # https://github.com/pytorch/pytorch/issues/37142
-        # try not to fool the heuristics
+        if batch_idx == 0:
+            self.batch = batch
         g_opt, d_opt = self.optimizers()
-
         x = self.get_input(batch)
         if batch_idx == 0:
             self.x_sample = x
@@ -166,7 +159,6 @@ class VQModel(pl.LightningModule):
         self.manual_backward(d_loss)
         self.clip_gradients(d_opt, gradient_clip_val=1, gradient_clip_algorithm="norm")
         d_opt.step()
-
         g_loss = self.cal_g_loss(x, xrec, qloss)
         g_opt.zero_grad()
         self.manual_backward(g_loss)
@@ -176,9 +168,10 @@ class VQModel(pl.LightningModule):
     def get_last_layer(self):
         return self.decoder.conv_out.weight
 
-    @torch.inference_mode()
+    @torch.no_grad()
     def on_train_epoch_end(self):
-        x = self.x_sample.to(self.device)
+        x = self.get_input(self.batch)
+        # Save images
         xrec, _ = self(x, return_pred_indices=False)
         os.makedirs(os.path.join(self.opts.default_root_dir, 'train_progress'), exist_ok=True)
         for i in range(x.shape[0]):
@@ -188,12 +181,10 @@ class VQModel(pl.LightningModule):
         checkpoint = {
             'epoch': self.current_epoch,
             'model_state_dict': self.state_dict(),
-            'optimizer_state_dict': self.optimizer.state_dict(),
-            # Add other items if needed
         }
         checkpoint_path = os.path.join(self.opts.default_root_dir, 'checkpoints', f'checkpoint_epoch_{self.current_epoch}.pt')
         os.makedirs(os.path.dirname(checkpoint_path), exist_ok=True)
-        torch.save(checkpoint, checkpoint_path)            
+        torch.save(checkpoint, checkpoint_path)
 
     def test_step(self, batch, batch_idx):
         x = batch['image']

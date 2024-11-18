@@ -8,7 +8,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import tqdm
 import torch.optim as optim
-from datamodule.tio_datamodule import TioDatamodule
+from datamodules.tio_datamodule import TioDatamodule
 from pytorch_lightning.callbacks import ModelCheckpoint, TQDMProgressBar
 from networks.ldm3D_utils.vq_gan_3d.model.vqgan import DecoderSR_old_v2 as DecoderSR
 from networks.ldm3D_utils.vq_gan_3d.model.vqgan import Encoder as Encoder3D
@@ -53,6 +53,8 @@ def get_parser():
 def main(opts):
     # torch.set_num_threads(8)
     # torch.set_float32_matmul_precision('medium')
+    os.environ['CUDNN_V8_API_ENABLED'] = '1'
+    os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
     datamodule = TioDatamodule(**vars(opts))
     datamodule.prepare_data()
     if opts.command == "fit":
@@ -83,10 +85,10 @@ def main(opts):
 
 
 class VQModel(pl.LightningModule):
+
     def __init__(self, opts):
         super().__init__()
         self.opts = opts
-        # 400 200 100 50 25
         self.encoder3D = Encoder3D(z_channels=4, n_hiddens=64, downsample=[4, 4, 4], image_channel=1, norm_type='group',
                                    padding_type='replicate', num_groups=32)
         ddconfig = {'z_channels': 4, 'resolution': 512, 'in_channels': 1, 'out_ch': 1, 'ch': 128,
@@ -104,20 +106,15 @@ class VQModel(pl.LightningModule):
         self.post_quant_conv = torch.nn.Conv2d(self.embed_dim, self.embed_dim, 1)
         self.automatic_optimization = False
         self.lr_g_factor = 1.0
-
         if opts.command == 'fit':
             self.save_hyperparameters()
-
             self.encoder = Encoder2D(**ddconfig)
-
             lossconfig = dict(disc_conditional=False, disc_in_channels=1, disc_num_layers=2, disc_start=1,
                               disc_weight=0.6,
                               codebook_weight=1.0, perceptual_weight=0.1)
             self.loss = VQLPIPSWithDiscriminator(**lossconfig)
             self.l1 = nn.L1Loss()
-
             os.makedirs(os.path.join(self.opts.default_root_dir, 'train_progress'), exist_ok=True)
-
             self.sample_batch = None
 
     def get_last_layer(self):
@@ -209,7 +206,6 @@ class VQModel(pl.LightningModule):
         if not isinstance(x, torch.Tensor):
             raise TypeError("Expected 'x' to be a tensor")
         #print(f"Type of x after conversion: {type(x)}")
-
         n, c, d, h, w = x.shape
         # id2 = torch.randint(0, d, (num,), device=self.device)
         id = torch.randperm(d, device=self.device)[:num]
@@ -229,7 +225,6 @@ class VQModel(pl.LightningModule):
         # frame_target = x[:,:,id,:,:].squeeze(2)
         # frame_target = frame_target.permute(0, 2, 1, 3, 4).contiguous()
         # frame_target = frame_target.view(n*num,c,h,w)
-
         h_2D = self.encode_2D(frame_target)
         latent_loss = self.l1(h_3D_selected, h_2D.detach())
         # frame_rec_2D, emb_loss2 = self.decode_2D(h_2D)
@@ -245,36 +240,25 @@ class VQModel(pl.LightningModule):
         if not isinstance(x, torch.Tensor):
             raise TypeError("Expected 'x' to be a tensor")
         #print(f"Type of x after conversion: {type(x)}")
-
         num = 5
         n, c, d, h, w = x.shape
-
         id = torch.randperm(d, device=self.device)[:num]
         id = id.view(1, 1, -1, 1, 1)
-
         h_3D = self.encode_3D(x, testing=True)
         n, lc, d, lh, lw = h_3D.shape
         latent_id = id.expand(n, lc, num, lh, lw)
         h_3D_selected = torch.gather(h_3D, 2, latent_id)
         h_3D_selected = h_3D_selected.squeeze(0).permute(1, 0, 2, 3)
         frame_rec_3D = self.decode_2D(h_3D_selected, testing=True)
-
         frame_id = id.expand(n, c, num, h, w)
         frame_target = torch.gather(x, 2, frame_id)
         frame_target = frame_target.squeeze(0).permute(1, 0, 2, 3)
-
         h_2D = self.encode_2D(frame_target)
         frame_rec_2D = self.decode_2D(h_2D, testing=True)
         return frame_target, frame_rec_3D, frame_rec_2D
     
     def training_step(self, batch, batch_idx):
-        # https://github.com/pytorch/pytorch/issues/37142
-        # try not to fool the heuristics
-        if batch_idx == 0:
-            self.sample_batch = batch
-
         x = self.get_input(batch)
-
         frame_target, frame_rec_3D, latent_loss, emb_loss = self(x)
         target = frame_target
         rec = frame_rec_3D
@@ -285,58 +269,31 @@ class VQModel(pl.LightningModule):
                                             last_layer=self.get_last_layer())
             self.log_dict(log_dict_ae, prog_bar=True, logger=True, on_step=True, on_epoch=True)
             return aeloss
-
         if optimizer_idx == 1:
             # discriminator
             discloss, log_dict_disc = self.loss(emb_loss, latent_loss, target, rec, optimizer_idx, self.global_step,
                                                 last_layer=self.get_last_layer())
             self.log_dict(log_dict_disc, prog_bar=False, logger=True, on_step=True, on_epoch=True)
             return discloss
-        
-    @torch.inference_mode()
+                    
+    @torch.no_grad()
     def on_train_epoch_end(self):
-        x = self.x_sample.to(self.device)
-        xrec, _ = self(x, return_pred_indices=False)
-        os.makedirs(os.path.join(self.opts.default_root_dir, 'train_progress'), exist_ok=True)
-        for i in range(x.shape[0]):
-            save_image([x[i] * 0.5 + 0.5, xrec[i] * 0.5 + 0.5],
-                       os.path.join(self.opts.default_root_dir, 'train_progress', str(self.current_epoch)+str(i) + '.png'))
+        x = self.get_input(self.batch)
+        frame_target, frame_rec_3D, frame_rec_2D = self.check_forward(x)
+        visuals = torch.cat([frame_target, frame_rec_3D, frame_rec_2D], dim=0) * 0.5 + 0.5
+        # Save images
+        save_image(visuals,
+                   os.path.join(self.opts.default_root_dir, 'train_progress', str(self.current_epoch) + '.png'))
         # Save checkpoint
         checkpoint = {
             'epoch': self.current_epoch,
             'model_state_dict': self.state_dict(),
-            'optimizer_state_dict': self.optimizer.state_dict(),
-            # Add other items if needed
         }
         checkpoint_path = os.path.join(self.opts.default_root_dir, 'checkpoints', f'checkpoint_epoch_{self.current_epoch}.pt')
         os.makedirs(os.path.dirname(checkpoint_path), exist_ok=True)
         torch.save(checkpoint, checkpoint_path) 
-            
-    @torch.no_grad()
-    def on_train_epoch_endOLD(self):
-        if self.sample_batch is None: return
-        batch = self.sample_batch
-        # print(f"Batch keys: {batch.keys()}")
-        x = batch['image']
-
-        #print(f"Type of x before conversion: {type(x)}")
-        if isinstance(x, dict):
-            #print(f"Keys in x: {x.keys()}")
-            if 'data' not in x:
-                raise KeyError("Key 'data' not found in the input dictionary")
-            x = x['data']
-        if not isinstance(x, torch.Tensor):
-            raise TypeError("Expected 'x' to be a tensor")
-        #print(f"Type of x after conversion: {type(x)}")
-
-        name = batch['name'][0]
-        frame_target, frame_rec_3D, frame_rec_2D = self.check_forward(x)
-        visuals = torch.cat([frame_target, frame_rec_3D, frame_rec_2D], dim=0) * 0.5 + 0.5
-        save_image(visuals,
-                   os.path.join(self.opts.default_root_dir, 'train_progress', str(self.current_epoch) + '.png'))
 
     def validation_step(self, batch, batch_idx):
-
         #print(f"Batch keys: {batch.keys()}")
         x = batch['image']
         #print(f"Type of x before conversion: {type(x)}")
@@ -348,12 +305,9 @@ class VQModel(pl.LightningModule):
         if not isinstance(x, torch.Tensor):
             raise TypeError("Expected 'x' to be a tensor")
         #print(f"Type of x after conversion: {type(x)}")
-    
         name = batch['name'][0]
-
         h_3D = self.encode_3D(x, testing=True)
         d_sr = h_3D.shape[-3]
-
         save_dir = os.path.join(self.opts.default_root_dir, 'val_visual', str(self.current_epoch) + '_' + name)
         os.makedirs(save_dir, exist_ok=True)
         for i in tqdm.tqdm(range(d_sr)):
@@ -372,7 +326,6 @@ class VQModel(pl.LightningModule):
         save_dir = os.path.join(self.opts.default_root_dir, 'test_visual' + '_' + opts.ckpt_name, name)
         os.makedirs(save_dir, exist_ok=True)
         #print(save_dir)
-
         for i in tqdm.tqdm(range(d_sr)):
             h_frame = h_3D[:, :, i, :, :]
             frame_rec = self.decode_2D(h_frame, testing=True)

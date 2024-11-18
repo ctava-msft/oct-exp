@@ -11,7 +11,7 @@ import torch.nn as nn
 import torch.optim as optim
 from networks.ema import LitEma
 from networks.openaimodel import UNetModel
-from datamodule.latent_refiner_datamodule import trainDatamodule
+from datamodules.latent_refiner_datamodule import trainDatamodule
 from utils.util_for_openai_diffusion import DDPM_base, disabled_train, default, LambdaLinearScheduler, \
     extract_into_tensor, noise_like
 from utils.util import load_network
@@ -56,6 +56,7 @@ def sanitize_filename(filename):
 def main(opts):
     # torch.set_num_threads(8)
     # torch.set_float32_matmul_precision('medium')
+    os.environ['CUDNN_V8_API_ENABLED'] = '1'
     os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
     checkpoint_dir = opts.first_stage_ckpt
     sanitized_checkpoint_dir = sanitize_filename(checkpoint_dir)
@@ -85,6 +86,7 @@ def main(opts):
     trainer.fit(model=model, datamodule=datamodule)
 
 class VQModelInterface(nn.Module):
+
     def __init__(self):
         super().__init__()
 
@@ -104,26 +106,21 @@ class VQModelInterface(nn.Module):
 
 
 class LDM(DDPM_base):
+
     def __init__(self, opts):
         super().__init__()
         self.opts = opts
         self.save_hyperparameters()
-
         self.instantiate_first_stage(opts)
-
         unet_config = {'image_size': opts.latent_size, 'in_channels': opts.latent_channel*2,
                        'out_channels': opts.latent_channel, 'model_channels': 192,
                        'attention_resolutions': [2, 4, 8], 'num_res_blocks': 2, 'channel_mult': [1, 2, 4, 4],
                        'num_heads': 8, 'use_scale_shift_norm': True, 'resblock_updown': True,
                        }
         self.model = UNetModel(**unet_config)
-
         self.SR3D = DecoderSR(in_channels=4, upsample=[8, 1, 1], norm_type='group', num_groups=4)
-
         self.latent_size = opts.latent_size
-
         self.channels = opts.latent_channel
-
         self.parameterization = "eps"  # all assuming fixed variance schedules
         self.loss_type = "l1"
         self.use_ema = True
@@ -131,9 +128,6 @@ class LDM(DDPM_base):
         self.v_posterior = 0.  # weight for choosing posterior variance as sigma = (1-v) * beta_tilde + v * beta
         self.original_elbo_weight = 0.
         self.log_every_t = 100
-        # Initialize optimizer
-        self.optimizer = optim.Adam(self.parameters(), lr=opts.base_lr)
-
         self.register_schedule()
         if self.use_ema:
             self.model_ema = LitEma(self.model)
@@ -172,6 +166,8 @@ class LDM(DDPM_base):
         return z, c
 
     def training_step(self, batch, batch_idx):
+        if batch_idx == 0:
+            self.batch = batch
         z, c = self.get_input(batch)
         t = torch.randint(0, self.num_timesteps, (z.shape[0],), device=self.device).long()
         loss = self.p_losses(z, t, c)
@@ -186,9 +182,10 @@ class LDM(DDPM_base):
         if self.use_ema:
             self.model_ema(self.model)
 
-    @torch.inference_mode()
+    @torch.no_grad()
     def on_train_epoch_end(self):
-        x = self.x_sample.to(self.device)
+        x = self.get_input(self.batch)
+        # Save images
         xrec, _ = self(x, return_pred_indices=False)
         os.makedirs(os.path.join(self.opts.default_root_dir, 'train_progress'), exist_ok=True)
         for i in range(x.shape[0]):
@@ -198,28 +195,20 @@ class LDM(DDPM_base):
         checkpoint = {
             'epoch': self.current_epoch,
             'model_state_dict': self.state_dict(),
-            'optimizer_state_dict': self.optimizer.state_dict(),
         }
         checkpoint_path = os.path.join(self.opts.default_root_dir, 'checkpoints', f'checkpoint_epoch_{self.current_epoch}.pt')
         os.makedirs(os.path.dirname(checkpoint_path), exist_ok=True)
         torch.save(checkpoint, checkpoint_path) 
-
-    @ torch.no_grad()
-    def on_train_epoch_endOLD(self):
-        if self.current_epoch % opts.eval_save_every_n_epoch: return
-        img_save_dir = os.path.join(self.opts.default_root_dir, 'train_progress', str(self.current_epoch))
-        os.makedirs(img_save_dir, exist_ok=True)
-
         with self.ema_scope("Plotting"):
+            img_save_dir = os.path.join(self.opts.default_root_dir, 'train_progress', str(self.current_epoch))
+            os.makedirs(img_save_dir, exist_ok=True)
             z = self.sample_z
             c = self.sample_c
             x_samples, denoise_x_row = self.sample(c=c, batch_size=z.shape[0], return_intermediates=True,
                                                    clip_denoised=True)
             img_samples = self.decode_first_stage(x_samples).to('cpu')
-            # pre_img = pre_img.to('cpu')
             x_rec = self.decode_first_stage(z).to('cpu')
             cond_rec = self.decode_first_stage(c).to('cpu')
-            # img = img.to('cpu')
             for i in range(z.shape[0]):
                 save_name = str(i) + '.png'
                 denoise_img_row = []
@@ -227,7 +216,6 @@ class LDM(DDPM_base):
                     denoise_img_row.append(self.decode_first_stage(z_noisy)[i:i + 1].to('cpu'))
                 denoise_img_row = torch.cat(denoise_img_row, dim=0) * 0.5 + 0.5
                 save_image(denoise_img_row, os.path.join(img_save_dir, 'gen_denoise_' + save_name))
-
                 save_image([x_rec[i] * 0.5 + 0.5, cond_rec[i] * 0.5 + 0.5, img_samples[i] * 0.5 + 0.5],
                            os.path.join(img_save_dir, save_name))
                 diffusion_row = []

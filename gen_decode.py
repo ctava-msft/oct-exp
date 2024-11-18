@@ -8,7 +8,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torchvision.utils import save_image
 from tqdm import tqdm
-from datamodule.dual_latent_datamodule import test_single_latent_Datamodule
+from datamodules.dual_latent_datamodule import test_single_latent_Datamodule
 from taming.modules.vqvae.quantize import VectorQuantizer2 as VectorQuantizer
 from utils.util import save_cube_from_tensor, load_network
 from einops import rearrange

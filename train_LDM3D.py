@@ -1,7 +1,5 @@
 # -*- coding:utf-8 -*-
 import os
-# Enable the V8 API for cuDNN
-os.environ['CUDNN_V8_API_ENABLED'] = '1'
 import torch
 from argparse import ArgumentParser
 import torch.nn.functional as F
@@ -13,13 +11,14 @@ import torch.nn as nn
 import torch.optim as optim
 from networks.ema import LitEma
 from networks.openaimodel import UNetModel
-from datamodule.latent_datamodule import trainDatamodule
+from datamodules.latent_datamodule import trainDatamodule
 from utils.util_for_openai_diffusion import DDPM_base, disabled_train, default, LambdaLinearScheduler, \
     extract_into_tensor, noise_like
 from utils.util import save_cube_from_tensor, load_network
 from networks.ldm3D_utils.vq_gan_3d.model.vqgan import DecoderSR_old as DecoderSR
 from ldm.modules.diffusionmodules.model import Decoder as Decoder2D
 from taming.modules.vqvae.quantize import VectorQuantizer2 as VectorQuantizer
+from torchvision.utils import save_image
 
 def get_parser():
     parser = ArgumentParser()
@@ -57,6 +56,7 @@ def get_parser():
 def main(opts):
     # torch.set_num_threads(8)
     # torch.set_float32_matmul_precision('medium')
+    os.environ['CUDNN_V8_API_ENABLED'] = '1'
     os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
     datamodule = trainDatamodule(**vars(opts))
     model = LDM(opts)
@@ -73,27 +73,23 @@ def main(opts):
                          default_root_dir=opts.default_root_dir, profiler=opts.profiler, benchmark=opts.benchmark,
                          callbacks=[checkpoint_callback, TQDMProgressBar(refresh_rate=10)])
     model.instantiate_first_stage(opts)
-
     # Debug: Check requires_grad for model parameters
     for name, param in model.named_parameters():
         if not param.requires_grad:
             print(f"Parameter {name} does not require grad")
-
     # Debug: Wrap the training step to check loss requires_grad
     original_training_step = model.training_step
-
     def wrapped_training_step(*args, **kwargs):
         loss = original_training_step(*args, **kwargs)
         if not loss.requires_grad:
             print("Loss does not require grad")
         return loss
-
     model.training_step = wrapped_training_step
-
     trainer.fit(model=model, datamodule=datamodule)
 
 
 class VQModelInterface(nn.Module):
+
     def __init__(self):
         super().__init__()
 
@@ -152,17 +148,16 @@ class VQModelInterface(nn.Module):
 
 
 class LDM(DDPM_base):
+
     def __init__(self, opts):
         super().__init__()
         self.opts = opts
         self.save_hyperparameters()
-
         unet_config = {'image_size': opts.paded_size, 'dims': 3, 'in_channels': opts.latent_channel,
                        'out_channels': opts.latent_channel, 'model_channels': 128,
                        'attention_resolutions': [4, 8], 'num_res_blocks': 2, 'channel_mult': [1, 2, 4, 8],
                        'num_heads': 8, 'use_scale_shift_norm': True, 'resblock_updown': True}
         self.model = UNetModel(**unet_config)
-
         self.latent_size = opts.latent_size
         latent_size_rev = opts.latent_size[::-1]
         paded_size_rev = opts.paded_size[::-1]
@@ -173,9 +168,7 @@ class LDM(DDPM_base):
             self.p3d.append(l)
             self.p3d.append(r)
         print(f'current size: {opts.latent_size}, target size: {opts.paded_size}, calculated pad: {self.p3d}')
-
         self.channels = opts.latent_channel
-
         self.parameterization = "eps"  # all assuming fixed variance schedules
         self.loss_type = "l1"
         self.use_ema = False
@@ -183,15 +176,12 @@ class LDM(DDPM_base):
         self.v_posterior = 0.  # weight for choosing posterior variance as sigma = (1-v) * beta_tilde + v * beta
         self.original_elbo_weight = 0.
         self.log_every_t = 100
-        # Initialize optimizer
-        self.optimizer = optim.Adam(self.parameters(), lr=opts.base_lr)
         self.scale_by_std = False
         scale_factor = 1.0
         if not self.scale_by_std:
             self.scale_factor = scale_factor
         else:
             self.register_buffer('scale_factor', torch.tensor(scale_factor))
-
         self.register_schedule()
         if self.use_ema:
             self.model_ema = LitEma(self.model)
@@ -200,17 +190,14 @@ class LDM(DDPM_base):
     def __call__(self, batch):
         if batch is None:
             return None
-
         # Process the batch and return x, y
         x, y = self.process_batch(batch)
         return x, y
 
     def process_batch(self, batch):
-
         # Print the batch to inspect its structure
         print("Batch contents:", batch)
         torch.cuda.empty_cache()  # Clear cache at the end of each epoch
-
         x = batch['latent']
         y = batch['latent_path']
         return x, y
@@ -257,49 +244,9 @@ class LDM(DDPM_base):
         elif len(x.shape) == 4:  # Assuming the input tensor is in (N, C, H, W) format
             # Reshape the tensor to (N, C, 1, H, W) to add the missing dimension
             x = x.unsqueeze(2)
-        
         # Now the tensor should be in (N, C, D, H, W) format
         x = F.interpolate(x, size=(max(2, x.shape[-3]), max(2, x.shape[-2]), max(2, x.shape[-1])), mode='trilinear', align_corners=False)
-        
         return x
-
-    def apply_modelold(self, x, t, context):
-        # Print the shape of the input tensor
-        print(f"Original input shape: {x.shape}")
-
-        # Ensure input tensor has 5 dimensions (N, C, D, H, W)
-        if len(x.shape) == 4:
-            x = x.unsqueeze(2)  # Add a dimension for depth if missing
-
-        # Resize input to at least 2x2x2 if necessary
-        if x.shape[-3] < 2 or x.shape[-2] < 2 or x.shape[-1] < 2:
-            x = F.interpolate(x, size=(max(2, x.shape[-3]), max(2, x.shape[-2]), max(2, x.shape[-1])), mode='trilinear', align_corners=False)
-
-        # Ensure input dimensions are at least 2x2x2
-        if x.shape[-3] < 2 or x.shape[-2] < 2 or x.shape[-1] < 2:
-            raise ValueError(f"Input dimensions {x.shape} are smaller than the kernel size (2x2x2)")
-        
-        # Check if the input needs to be reshaped
-        if len(x.shape) == 3:
-            # Reshape the input to 5D (batch_size, channels, depth, height, width)
-            x = x.unsqueeze(1).unsqueeze(2)
-            print(f"Reshaped input shape: {x.shape}")
-        
-        # Ensure the input tensor has the correct number of channels
-        expected_channels = 4
-        if x.shape[1] != expected_channels:
-            # Adjust the number of channels to match the expected channels
-            x = x.repeat(1, expected_channels, 1, 1, 1)
-            print(f"Adjusted input shape: {x.shape}")
-        
-        # Ensure the input tensor has appropriate dimensions for pooling
-        min_depth, min_height, min_width = 2, 2, 2
-        if x.shape[2] < min_depth or x.shape[3] < min_height or x.shape[4] < min_width:
-            x = F.interpolate(x, size=(max(min_depth, x.shape[2]), max(min_height, x.shape[3]), max(min_width, x.shape[4])), mode='trilinear', align_corners=False)
-            print(f"Resized input shape: {x.shape}")
-        
-        out = self.model(x=x, timesteps=t)
-        return out
 
     def get_input(self, batch):
         z = batch['latent']
@@ -311,55 +258,43 @@ class LDM(DDPM_base):
     def training_step(self, batch, batch_idx):
         # Forward pass
         result = self(batch)
-
         # Check if result is None
         if result is None:
             raise ValueError("Input result is None. Ensure the batch contains valid data.")
-
         # Unpack the result
         x, y = result
-
         # Check if x or y is None
         if x is None or y is None:
             raise ValueError("The model's call method returned a tuple with None values. Ensure it returns valid data.")
-
         # Move x to the correct device
         x = x.to(self.device)
-
         # Example assignment of z
         z = self.model.forward(x)
-
         # Check if z is None
         if z is None:
             raise ValueError("z is None after encoding. Ensure the model's encode method returns a valid tensor.")
-        
         # Generate random timesteps
         t = torch.randint(0, self.num_timesteps, (z.shape[0],), device=self.device).long()
-        
         # Compute loss
         loss = self.compute_loss(z, t, batch)
-        
         # Debug: Check if loss requires grad
         if not loss.requires_grad:
             print("Loss does not require grad")
-        
         return loss
     
     def compute_loss(self, z, t, batch):
         # Example loss computation
         loss = F.mse_loss(z, batch['target'])
-        
         # Ensure loss requires grad
         if not loss.requires_grad:
             print("Loss does not require grad in compute_loss")
-        
         return loss
 
     def on_train_batch_end(self, *args, **kwargs):
         if self.use_ema:
             self.model_ema(self.model)
 
-    @torch.inference_mode()
+    @torch.no_grad()
     def on_train_epoch_end(self):
         x = self.x_sample.to(self.device)
         xrec, _ = self(x, return_pred_indices=False)
@@ -371,24 +306,16 @@ class LDM(DDPM_base):
         checkpoint = {
             'epoch': self.current_epoch,
             'model_state_dict': self.state_dict(),
-            'optimizer_state_dict': self.optimizer.state_dict(),
-            # Add other items if needed
         }
         checkpoint_path = os.path.join(self.opts.default_root_dir, 'checkpoints', f'checkpoint_epoch_{self.current_epoch}.pt')
         os.makedirs(os.path.dirname(checkpoint_path), exist_ok=True)
         torch.save(checkpoint, checkpoint_path) 
-
-    @torch.no_grad()
-    def on_train_epoch_endOLD(self):
-        if self.current_epoch % opts.eval_save_every_n_epoch: return
-        img_save_dir = os.path.join(self.opts.default_root_dir, 'train_progress', str(self.current_epoch))
-        os.makedirs(img_save_dir, exist_ok=True)
-
         with self.ema_scope("Plotting"):
+            img_save_dir = os.path.join(self.opts.default_root_dir, 'train_progress', str(self.current_epoch))
+            os.makedirs(img_save_dir, exist_ok=True)
             x_samples = self.sample(batch_size=1, return_intermediates=False, clip_denoised=True)
             x_samples = self.decode_first_stage(x_samples) * 0.5 + 0.5
             x_samples = x_samples.squeeze().to('cpu')
-            # print(img_samples.shape)
             save_cube_from_tensor(x_samples, os.path.join(img_save_dir, 'sample'))
 
     def q_sample(self, x_start, t, noise=None):
@@ -401,7 +328,6 @@ class LDM(DDPM_base):
         x_noisy = self.q_sample(x_start=x_start, t=t, noise=noise)
         model_out = self.apply_model(x_noisy, t, None)
         target = noise
-
         loss = self.get_loss(model_out, target)
         #loss = loss.mean()
         self.log('diffusion loss', loss, prog_bar=True, logger=True, on_step=True, on_epoch=True)
@@ -487,7 +413,6 @@ class LDM(DDPM_base):
                 lr, base_lr, batch_size, accumulate_grad_batches, devices, nodes, base_batch_size))
         params = list(self.model.parameters())
         opt = torch.optim.AdamW(params, lr=lr)
-
         scheduler_config = {'warm_up_steps': [10000], 'cycle_lengths': [10000000000000], 'f_start': [1e-06],
                             'f_max': [1.0],
                             'f_min': [1.0]}
@@ -516,7 +441,6 @@ class LDM(DDPM_base):
             print(f"Unexpected Keys: {unexpected}")
 
 if __name__ == '__main__':
-    os.environ['CUDNN_V8_API_ENABLED'] = '1'
     parser = get_parser()
     opts = parser.parse_args()
     if opts.reproduce:
