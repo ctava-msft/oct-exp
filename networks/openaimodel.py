@@ -147,7 +147,19 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
                     x = x.squeeze(2)  # Remove the third dimension (index 2)
                 # Print the shape of the input tensor before passing it through the layer
                 print(f"Shape before layer: {x.shape}")
-                x = x.view(-1, 11, 640, 400)  # Adjust the dimensions as needed
+
+                # Calculate the total number of elements in the input tensor
+                total_elements = x.numel()
+
+                # Determine the new shape
+                new_shape = (-1, 11, 640, 400)
+
+                # Check if the new shape is valid
+                if total_elements == -1 * 11 * 640 * 400:
+                    x = x.view(new_shape)
+                else:
+                    raise ValueError(f"Cannot reshape tensor of total size {total_elements} to shape {new_shape}")
+
                 x = layer(x)
                 # Print the shape of the tensor after passing it through the layer
                 print(f"Shape after layer: {x.shape}")
