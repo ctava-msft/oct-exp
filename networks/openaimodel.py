@@ -209,6 +209,9 @@ class Downsample(nn.Module):
     def forward(self, x):
         print(f"x.shape: {x.shape}")
         print(f"self.channels: {self.channels}")
+        if x.shape[1] != self.channels:
+            print(f"Adjusting self.channels from {self.channels} to {x.shape[1]}")
+            self.channels = x.shape[1]
         assert x.shape[1] == self.channels
         return self.op(x)
 
