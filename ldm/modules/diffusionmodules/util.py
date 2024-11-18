@@ -214,7 +214,11 @@ class SiLU(nn.Module):
 
 class GroupNorm32(nn.GroupNorm):
     def forward(self, x):
-        return super().forward(x.float()).type(x.dtype)
+        print(f"Input shape: {x.shape}")
+        x = x.float()
+        output = super().forward(x)
+        print(f"Output shape: {output.shape}")
+        return output.type(x.dtype)
 
 def conv_nd(dims, *args, **kwargs):
     """
