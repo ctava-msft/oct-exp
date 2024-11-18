@@ -215,7 +215,7 @@ class SiLU(nn.Module):
 
 class GroupNorm32(nn.GroupNorm):
     def __init__(self, num_channels):
-        super(GroupNorm32, self).__init__()
+        super(GroupNorm32, self, num_channels).__init__()
         self.num_groups = 32  # Example value, adjust as needed
         self.weight = nn.Parameter(torch.ones(num_channels))
         self.bias = nn.Parameter(torch.zeros(num_channels))
