@@ -2,12 +2,12 @@
 import os
 from argparse import ArgumentParser
 from tqdm import tqdm
-
 import pytorch_lightning as pl
 import torch
 from einops import rearrange
 from pytorch_lightning.callbacks import ModelCheckpoint, TQDMProgressBar
 from torchvision.utils import save_image
+import torch.optim as optim
 import numpy as np
 
 from datamodule.tio_datamodule import TioDatamodule
@@ -115,6 +115,8 @@ class VQModel(pl.LightningModule):
         self.lr_g_factor = 1.0
         self.automatic_optimization = False
         self.save_hyperparameters()
+        # Initialize optimizer
+        self.optimizer = optim.Adam(self.parameters(), lr=opts.base_lr)
 
     @torch.no_grad()
     def get_input(self, batch):

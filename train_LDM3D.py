@@ -10,6 +10,7 @@ from pytorch_lightning.callbacks import ModelCheckpoint, TQDMProgressBar
 from torch.optim.lr_scheduler import LambdaLR
 from tqdm import tqdm
 import torch.nn as nn
+import torch.optim as optim
 from networks.ema import LitEma
 from networks.openaimodel import UNetModel
 from datamodule.latent_datamodule import trainDatamodule
@@ -182,7 +183,8 @@ class LDM(DDPM_base):
         self.v_posterior = 0.  # weight for choosing posterior variance as sigma = (1-v) * beta_tilde + v * beta
         self.original_elbo_weight = 0.
         self.log_every_t = 100
-
+        # Initialize optimizer
+        self.optimizer = optim.Adam(self.parameters(), lr=opts.base_lr)
         self.scale_by_std = False
         scale_factor = 1.0
         if not self.scale_by_std:

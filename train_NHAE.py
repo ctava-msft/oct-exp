@@ -7,7 +7,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import tqdm
-
+import torch.optim as optim
 from datamodule.tio_datamodule import TioDatamodule
 from pytorch_lightning.callbacks import ModelCheckpoint, TQDMProgressBar
 from networks.ldm3D_utils.vq_gan_3d.model.vqgan import DecoderSR_old_v2 as DecoderSR

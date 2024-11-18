@@ -14,6 +14,7 @@ from datamodule.uncond2D_datamodule import trainDatamodule
 from torchvision.utils import save_image
 from utils.util import load_network
 import numpy as np
+import torch.optim as optim
 
 def get_parser():
     parser = ArgumentParser()
@@ -80,14 +81,10 @@ class VQModel(pl.LightningModule):
     def __init__(self, opts):
         super().__init__()
         self.opts = opts
-
         ddconfig = {'double_z': False, 'z_channels': 4, 'resolution': 512, 'in_channels': 1, 'out_ch': 1, 'ch': 128,
                     'ch_mult': [1, 2, 4, 4], 'num_res_blocks': 2, 'attn_resolutions': [], 'dropout': 0.0}
-        # 400 200 100 50 25
         self.encoder = Encoder(**ddconfig)
         self.decoder = Decoder(**ddconfig)
-
-
         self.embed_dim = ddconfig["z_channels"]
         n_embed = 16384
         self.quantize = VectorQuantizer(n_embed, self.embed_dim, beta=0.25)
@@ -103,6 +100,8 @@ class VQModel(pl.LightningModule):
             lossconfig = dict(disc_conditional=False, disc_in_channels=1, disc_num_layers=2, disc_start=1, disc_weight=0.6,
                       codebook_weight=1.0, perceptual_weight=0.1)
             self.loss = VQLPIPSWithDiscriminator(**lossconfig)
+        # Initialize optimizer
+        self.optimizer = optim.Adam(self.parameters(), lr=opts.base_lr)
 
     def get_input(self, batch):
         x = batch['image']

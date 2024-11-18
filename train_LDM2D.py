@@ -8,6 +8,7 @@ from pytorch_lightning.callbacks import ModelCheckpoint, TQDMProgressBar
 from torch.optim.lr_scheduler import LambdaLR
 from tqdm import tqdm
 import torch.nn as nn
+import torch.optim as optim
 from networks.ema import LitEma
 from networks.openaimodel import UNetModel
 from datamodule.latent_refiner_datamodule import trainDatamodule
@@ -130,6 +131,8 @@ class LDM(DDPM_base):
         self.v_posterior = 0.  # weight for choosing posterior variance as sigma = (1-v) * beta_tilde + v * beta
         self.original_elbo_weight = 0.
         self.log_every_t = 100
+        # Initialize optimizer
+        self.optimizer = optim.Adam(self.parameters(), lr=opts.base_lr)
 
         self.register_schedule()
         if self.use_ema:
@@ -150,9 +153,7 @@ class LDM(DDPM_base):
         return self.first_stage_model.decode_2D(z)
 
     def apply_model(self, x, t, c):
-
         print(f"x shape: {x.shape}, c shape: {c.shape}")
-    
         # Compare and adjust dimensions
         if x.dim() != c.dim():
             if x.dim() < c.dim():
@@ -198,7 +199,6 @@ class LDM(DDPM_base):
             'epoch': self.current_epoch,
             'model_state_dict': self.state_dict(),
             'optimizer_state_dict': self.optimizer.state_dict(),
-            # Add other items if needed
         }
         checkpoint_path = os.path.join(self.opts.default_root_dir, 'checkpoints', f'checkpoint_epoch_{self.current_epoch}.pt')
         os.makedirs(os.path.dirname(checkpoint_path), exist_ok=True)
