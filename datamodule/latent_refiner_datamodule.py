@@ -38,8 +38,9 @@ class trainDatamodule(pl.LightningDataModule):
 
             img_names = natsorted(os.listdir(os.path.join(self.latent_1_root, cube_name)))
             for img_name in img_names:
-                train_latent_1_paths.append(os.path.join(self.latent_1_root, cube_name, img_name))
-                train_latent_2_paths.append(os.path.join(self.latent_2_root, cube_name, img_name))
+                if img_name.endswith('.npy'):
+                    train_latent_1_paths.append(os.path.join(self.latent_1_root, cube_name, img_name))
+                    train_latent_2_paths.append(os.path.join(self.latent_2_root, cube_name, img_name))
 
         print(f'train len: {len(train_latent_1_paths)} {len(train_latent_2_paths)}')
         self.train_set = latent_Dataset(latent_1_paths=train_latent_1_paths, latent_2_paths=train_latent_2_paths)
