@@ -309,7 +309,7 @@ class AttentionBlock(nn.Module):
 
         self.proj_out = zero_module(conv_nd(1, channels, channels, 1))
 
-    def forward(self, x):
+    def forwardNew(self, x):
         b, c, d, h, w = x.shape
         assert c == self.channels, f"Expected input with {self.channels} channels, but got {c} channels"
         
@@ -324,7 +324,7 @@ class AttentionBlock(nn.Module):
         attn_output = attn_output.permute(1, 2, 0).view(b, c, d, h, w)
         return attn_output
 
-    def forwardOld(self, x):
+    def forward(self, x):
         # if self.use_checkpoint:
         return checkpoint(self._forward, (x,), self.parameters(), True)   # TODO: check checkpoint usage, is True # TODO: fix the .half call!!!
         # else:

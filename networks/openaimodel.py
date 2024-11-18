@@ -245,6 +245,7 @@ class ResBlock(TimestepBlock):
         self.emb_channels = emb_channels
         self.dropout = dropout
         self.out_channels = out_channels or channels
+        self.reduce_channels = nn.Conv3d(in_channels=512, out_channels=128, kernel_size=1)
         self.use_conv = use_conv
         self.use_checkpoint = use_checkpoint
         self.use_scale_shift_norm = use_scale_shift_norm
@@ -310,6 +311,7 @@ class ResBlock(TimestepBlock):
             x = self.x_upd(x)
             h = in_conv(h)
         else:
+            x = self.reduce_channels(x)
             h = self.in_layers(x)
         emb_out = self.emb_layers(emb).type(h.dtype)
         while len(emb_out.shape) < len(h.shape):
@@ -362,6 +364,7 @@ class AttentionBlock(nn.Module):
         self.proj_out = zero_module(conv_nd(1, channels, channels, 1))
 
     def forward(self, x):
+        print(x.shape)
         return checkpoint(self._forward, (x,), self.parameters(), True)   # TODO: check checkpoint usage, is True # TODO: fix the .half call!!!
         #return pt_checkpoint(self._forward, x)  # pytorch
 
