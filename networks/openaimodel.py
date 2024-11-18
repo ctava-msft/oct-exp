@@ -91,6 +91,8 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
             x = x.repeat(1, 4)  # Adjust for 2D tensor
         elif x.dim() == 3:
             x = x.repeat(1, 4, 1)  # Adjust for 3D tensor
+        else:
+            raise ValueError(f"Unsupported tensor dimension: {x.dim()}")
         
         x = x.unsqueeze(0)
         # Adjust the number of channels if necessary
@@ -99,7 +101,9 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
                 x = x.repeat(1, 4)  # Adjust for 2D tensor
             elif x.dim() == 3:
                 x = x.repeat(1, 4, 1)  # Adjust for 3D tensor
-
+            else:
+                raise ValueError(f"Unsupported tensor dimension: {x.dim()}")
+            
         print(f"Input shape after adjustment: {x.shape}")
 
         for layer in self:
