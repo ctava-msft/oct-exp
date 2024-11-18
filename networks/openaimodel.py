@@ -153,6 +153,9 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
 
                 # Define the target shape
                 new_shape = (-1, 11, 640, 400)
+                print(f"Original shape: {x.shape}")
+                print(f"Total elements: {total_elements}")
+                print(f"New shape: {new_shape}")
 
                 # Calculate the expected number of elements for the target shape
                 expected_elements = 1
