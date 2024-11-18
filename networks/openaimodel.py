@@ -373,6 +373,13 @@ class ResBlock(TimestepBlock):
             h = in_rest(x)
             h = self.h_upd(h)
             x = self.x_upd(x)
+            print(h.shape)
+
+            # If 'h' has 1 channel, you can use a 1x1 convolution to increase the number of channels
+            if h.shape[1] == 1:
+                conv1x1 = th.nn.Conv3d(1, 128, kernel_size=1)
+                h = conv1x1(h)
+
             h = in_conv(h)
         else:
             print(f"Input shape before adjust_channels: {x.shape}")
