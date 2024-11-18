@@ -480,6 +480,19 @@ class LDM(DDPM_base):
             }]
         return [opt], scheduler
 
+    def init_from_ckpt(self, path, ignore_keys=list()):
+        sd = torch.load(path, map_location=self.device)["state_dict"]
+        keys = list(sd.keys())
+        for k in keys:
+            for ik in ignore_keys:
+                if k.startswith(ik):
+                    print("Deleting key {} from state_dict.".format(k))
+                    del sd[k]
+        missing, unexpected = self.load_state_dict(sd, strict=False)
+        print(f"Restored from {path} with {len(missing)} missing and {len(unexpected)} unexpected keys")
+        if len(missing) > 0:
+            print(f"Missing Keys: {missing}")
+            print(f"Unexpected Keys: {unexpected}")
 
 if __name__ == '__main__':
     os.environ['CUDNN_V8_API_ENABLED'] = '1'
