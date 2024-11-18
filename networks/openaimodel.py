@@ -154,7 +154,7 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
                 # Define the target shape
                 #new_shape = (total_elements // (11 * 640 * 400), 11, 640, 400)
                 #new_shape = (32, 10, 640, 400)
-                new_shape = (10, 10, 640, 440)
+                new_shape = (10, 10, 640, 1280)
                 print(f"Original shape: {x.shape}")
                 print(f"Total elements: {total_elements}")
                 print(f"New shape: {new_shape}")
