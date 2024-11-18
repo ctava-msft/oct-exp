@@ -175,9 +175,12 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
                 new_dim = remaining_elements // product
                 new_shape = desired_dims + (new_dim,)
 
+                print(f"remaining_elements: {remaining_elements}")
+                print(f"new_shape: {new_shape}")
+            
                 # Ensure the new shape's product matches the total number of elements
                 assert remaining_elements == new_shape[0] * new_shape[1] * new_shape[2] * new_shape[3], "Shape mismatch"
-                
+
                 x = x.view(new_shape)
                 print(f"New tensor shape: {x.shape}")
                 # print(f"Original shape: {x.shape}")
