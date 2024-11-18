@@ -955,7 +955,7 @@ class UNetModel(nn.Module):
 
         total_elements = h.numel()
         #target_shape = (10, 10, 640, 400)
-        target_shape = (10, 10, 668, 422)
+        target_shape = (10, 10, 640, 440)
         # Print the number of elements and the target shape
         print(f"Number of elements in h: {total_elements}")
         print(f"Target shape: {target_shape}")
