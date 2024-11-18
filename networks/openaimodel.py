@@ -134,6 +134,9 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
                     raise RuntimeError(f"Input image dimensions are too small for avg_pool3d: {x.shape[2:]}")
                 x = F.avg_pool3d(x, kernel_size)
             else:
+                # Assuming x is the input tensor with shape [1, 40, 11, 640, 400]
+                # Remove the extra dimension
+                x = x.squeeze(2)  # Remove the third dimension (index 2)
                 x = layer(x)
 
         return x
