@@ -69,7 +69,7 @@ def main(opts):
     model = VQModel(opts)
     if opts.command == "fit":
         checkpoint_callback = ModelCheckpoint(
-            dirpath='checkpoints/ae',  # Directory to save the checkpoints
+            dirpath='checkpoints/AE',  # Directory to save the checkpoints
             filename='ae-{epoch:02d}',  # Descriptive filename format
             save_top_k=-1,  # Save all models
             save_weights_only=True,  # Save only the model weights

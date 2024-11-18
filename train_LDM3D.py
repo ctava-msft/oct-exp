@@ -60,7 +60,7 @@ def main(opts):
     datamodule = trainDatamodule(**vars(opts))
     model = LDM(opts)
     checkpoint_callback = ModelCheckpoint(
-        dirpath='checkpoints/ldm3d',  # Directory to save the checkpoints
+        dirpath='checkpoints/LDM3D',  # Directory to save the checkpoints
         filename='ldm3d-{epoch:02d}',  # Descriptive filename format
         save_top_k=-1,  # Save all models
         save_weights_only=True,  # Save only the model weights

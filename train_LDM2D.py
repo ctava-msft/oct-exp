@@ -1,7 +1,6 @@
 # -*- coding:utf-8 -*-
 import torch
 import os
-os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
 from argparse import ArgumentParser
 import torch.nn.functional as F
 import pytorch_lightning as pl
@@ -56,6 +55,7 @@ def sanitize_filename(filename):
 def main(opts):
     # torch.set_num_threads(8)
     # torch.set_float32_matmul_precision('medium')
+    os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
     checkpoint_dir = opts.first_stage_ckpt
     sanitized_checkpoint_dir = sanitize_filename(checkpoint_dir)
     # Check if the checkpoint directory exists
@@ -70,7 +70,7 @@ def main(opts):
     datamodule = trainDatamodule(**vars(opts))
     model = LDM(opts)
     checkpoint_callback = ModelCheckpoint(
-        dirpath='checkpoints/ldm2d',  # Directory to save the checkpoints
+        dirpath='checkpoints/LDM2D',  # Directory to save the checkpoints
         filename='ldm2d-{epoch:02d}',  # Descriptive filename format
         save_top_k=-1,  # Save all models
         save_weights_only=True,  # Save only the model weights
