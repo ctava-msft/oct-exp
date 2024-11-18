@@ -63,7 +63,7 @@ class latent_Dataset(Dataset):
         latent_1 = torch.from_numpy(latent_1).float()[:, :, :]
 
         latent_2 = np.load(self.latent_2_paths[index])
-        latent_2 = torch.from_numpy(latent_2).float()[0,:,:,:]
+        latent_2 = torch.from_numpy(latent_2).float()[0,:,:]
         return {'latent_1':latent_1,'latent_2':latent_2,
                 'latent_1_path': self.latent_1_paths[index],
                 'latent_2_path': self.latent_2_paths[index]}
