@@ -373,12 +373,17 @@ class ResBlock(TimestepBlock):
             h = in_rest(x)
             h = self.h_upd(h)
             x = self.x_upd(x)
-            print(h.shape)
+            # Assuming 'h' is the input tensor
+            print(h.shape)  # Should print torch.Size([1, 1, 512, 639, 399])
 
-            # If 'h' has 1 channel, you can use a 1x1 convolution to increase the number of channels
-            if h.shape[1] == 1:
-                conv1x1 = th.nn.Conv3d(1, 128, kernel_size=1)
-                h = conv1x1(h)
+            # Define a 1x1 convolution to increase the number of channels from 1 to 128
+            conv1x1 = nn.Conv3d(1, 128, kernel_size=1)
+
+            # Apply the 1x1 convolution
+            h = conv1x1(h)
+
+            # Now 'h' should have the shape [1, 128, 512, 639, 399]
+            print(h.shape)
 
             h = in_conv(h)
         else:
