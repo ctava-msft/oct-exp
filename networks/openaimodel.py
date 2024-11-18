@@ -176,6 +176,7 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
 
                     if padding_elements > 0:
                         # Pad the tensor with zeros
+                        th.cuda.empty_cache()
                         x = th.nn.functional.pad(x, (0, padding_elements))
 
                     new_shape = desired_dims + (new_dim,)
