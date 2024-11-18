@@ -247,6 +247,10 @@ class Downsample(nn.Module):
         
         if x.shape[2] <= kernel_depth or x.shape[3] <= kernel_height or x.shape[4] <= kernel_width:
             raise ValueError("Input dimensions are smaller than the kernel size.")
+        
+        if x.dim() == 5:
+            # Reshape the tensor to remove the extra dimension
+            x = x.squeeze(2)  # Remove the third dimension (index 2)
         return self.conv(x)
 
 
