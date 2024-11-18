@@ -168,7 +168,7 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
                     # Adjust new_dim to ensure the product matches remaining_elements
                     new_dim = remaining_elements // product
                     if new_dim * product != remaining_elements:
-                        new_dim = remaining_elements // product
+                        new_dim += 1
                     if new_dim == 0:
                         raise RuntimeError("Cannot reshape tensor with the given desired dimensions.")
                     new_shape = desired_dims + (new_dim,)
