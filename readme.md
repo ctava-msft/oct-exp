@@ -77,6 +77,9 @@ Configure and run `python train_NHAE.py`.
 rename 's/=/\-/' nhae-epoch=*.ckpt
 
 3. Train LDM3D.
+
+set PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+set CUDNN_V8_API_ENABLED=1
 Configure and run `python train_LDM3D.py`.
 rename 's/=/\-/' ldm3d-epoch=*.ckpt
 

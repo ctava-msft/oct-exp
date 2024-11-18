@@ -55,7 +55,7 @@ def get_parser():
 
 def main(opts):
     # torch.set_num_threads(2)
-    torch.set_float32_matmul_precision('medium')
+    # torch.set_float32_matmul_precision('medium')
     os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
     datamodule = trainDatamodule(**vars(opts))
     model = LDM(opts)
