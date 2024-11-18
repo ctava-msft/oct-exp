@@ -952,6 +952,17 @@ class UNetModel(nn.Module):
             emb = emb + self.label_emb(y)
 
         h = x.type(self.dtype)
+
+        total_elements = h.numel()
+        target_shape = (29, 11, 640, 400)
+        total_elements_target_shape = 29 * 11 * 640 * 400
+        
+        if total_elements != total_elements_target_shape:
+            raise ValueError(f"Cannot reshape tensor of total size {total_elements} to shape {target_shape}")
+        
+        h = h.view(target_shape)
+
+
         for module in self.input_blocks:
             h = module(h, emb, context)
             hs.append(h)
