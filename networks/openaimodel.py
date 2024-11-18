@@ -136,8 +136,14 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
             else:
                 # Assuming x is the input tensor with shape [1, 40, 11, 640, 400]
                 # Remove the extra dimension
-                x = x.squeeze(2)  # Remove the third dimension (index 2)
+                # Check if the tensor has an extra dimension and remove it if necessary
+                if len(x.shape) == 5:
+                    x = x.squeeze(2)  # Remove the third dimension (index 2)
+                # Print the shape of the input tensor before passing it through the layer
+                print(f"Shape before layer: {x.shape}")
                 x = layer(x)
+                # Print the shape of the tensor after passing it through the layer
+                print(f"Shape after layer: {x.shape}")
 
         return x
 
