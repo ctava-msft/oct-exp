@@ -54,6 +54,7 @@ def get_parser():
 def main(opts):
     # torch.set_num_threads(2)
     torch.set_float32_matmul_precision('medium')
+    os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
     datamodule = trainDatamodule(**vars(opts))
     model = LDM(opts)
     checkpoint_callback = ModelCheckpoint(
@@ -203,7 +204,9 @@ class LDM(DDPM_base):
     def process_batch(self, batch):
 
         # Print the batch to inspect its structure
-        # print("Batch contents:", batch)
+        print("Batch contents:", batch)
+        torch.cuda.empty_cache()  # Clear cache at the end of each epoch
+
         x = batch['latent']
         y = batch['latent_path']
         return x, y
