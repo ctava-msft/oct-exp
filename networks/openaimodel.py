@@ -197,6 +197,7 @@ class Downsample(nn.Module):
         self.out_channels = out_channels or channels
         self.use_conv = use_conv
         self.dims = dims
+        self.pool = th.nn.AvgPool3d(kernel_size=(2, 2, 2))
         stride = 2 if dims != 3 else (2, 2, 2)
         if use_conv:
             self.op = conv_nd(
@@ -209,10 +210,18 @@ class Downsample(nn.Module):
     def forward(self, x):
         print(f"x.shape: {x.shape}")
         print(f"self.channels: {self.channels}")
+
+        # Check input dimensions
+        if x.size(2) < 2 or x.size(3) < 2 or x.size(4) < 2:
+            raise ValueError("Input dimensions are smaller than the kernel size.")
+        
         if x.shape[1] != self.channels:
             print(f"Adjusting self.channels from {self.channels} to {x.shape[1]}")
             self.channels = x.shape[1]
         assert x.shape[1] == self.channels
+
+        # Apply pooling
+        x = self.pool(x)
         return self.op(x)
 
 
