@@ -154,6 +154,8 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
                 #new_shape = (total_elements // (11 * 640 * 400), 11, 640, 400)
                 #new_shape = (32, 10, 640, 400)
                 new_shape = (10, 10, 640, -1)
+                x = x.view(new_shape)
+                print(f"New tensor shape: {x.shape}")
                 # print(f"Original shape: {x.shape}")
                 # print(f"Total elements: {total_elements}")
                 # print(f"New shape: {new_shape}")
@@ -165,8 +167,7 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
                 # if total_elements != product_new_shape:
                 #     raise ValueError("Total elements do not match the product of new_shape dimensions.")
 
-                x = x.view(new_shape)
-                print(f"New tensor shape: {x.shape}")
+
 
                 # Calculate the expected number of elements for the target shape
                 # expected_elements = 1
@@ -966,18 +967,21 @@ class UNetModel(nn.Module):
 
         h = x.type(self.dtype)
 
-        total_elements = h.numel()
-        #target_shape = (10, 10, 640, 400)
-        target_shape = (10, 10, 640, 440)
-        # Print the number of elements and the target shape
-        print(f"Number of elements in h: {total_elements}")
-        print(f"Target shape: {target_shape}")
-        print(f"Product of target shape dimensions: {np.prod(target_shape)}")
+        # total_elements = h.numel()
+        # #target_shape = (10, 10, 640, 400)
+        # target_shape = (10, 10, 640, 440)
+        # # Print the number of elements and the target shape
+        # print(f"Number of elements in h: {total_elements}")
+        # print(f"Target shape: {target_shape}")
+        # print(f"Product of target shape dimensions: {np.prod(target_shape)}")
 
-        # # Ensure the target shape is valid
-        if total_elements != np.prod(target_shape):
-            raise ValueError(f"Invalid target shape {target_shape} for input of size {total_elements}")
+        # # # Ensure the target shape is valid
+        # if total_elements != np.prod(target_shape):
+        #     raise ValueError(f"Invalid target shape {target_shape} for input of size {total_elements}")
         
+        new_shape = (10, 10, 640, -1)
+        x = x.view(new_shape)
+        print(f"New tensor shape: {x.shape}")
 
         # target_shapes = [
         #     (10, 10, 640, 400)
