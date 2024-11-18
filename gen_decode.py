@@ -37,6 +37,8 @@ def get_parser():
     return parser
 
 def main(opts):
+    # torch.set_num_threads(8)
+    # torch.set_float32_matmul_precision('medium')
     model = CascadeLDM(opts)
     datamodule = test_single_latent_Datamodule(latent_root=opts.ldm2_latent)
     trainer = pl.Trainer(accelerator=opts.accelerator, devices=opts.devices, deterministic=opts.deterministic,

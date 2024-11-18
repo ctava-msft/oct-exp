@@ -52,7 +52,7 @@ def get_parser():
 
 def main(opts):
     # torch.set_num_threads(8)
-    torch.set_float32_matmul_precision('high')
+    # torch.set_float32_matmul_precision('medium')
     datamodule = TioDatamodule(**vars(opts))
     datamodule.prepare_data()
     if opts.command == "fit":
@@ -64,37 +64,12 @@ def main(opts):
             save_weights_only=True,  # Save only the model weights
             every_n_epochs=1  # Save every epoch
         )
-        # trainer = pl.Trainer(max_epochs=opts.max_epochs, limit_train_batches=opts.limit_train_batches,
-        #                      num_sanity_val_steps=0, limit_val_batches=1,
-        #                      accelerator=opts.accelerator, check_val_every_n_epoch=opts.check_val_every_n_epoch,
-        #                      precision=opts.precision, devices=opts.devices, deterministic=opts.deterministic,
-        #                      default_root_dir=opts.default_root_dir, profiler=opts.profiler,
-        #                      benchmark=opts.benchmark, callbacks=[checkpoint_callback])
         trainer = pl.Trainer(max_epochs=opts.max_epochs, limit_train_batches=opts.limit_train_batches,
                             accelerator=opts.accelerator,  # strategy=opts.strategy,
                             precision=opts.precision, devices=opts.devices, deterministic=opts.deterministic,
                             default_root_dir=opts.default_root_dir, profiler=opts.profiler,
                             benchmark=opts.benchmark, callbacks=[checkpoint_callback, TQDMProgressBar(refresh_rate=10)])
-        trainer.fit(model=model, datamodule=datamodule)
-        # model.decoder.train = disabled_train
-        # model.encoder.train = disabled_train
-        # model.post_quant_conv.train = disabled_train
-        # model.quant_conv.train = disabled_train
-        # model.quantize.train = disabled_train
-
-        # for param in model.decoder.parameters():
-        #     param.requires_grad = False
-        # for param in model.encoder.parameters():
-        #     param.requires_grad = False
-        # for param in model.post_quant_conv.parameters():
-        #     param.requires_grad = False
-        # for param in model.quant_conv.parameters():
-        #     param.requires_grad = False
-        # for param in model.quantize.parameters():
-        #     param.requires_grad = False
-        # for param in model.decoder.conv_out.parameters():
-        #     param.requires_grad = True
-        
+        trainer.fit(model=model, datamodule=datamodule)        
     elif opts.command == "test":
         ckpt_path = ''
         opts.ckpt_name = ckpt_path.split('/')[-1].split('.')[0]

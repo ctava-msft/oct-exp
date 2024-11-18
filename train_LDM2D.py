@@ -54,8 +54,8 @@ def sanitize_filename(filename):
     return filename.replace("'", "")
 
 def main(opts):
-    torch.set_num_threads(2)
-    torch.set_float32_matmul_precision('medium')
+    # torch.set_num_threads(8)
+    # torch.set_float32_matmul_precision('medium')
     checkpoint_dir = opts.first_stage_ckpt
     sanitized_checkpoint_dir = sanitize_filename(checkpoint_dir)
     # Check if the checkpoint directory exists

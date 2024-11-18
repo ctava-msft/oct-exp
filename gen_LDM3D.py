@@ -35,10 +35,11 @@ def get_parser():
     parser.add_argument('--precision', default=32)
     parser.add_argument('--devices', default=[0])
     parser.add_argument('--reproduce', type=int, default=False)
-    # torch.set_float32_matmul_precision('medium')
     return parser
 
 def main(opts):
+    # torch.set_num_threads(8)
+    # torch.set_float32_matmul_precision('medium')
     model = CascadeLDM(opts)
     datamodule = uncond_gen_Datamodule(total_num=100)
     trainer = pl.Trainer(accelerator=opts.accelerator, devices=opts.devices, deterministic=opts.deterministic,

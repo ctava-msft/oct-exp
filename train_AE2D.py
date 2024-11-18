@@ -43,12 +43,11 @@ def get_parser():
     parser.add_argument('--precision', default='32')
     parser.add_argument('--devices', default=[0])
     parser.add_argument('--reproduce', type=int, default=False)
-    # torch.set_float32_matmul_precision('medium')
     return parser
 
 def main(opts):
     # torch.set_num_threads(8)
-    torch.set_float32_matmul_precision('high')
+    # torch.set_float32_matmul_precision('medium')
     datamodule = trainDatamodule(**vars(opts))
     model = VQModel(opts)
     if opts.command == "fit":

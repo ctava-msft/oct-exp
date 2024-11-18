@@ -63,7 +63,7 @@ def freeze_except_3d(model):
 
 def main(opts):
     # torch.set_num_threads(8)
-    torch.set_float32_matmul_precision('high')
+    # torch.set_float32_matmul_precision('medium')
     datamodule = TioDatamodule(**vars(opts))
     datamodule.prepare_data()
     model = VQModel(opts)
