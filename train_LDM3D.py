@@ -357,8 +357,27 @@ class LDM(DDPM_base):
         if self.use_ema:
             self.model_ema(self.model)
 
-    @torch.no_grad()
+    @torch.inference_mode()
     def on_train_epoch_end(self):
+        x = self.x_sample.to(self.device)
+        xrec, _ = self(x, return_pred_indices=False)
+        os.makedirs(os.path.join(self.opts.default_root_dir, 'train_progress'), exist_ok=True)
+        for i in range(x.shape[0]):
+            save_image([x[i] * 0.5 + 0.5, xrec[i] * 0.5 + 0.5],
+                       os.path.join(self.opts.default_root_dir, 'train_progress', str(self.current_epoch)+str(i) + '.png'))
+        # Save checkpoint
+        checkpoint = {
+            'epoch': self.current_epoch,
+            'model_state_dict': self.state_dict(),
+            'optimizer_state_dict': self.optimizer.state_dict(),
+            # Add other items if needed
+        }
+        checkpoint_path = os.path.join(self.opts.default_root_dir, 'checkpoints', f'checkpoint_epoch_{self.current_epoch}.pt')
+        os.makedirs(os.path.dirname(checkpoint_path), exist_ok=True)
+        torch.save(checkpoint, checkpoint_path) 
+
+    @torch.no_grad()
+    def on_train_epoch_endOLD(self):
         if self.current_epoch % opts.eval_save_every_n_epoch: return
         img_save_dir = os.path.join(self.opts.default_root_dir, 'train_progress', str(self.current_epoch))
         os.makedirs(img_save_dir, exist_ok=True)
