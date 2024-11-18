@@ -389,6 +389,8 @@ class ResBlock(TimestepBlock):
             # Now 'h' should have the shape [1, 128, 512, 639, 399]
             print(h.shape)
 
+            # Ensure the input tensor is on the same device as the weight tensor
+            h = h.to(in_conv.weight.device)
             h = in_conv(h)
         else:
             print(f"Input shape before adjust_channels: {x.shape}")
