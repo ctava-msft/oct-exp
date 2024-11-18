@@ -966,10 +966,7 @@ class UNetModel(nn.Module):
         
 
         target_shapes = [
-            (29, 11, 640, 400),
-            (29, 11, 400, 640),
-            (29, 11, 320, 800),
-            (29, 11, 800, 320)
+            (10, 10, 640, 400)
         ]
         # Check if any of the target shapes match the total elements
         valid_shape = None
@@ -983,6 +980,8 @@ class UNetModel(nn.Module):
             raise ValueError(f"Invalid target shape for input of size {total_elements}")
 
         h = h.view(valid_shape)
+
+        #input_tensor = input_tensor.view(batch_size, channels, height, width)
         
         # if total_elements != total_elements_target_shape:
         #     raise ValueError(f"Cannot reshape tensor of total size {total_elements} to shape {target_shape}")
