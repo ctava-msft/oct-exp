@@ -20,7 +20,7 @@ def get_parser():
     parser = ArgumentParser()
     parser.add_argument("--exp_name", type=str, default='AE')
     parser.add_argument('--result_root', type=str, default='./checkpoints')
-    parser.add_argument('--first_stage_ckpt', type=str, default='./checkpoints/AE2D/ae2d-epoch-49.ckpt')
+    parser.add_argument('--first_stage_ckpt', type=str, default='./checkpoints/AE2D/ae2d-epoch-09.ckpt')
     parser.add_argument("--command", default="fit")
     # tio args
     parser.add_argument('--image_npy_root', type=str, default='./images/oct/oct-500')
