@@ -151,14 +151,21 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
                 # Calculate the total number of elements in the input tensor
                 total_elements = x.numel()
 
-                # Determine the new shape
+                # Define the target shape
                 new_shape = (-1, 11, 640, 400)
 
-                # Check if the new shape is valid
-                if total_elements == -1 * 11 * 640 * 400:
-                    x = x.view(new_shape)
-                else:
+                # Calculate the expected number of elements for the target shape
+                expected_elements = 1
+                for dim in new_shape:
+                    if dim != -1:
+                        expected_elements *= dim
+
+                # Check if the total number of elements matches the expected number of elements
+                if total_elements != expected_elements:
                     raise ValueError(f"Cannot reshape tensor of total size {total_elements} to shape {new_shape}")
+
+                # Reshape the tensor
+                x = x.view(new_shape)
 
                 x = layer(x)
                 # Print the shape of the tensor after passing it through the layer
