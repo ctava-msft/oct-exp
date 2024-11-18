@@ -955,7 +955,14 @@ class UNetModel(nn.Module):
 
         total_elements = h.numel()
         target_shape = (29, 11, 640, 400)
-        total_elements_target_shape = 29 * 11 * 640 * 400
+        # Print the number of elements and the target shape
+        print(f"Number of elements in h: {total_elements}")
+        print(f"Target shape: {target_shape}")
+        print(f"Product of target shape dimensions: {np.prod(target_shape)}")
+
+        # Ensure the target shape is valid
+        if total_elements != np.prod(target_shape):
+            raise ValueError(f"Invalid target shape {target_shape} for input of size {total_elements}")
         
         h = h.view(target_shape)
         
