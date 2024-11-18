@@ -199,6 +199,7 @@ class Downsample(nn.Module):
         self.dims = dims
         self.kernel_size = 2
         self.pool = th.nn.AvgPool3d(kernel_size=(2, 2, 2))
+        self.conv = nn.Conv2d(in_channels=1, out_channels=1, kernel_size=kernel_size)
         stride = 2 if dims != 3 else (2, 2, 2)
         if use_conv:
             self.op = conv_nd(
@@ -208,7 +209,7 @@ class Downsample(nn.Module):
             assert self.channels == self.out_channels
             self.op = avg_pool_nd(dims, kernel_size=stride, stride=stride)
 
-    def forward(self, x):
+    def forwardOld(self, x):
         print(f"x.shape: {x.shape}")
         print(f"self.channels: {self.channels}")
 
@@ -227,6 +228,11 @@ class Downsample(nn.Module):
         # Apply pooling
         x = self.pool(x)
         return self.op(x)
+    
+    def forward(self, x):
+        if x.size(2) < self.conv.kernel_size[0] or x.size(3) < self.conv.kernel_size[1]:
+            raise ValueError("Input dimensions are smaller than the kernel size.")
+        return self.conv(x)
 
 
 class ResBlock(TimestepBlock):
