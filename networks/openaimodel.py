@@ -76,9 +76,15 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
     support it as an extra input.
     """
 
+    def __init__(self):
+        super(TimestepEmbedSequential, self).__init__()
+        self.adjust_channels = nn.Conv2d(in_channels=11, out_channels=8, kernel_size=1)
+        self.layer = nn.Conv2d(in_channels=8, out_channels=192, kernel_size=3, padding=1)
+
     def forward(self, x, emb, context=None):
 
         print(f"Input shape before conv3d: {x.shape}")
+        x = self.adjust_channels(x)
         # Ensure the input tensor has the correct dimensions
         if len(x.shape) == 3:
             # Add batch and channel dimensions if missing
