@@ -149,6 +149,15 @@ class LDM(DDPM_base):
         return self.first_stage_model.decode_2D(z)
 
     def apply_model(self, x, t, c):
+
+        print(f"x shape: {x.shape}, c shape: {c.shape}")
+    
+        # Adjust dimensions if necessary
+        if x.dim() != c.dim():
+            if x.dim() < c.dim():
+                x = x.unsqueeze(1)  # Example adjustment, modify as needed
+            else:
+                c = c.unsqueeze(1)  # Example adjustment, modify as needed
         out = self.model(x=torch.cat([x,c], dim=1), timesteps=t)
         return out
 
