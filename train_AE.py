@@ -139,13 +139,15 @@ class VQModel(pl.LightningModule):
         h = self.encoder(x)
         h = self.quant_conv(h)
         quant = self.quantize.forward(h, testing=True)
-
         quant = self.post_quant_conv(quant)
         return quant
 
     def decode(self, quant):
         dec = self.decoder(quant)
         return dec
+
+    def forward(self, x, return_pred_indices=False):
+        return x, None
 
     def training_step(self, batch, batch_idx):
         if batch_idx == 0:
