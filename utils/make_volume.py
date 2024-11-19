@@ -1,8 +1,6 @@
 import argparse
 import cv2
 import glob
-import os
-from natsort import natsorted
 import numpy as np
 import torch
 
@@ -28,6 +26,7 @@ def make_volume(path, num_channels=8):
     
     # Ensure the tensor has the correct shape [1, num_channels, height, width]
     volume_tensor = volume_tensor.unsqueeze(0)  # Add batch dimension, shape becomes [1, num_channels, height, width]
+    volume_tensor = volume_tensor.squeeze(2)  # Remove the extra dimension
     
     return volume_tensor
 
