@@ -26,9 +26,8 @@ def make_volume(path, num_channels=8):
     # Convert numpy array to torch tensor
     volume_tensor = torch.from_numpy(volume_np).float()
     
-    # Ensure the tensor has the correct shape [batch_size, channels, height, width]
-    # Here we assume batch_size=1 and stack along the channel dimension
-    volume_tensor = volume_tensor.permute(1, num_channels, 1280, 400)  # Change shape to [1, num_channels, height, width]
+    # Ensure the tensor has the correct shape [1, num_channels, height, width]
+    volume_tensor = volume_tensor.unsqueeze(0)  # Add batch dimension, shape becomes [1, num_channels, height, width]
     
     return volume_tensor
 
