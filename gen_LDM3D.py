@@ -120,6 +120,7 @@ class CascadeLDM(pl.LightningModule):
     #         save_cube_from_tensor(x_samples_refine[i].squeeze()*0.5+0.5, os.path.join(self.refine_img_save_dir, paths[i]))
 
 class VQModelInterface(nn.Module):
+
     def __init__(self):
         super().__init__()
 
