@@ -82,6 +82,16 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
         self.layer = nn.Conv2d(in_channels=8, out_channels=192, kernel_size=3, padding=1)
 
     def forward(self, x, emb, context=None):
+        for layer in self:
+            if isinstance(layer, TimestepBlock):
+                x = layer(x, emb)
+            elif isinstance(layer, SpatialTransformer):
+                x = layer(x, context)
+            else:
+                x = layer(x)
+        return x
+
+    def forwardOLD(self, x, emb, context=None):
 
         print(f"Input shape before conv3d: {x.shape}")
         if x.shape[1] != 11:
