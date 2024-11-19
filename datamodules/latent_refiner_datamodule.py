@@ -36,7 +36,7 @@ class trainDatamodule(pl.LightningDataModule):
 
             img_names = natsorted(os.listdir(os.path.join(self.latent_1_root, cube_name)))
             for img_name in img_names:
-                if img_name.endswith('.png'):
+                if img_name.endswith('.npy'):
                     train_latent_1_paths.append(os.path.join(self.latent_1_root, cube_name, img_name))
                     train_latent_2_paths.append(os.path.join(self.latent_2_root, cube_name, img_name))
 
