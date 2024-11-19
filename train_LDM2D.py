@@ -111,7 +111,7 @@ class LDM(DDPM_base):
         super().__init__()
         self.opts = opts
         self.save_hyperparameters()
-        #self.instantiate_first_stage(opts)
+        self.instantiate_first_stage(opts)
         unet_config = {'image_size': opts.latent_size, 'in_channels': opts.latent_channel*2,
                        'out_channels': opts.latent_channel, 'model_channels': 192,
                        'attention_resolutions': [2, 4, 8], 'num_res_blocks': 2, 'channel_mult': [1, 2, 4, 4],
