@@ -4,6 +4,7 @@ import glob
 import os
 from natsort import natsorted
 import numpy as np
+import torch
 
 def read_cube_to_np(img_dir, stack_axis=0, cvflag=cv2.IMREAD_GRAYSCALE):
     assert os.path.exists(img_dir), f"got {img_dir}"
@@ -36,8 +37,28 @@ def mainOld(path):
     np.save(output_path, volume)
     print(f"Volume projection saved as {output_path}")
 
+
+def make_volume(path, num_channels=8):
+    # Read images and convert to numpy array
+    volume_np = read_cube_to_np(path, num_channels=num_channels, cvflag=cv2.IMREAD_GRAYSCALE)
+    
+    # Convert numpy array to torch tensor
+    volume_tensor = torch.from_numpy(volume_np).float()
+    
+    # Ensure the tensor has the correct shape [batch_size, channels, height, width]
+    # Here we assume batch_size=1 and stack along the channel dimension
+    volume_tensor = volume_tensor.permute(1, num_channels, 1280, 400)  # Change shape to [1, num_channels, height, width]
+    
+    return volume_tensor
+
+def main(path):
+    volume_tensor = make_volume(path)
+    output_path = f'{path}/volume_projection.npy'
+    np.save(output_path, volume_tensor.numpy())
+    print(f"Volume projection saved as {output_path}")
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Create volume projection from image slices.')
     parser.add_argument('path', help='Path to the directory containing the image slices.')
     args = parser.parse_args()
-    orig(args.path)
+    main(args.path)
