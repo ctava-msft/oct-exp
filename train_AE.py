@@ -182,8 +182,8 @@ class VQModel(pl.LightningModule):
         os.makedirs(os.path.join(self.opts.default_root_dir, 'train_progress'), exist_ok=True)
         for i in range(len(x)):
             # Ensure tensors have the correct shape
-            img1 = x[i].unsqueeze(0) * 0.5 + 0.5  # Add batch dimension
-            img2 = xrec[i].unsqueeze(0) * 0.5 + 0.5  # Add batch dimension
+            img1 = x[i].unsqueeze(0) * 0.5 + 0.5  # Add channel dimension if missing
+            img2 = xrec[i].unsqueeze(0) * 0.5 + 0.5  # Add channel dimension if missing
             images = torch.cat([img1, img2], dim=0)  # Concatenate along batch dimension
             save_image(images, f'output_image_{i}.png')
         # Save checkpoint
