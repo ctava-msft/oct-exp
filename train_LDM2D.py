@@ -147,11 +147,11 @@ class LDM(DDPM_base):
     def decode_first_stage(self, z):
         return self.first_stage_model.decode_2D(z)
 
-    def apply_model(self, x, t, c):
+    def apply_modelOld(self, x, t, c):
         out = self.model(x=torch.cat([x,c], dim=1), timesteps=t)
         return out
     
-    def apply_modelOld(self, x, t, c):
+    def apply_model(self, x, t, c):
         print(f"x shape: {x.shape}, c shape: {c.shape}")
         # Compare and adjust dimensions
         if x.dim() != c.dim():
@@ -159,7 +159,6 @@ class LDM(DDPM_base):
                 x = x.unsqueeze(1)
             else:
                 c = c.unsqueeze(1)
-
         print(f"x shape: {x.shape}, c shape: {c.shape}")
         out = self.model(x=torch.cat([x,c], dim=1), timesteps=t)
         print(f"Concatenated shape: {out.shape}")
@@ -168,6 +167,7 @@ class LDM(DDPM_base):
     def get_input(self, batch):
         c = batch['latent_1'] # condition
         z = batch['latent_2'] # target
+        print(c.shape, z.shape)
         return z, c
 
     def training_step(self, batch, batch_idx):
