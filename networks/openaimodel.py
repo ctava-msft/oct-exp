@@ -78,9 +78,11 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
 
     def __init__(self, *args):
         super(TimestepEmbedSequential, self).__init__(*args)
+        self.input_adjust = nn.Conv2d(in_channels=11, out_channels=192, kernel_size=3, stride=1, padding=1)
         self.conv_adjust = nn.Conv2d(in_channels=192, out_channels=8, kernel_size=3, stride=1, padding=1)
 
     def forward(self, x, emb, context=None):
+        x = self.input_adjust(x)
         x = self.conv_adjust(x)
         for layer in self:
             if isinstance(layer, TimestepBlock):
