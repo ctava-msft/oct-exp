@@ -60,9 +60,6 @@ def make_volume(path, num_channels=8):
     # Convert numpy array to torch tensor
     volume_tensor = torch.from_numpy(volume_np).float()  # Shape: [num_channels, height, width]
     
-    # Add a batch dimension
-    volume_tensor = volume_tensor.unsqueeze(0)  # Shape: [1, num_channels, height, width]
-    
     print(f"Volume tensor shape: {volume_tensor.shape}")  # Debug statement
     
     return volume_tensor
