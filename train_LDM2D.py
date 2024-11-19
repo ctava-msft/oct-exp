@@ -162,7 +162,8 @@ class LDM(DDPM_base):
         print(f"x shape: {x.shape}, c shape: {c.shape}")
         x_new = torch.cat([x, c], dim=1)
         print(f"{x_new.shape}")
-        out = self.model(x=torch.cat([x,c], dim=1), timesteps=t)
+        #out = self.model(x=torch.cat([x,c], dim=1), timesteps=t)
+        out = self.model(x, timesteps=t)
         print(f"Concatenated shape: {out.shape}")
         return out
 
