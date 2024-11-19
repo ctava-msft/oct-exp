@@ -1,9 +1,22 @@
 import argparse
 import cv2
 import glob
+import os
+from natsort import natsorted
 import numpy as np
 
-def main(path):
+def read_cube_to_np(img_dir, stack_axis=2, cvflag=cv2.IMREAD_GRAYSCALE):
+    assert os.path.exists(img_dir), f"got {img_dir}"
+    print(img_dir)
+    imgs = []
+    names = natsorted(os.listdir(img_dir))
+    for name in names:
+        img = cv2.imread(os.path.join(img_dir, name), cvflag)
+        imgs.append(img)
+    imgs = np.stack(imgs, axis=stack_axis)
+    return imgs
+
+def orig(path):
     # Load slices
     slice_files = sorted(glob.glob(f'{path}/*.bmp'))  # Replace 'path_to_slices' with the actual path
     slices = [cv2.imread(img, cv2.IMREAD_GRAYSCALE) for img in slice_files]
@@ -15,6 +28,12 @@ def main(path):
     # Save the projection as a .npy file
     output_path = f'{path}/volume_projection.npy'
     np.save(output_path, projection)
+    print(f"Volume projection saved as {output_path}")
+
+def main(path):
+    volume = read_cube_to_np(path, stack_axis=2, cvflag=cv2.IMREAD_GRAYSCALE)
+    output_path = f'{path}/volume_projection.npy'
+    np.save(output_path, volume)
     print(f"Volume projection saved as {output_path}")
 
 if __name__ == "__main__":
