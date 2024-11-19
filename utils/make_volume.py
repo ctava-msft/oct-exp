@@ -12,9 +12,9 @@ def main(path):
     # Create a 2D projection (Maximum Intensity Projection)
     # You can change this to np.mean(volume, axis=0) for average projection
     projection = np.max(volume, axis=0)
-    # Save the projection as a .png file
-    output_path = f'{path}/volume_projection.png'
-    cv2.imwrite(output_path, projection)
+    # Save the projection as a .npy file
+    output_path = f'{path}/volume_projection.npy'
+    np.save(output_path, projection)
     print(f"Volume projection saved as {output_path}")
 
 if __name__ == "__main__":
