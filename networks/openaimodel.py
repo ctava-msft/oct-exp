@@ -151,11 +151,11 @@ class Downsample(nn.Module):
         self.out_channels = out_channels or channels
         self.use_conv = use_conv
         self.dims = dims
-        self.kernel_size = (2,2)
-        self.pool = th.nn.AvgPool3d(kernel_size=(2, 2, 2))
+        #self.kernel_size = (2,2)
+        #self.pool = th.nn.AvgPool3d(kernel_size=(2, 2, 2))
         #self.conv = nn.Conv2d(in_channels=1, out_channels=1, kernel_size=self.kernel_size)
         #self.conv = nn.Conv2d(in_channels=512, out_channels=1, kernel_size=2, stride=1, padding=0)
-        self.conv = nn.Conv2d(in_channels=128, out_channels=512, kernel_size=2, stride=1, padding=0)
+        #self.conv = nn.Conv2d(in_channels=128, out_channels=512, kernel_size=2, stride=1, padding=0)
         stride = 2 if dims != 3 else (2, 2, 2)
         if use_conv:
             self.op = conv_nd(
