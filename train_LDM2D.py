@@ -146,19 +146,19 @@ class LDM(DDPM_base):
     @torch.no_grad()
     def decode_first_stage(self, z):
         return self.first_stage_model.decode_2D(z)
-
-    def apply_modelOld(self, x, t, c):
-        out = self.model(x=torch.cat([x,c], dim=1), timesteps=t)
-        return out
     
     def apply_model(self, x, t, c):
         print(f"x shape: {x.shape}, c shape: {c.shape}")
         # Compare and adjust dimensions
         if x.dim() != c.dim():
             if x.dim() < c.dim():
+                print('x.dim() < c.dim()')
                 x = x.unsqueeze(1)
+                x = x.expand(-1, c.size(1), -1, -1)
             else:
+                print('else: x.dim() > c.dim()')
                 c = c.unsqueeze(1)
+                c = c.expand(-1, x.size(1), -1, -1)
         print(f"x shape: {x.shape}, c shape: {c.shape}")
         out = self.model(x=torch.cat([x,c], dim=1), timesteps=t)
         print(f"Concatenated shape: {out.shape}")
