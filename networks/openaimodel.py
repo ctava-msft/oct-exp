@@ -78,12 +78,12 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
 
     def __init__(self, *args):
         super(TimestepEmbedSequential, self).__init__(*args)
-        self.conv1 = nn.Conv2d(in_channels=11, out_channels=192, kernel_size=3, padding=1)
-        self.conv2 = nn.Conv2d(in_channels=192, out_channels=8, kernel_size=3, padding=1)
+        #self.conv1 = nn.Conv2d(in_channels=11, out_channels=192, kernel_size=3, padding=1)
+        #self.conv2 = nn.Conv2d(in_channels=192, out_channels=8, kernel_size=3, padding=1)
 
     def forward(self, x, emb, context=None):
-        x = self.conv1(x)
-        x = self.conv2(x)
+        #x = self.conv1(x)
+        #x = self.conv2(x)
         for layer in self:
             if isinstance(layer, TimestepBlock):
                 x = layer(x, emb)
@@ -824,6 +824,10 @@ class UNetModel(nn.Module):
                                 disable_self_attn=disabled_sa
                             )
                         )
+                layers = [
+                    nn.Conv2d(in_channels=self.in_channels, out_channels=self.model_channels, kernel_size=3, padding=1),
+                    nn.Conv2d(in_channels=self.model_channels, out_channels=self.out_channels, kernel_size=3, padding=1),
+                ]
                 self.input_blocks.append(TimestepEmbedSequential(*layers))
                 self._feature_size += ch
                 input_block_chans.append(ch)
@@ -1051,9 +1055,6 @@ class UNetModel(nn.Module):
         # if total_elements != total_elements_target_shape:
         #     raise ValueError(f"Cannot reshape tensor of total size {total_elements} to shape {target_shape}")
         
-
-
-
         for module in self.input_blocks:
             h = module(h, emb, context)
             hs.append(h)
