@@ -286,7 +286,7 @@ class AttentionBlock(nn.Module):
         num_heads=1,
         num_head_channels=-1,
         use_checkpoint=False,
-        use_new_attention_order=False,
+        use_new_attention_order=True,
     ):
         super().__init__()
         self.channels = channels
