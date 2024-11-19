@@ -5,7 +5,7 @@ import os
 from natsort import natsorted
 import numpy as np
 
-def read_cube_to_np(img_dir, stack_axis=2, cvflag=cv2.IMREAD_GRAYSCALE):
+def read_cube_to_np(img_dir, stack_axis=0, cvflag=cv2.IMREAD_GRAYSCALE):
     assert os.path.exists(img_dir), f"got {img_dir}"
     print(img_dir)
     imgs = []
@@ -31,7 +31,7 @@ def orig(path):
     print(f"Volume projection saved as {output_path}")
 
 def main(path):
-    volume = read_cube_to_np(path, stack_axis=2, cvflag=cv2.IMREAD_GRAYSCALE)
+    volume = read_cube_to_np(path, stack_axis=0, cvflag=cv2.IMREAD_GRAYSCALE)
     output_path = f'{path}/volume_projection.npy'
     np.save(output_path, volume)
     print(f"Volume projection saved as {output_path}")
