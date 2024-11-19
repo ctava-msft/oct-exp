@@ -78,12 +78,9 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
 
     def __init__(self, *args):
         super(TimestepEmbedSequential, self).__init__(*args)
-        #self.conv1 = nn.Conv2d(in_channels=11, out_channels=192, kernel_size=3, padding=1)
-        #self.conv2 = nn.Conv2d(in_channels=192, out_channels=8, kernel_size=3, padding=1)
+        self.conv_adjust = nn.Conv2d(in_channels=11, out_channels=8, kernel_size=1)
 
     def forward(self, x, emb, context=None):
-        #x = self.conv1(x)
-        #x = self.conv2(x)
         for layer in self:
             if isinstance(layer, TimestepBlock):
                 x = layer(x, emb)
@@ -92,151 +89,6 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
             else:
                 x = layer(x)
         return x
-
-    def forwardOLD(self, x, emb, context=None):
-
-        print(f"Input shape before conv3d: {x.shape}")
-        if x.shape[1] != 11:
-            x = self.adjust_channels(x)
-        # Ensure the input tensor has the correct dimensions
-        if len(x.shape) == 3:
-            # Add batch and channel dimensions if missing
-            x = x.unsqueeze(0).unsqueeze(0)
-        elif len(x.shape) == 4:
-            # Add batch dimension if missing
-            x = x.unsqueeze(0)
-        # Adjust the number of channels if necessary
-        if x.dim() == 2:
-            x = x.repeat(1, 4)  # Adjust for 2D tensor
-        elif x.dim() == 3:
-            x = x.repeat(1, 4, 1)  # Adjust for 3D tensor
-        elif x.dim() == 4:
-            # Add batch dimension if missing
-            x = x.unsqueeze(0)
-        elif x.dim() == 5:
-            x = x.repeat(1, 4, 1, 1, 1)  # Adjust for 5D tensor
-        elif x.dim() == 6:
-            #x = x.repeat(1, 4, 1, 1, 1, 1)  # Adjust for 6D tensor
-            x = x.squeeze(1).squeeze(1)
-        else:
-            raise ValueError(f"Unsupported tensor dimension: {x.dim()}")
-        
-        x = x.unsqueeze(0)
-        # Adjust the number of channels if necessary
-        if x.shape[1] == 1:
-            if x.dim() == 2:
-                x = x.repeat(1, 4)  # Adjust for 2D tensor
-            elif x.dim() == 3:
-                x = x.repeat(1, 4, 1)  # Adjust for 3D tensor
-            elif x.dim() == 4:
-                # Add batch dimension if missing
-                x = x.unsqueeze(0)
-            elif x.dim() == 5:
-                x = x.repeat(1, 4, 1, 1, 1)  # Adjust for 5D tensor
-            elif x.dim() == 6:
-                #x = x.repeat(1, 4, 1, 1, 1, 1)  # Adjust for 6D tensor
-                x = x.squeeze(1).squeeze(1)
-            else:
-                raise ValueError(f"Unsupported tensor dimension: {x.dim()}")
-            
-        print(f"Input shape after adjustment: {x.shape}")
-
-        for layer in self:
-            if isinstance(layer, TimestepBlock):
-                x = layer(x, emb)
-            elif isinstance(layer, SpatialTransformer):
-                x = layer(x, emb, context)
-            elif isinstance(layer, nn.AvgPool3d):
-                # Adjust kernel size if input dimensions are smaller
-                kernel_size = (min(2, x.shape[2]), min(2, x.shape[3]), min(2, x.shape[4]))
-                if kernel_size == (1, 1, 1):
-                    raise RuntimeError(f"Input image dimensions are too small for avg_pool3d: {x.shape[2:]}")
-                x = F.avg_pool3d(x, kernel_size)
-            else:
-                # Assuming x is the input tensor with shape [1, 40, 11, 640, 400]
-                # Remove the extra dimension
-                # Check if the tensor has an extra dimension and remove it if necessary
-                if len(x.shape) == 5:
-                    x = x.squeeze(2)  # Remove the third dimension (index 2)
-                # Print the shape of the input tensor before passing it through the layer
-                print(f"Shape before layer: {x.shape}")
-
-                # Calculate the total number of elements in the input tensor
-                total_elements = x.numel()
-                # Define the target shape
-                #new_shape = (total_elements // (11 * 640 * 400), 11, 640, 400)
-                #new_shape = (32, 10, 640, 400)
-                new_shape = (10, 10, 640, -1)
-                #x = x.view(new_shape)
-                print(f"New tensor shape: {x.shape}")
-
-                # Calculate the appropriate size for the last dimension
-                desired_dims = (10, 10, 640)
-                remaining_elements = x.numel()
-
-                product = desired_dims[0] * desired_dims[1] * desired_dims[2]
-
-                if remaining_elements % product != 0:
-                    # Calculate the required new_dim
-                    new_dim = (remaining_elements + product - 1) // product  # Ceiling division
-
-                    # Calculate the total required elements
-                    required_elements = new_dim * product
-
-                    # Calculate the number of padding elements
-                    padding_elements = required_elements - remaining_elements
-
-                    if padding_elements > 0:
-                        # Pad the tensor with zeros
-                        th.cuda.empty_cache()
-                        x = th.nn.functional.pad(x, (0, padding_elements))
-
-                    new_shape = desired_dims + (new_dim,)
-                else:
-                    new_shape = desired_dims + (remaining_elements // product,)
-
-                print(f"remaining_elements: {remaining_elements}")
-                print(f"new_shape: {new_shape}")
-            
-                # Ensure the new shape's product matches the total number of elements
-                assert remaining_elements == new_shape[0] * new_shape[1] * new_shape[2] * new_shape[3], "Shape mismatch"
-
-                x = x.view(new_shape)
-                print(f"New tensor shape: {x.shape}")
-                # print(f"Original shape: {x.shape}")
-                # print(f"Total elements: {total_elements}")
-                # print(f"New shape: {new_shape}")
-
-                # product_new_shape = 1
-                # for dim in new_shape:
-                #     product_new_shape *= dim
-                # print(f"Product of new_shape dimensions: {product_new_shape}")
-                # if total_elements != product_new_shape:
-                #     raise ValueError("Total elements do not match the product of new_shape dimensions.")
-
-
-
-                # Calculate the expected number of elements for the target shape
-                # expected_elements = 1
-                # for dim in new_shape:
-                #     if dim != -1:
-                #         expected_elements *= dim
-
-                # Check if the reshaping is possible
-                # if total_elements != new_shape:
-                #     raise ValueError(f"Cannot reshape tensor of total size {total_elements} to shape {new_shape}")
-
-                # # Reshape the tensor
-                # x = x.view(new_shape)
-
-                layer = nn.Conv2d(in_channels=10, out_channels=192, kernel_size=3, stride=1, padding=1)
-                layer = layer.cuda()
-                x = layer(x)
-                # Print the shape of the tensor after passing it through the layer
-                print(f"Shape after layer: {x.shape}")
-
-        return x
-
 
 class Upsample(nn.Module):
     """
@@ -309,26 +161,6 @@ class Downsample(nn.Module):
         else:
             assert self.channels == self.out_channels
             self.op = avg_pool_nd(dims, kernel_size=stride, stride=stride)
-
-    def forwardOld(self, x):
-        print(f"x.shape: {x.shape}")
-        print(f"self.channels: {self.channels}")
-
-        # Check input dimensions
-        #if x.size(2) < 2 or x.size(3) < 2 or x.size(4) < 2:
-        #    raise ValueError("Input dimensions are smaller than the kernel size.")
-        
-        if x.size(2) < self.kernel_size or x.size(3) < self.kernel_size:
-            raise ValueError("Input dimensions are smaller than the kernel size.")
-        
-        if x.shape[1] != self.channels:
-            print(f"Adjusting self.channels from {self.channels} to {x.shape[1]}")
-            self.channels = x.shape[1]
-        assert x.shape[1] == self.channels
-
-        # Apply pooling
-        x = self.pool(x)
-        return self.op(x)
     
     def forward(self, x):
         kernel_size = (min(2, x.shape[2]), min(2, x.shape[3]), min(2, x.shape[4]))
@@ -457,7 +289,6 @@ class ResBlock(TimestepBlock):
         kernel_size = (min(2, x.shape[2]), min(2, x.shape[3]), min(2, x.shape[4]))
         print(f"Input shape: {x.shape}, kernel_size: {kernel_size}")
         kernel_depth, kernel_height, kernel_width = kernel_size
-
         # Ensure kernel size is smaller than input dimensions
         if x.shape[2] <= kernel_depth:
             kernel_depth = x.shape[2] - 1
@@ -474,20 +305,15 @@ class ResBlock(TimestepBlock):
             x = self.x_upd(x)
             # Assuming 'h' is the input tensor
             print(h.shape)  # Should print torch.Size([1, 1, 512, 639, 399])
-
             # Define a 1x1 convolution to increase the number of channels from 1 to 128
             conv1x1 = nn.Conv3d(1, 128, kernel_size=1)
-
             # Ensure `h` is on the same device as `conv1x1`
             device = next(conv1x1.parameters()).device
             h = h.to(device)
-
             # Apply the 1x1 convolution
             h = conv1x1(h)
-
             # Now 'h' should have the shape [1, 128, 512, 639, 399]
             print(h.shape)
-
             # Ensure the input tensor is on the same device as the weight tensor
             h = h.to(in_conv.weight.device)
             h = in_conv(h)
@@ -544,13 +370,11 @@ class AttentionBlock(nn.Module):
         else:
             # split heads before split qkv
             self.attention = QKVAttentionLegacy(self.num_heads)
-
         self.proj_out = zero_module(conv_nd(1, channels, channels, 1))
 
     def forward(self, x):
         print(x.shape)
-        return checkpoint(self._forward, (x,), self.parameters(), True)   # TODO: check checkpoint usage, is True # TODO: fix the .half call!!!
-        #return pt_checkpoint(self._forward, x)  # pytorch
+        return checkpoint(self._forward, (x,), self.parameters(), True)
 
     def _forward(self, x):
         b, c, *spatial = x.shape
@@ -824,10 +648,6 @@ class UNetModel(nn.Module):
                                 disable_self_attn=disabled_sa
                             )
                         )
-                layers = [
-                    nn.Conv2d(in_channels=self.in_channels, out_channels=self.model_channels, kernel_size=3, padding=1),
-                    nn.Conv2d(in_channels=self.model_channels, out_channels=self.out_channels, kernel_size=3, padding=1),
-                ]
                 self.input_blocks.append(TimestepEmbedSequential(*layers))
                 self._feature_size += ch
                 input_block_chans.append(ch)
@@ -892,7 +712,6 @@ class UNetModel(nn.Module):
             ),
         )
         self._feature_size += ch
-
         self.output_blocks = nn.ModuleList([])
         for level, mult in list(enumerate(channel_mult))[::-1]:
             for i in range(self.num_res_blocks[level] + 1):
@@ -1001,64 +820,24 @@ class UNetModel(nn.Module):
             self.num_classes is not None
         ), "must specify y if and only if the model is class-conditional"
         hs = []
-
         # Ensure x is on the correct device
         x = x.to(self.device)
-
         # Ensure timesteps is not None before calling timestep_embedding
         if timesteps is None:
             timesteps = th.tensor([0])
         t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
         t_emb = t_emb.to(self.device)
         emb = self.time_embed(t_emb)
-
         if self.num_classes is not None:
             assert y.shape == (x.shape[0],)
             emb = emb + self.label_emb(y)
-
-        h = x.type(self.dtype)
-
-        # total_elements = h.numel()
-        # #target_shape = (10, 10, 640, 400)
-        # target_shape = (10, 10, 640, 440)
-        # # Print the number of elements and the target shape
-        # print(f"Number of elements in h: {total_elements}")
-        # print(f"Target shape: {target_shape}")
-        # print(f"Product of target shape dimensions: {np.prod(target_shape)}")
-
-        # # # Ensure the target shape is valid
-        # if total_elements != np.prod(target_shape):
-        #     raise ValueError(f"Invalid target shape {target_shape} for input of size {total_elements}")
-        
+        h = x.type(self.dtype)        
         new_shape = (10, 10, 640, -1)
         x = x.view(new_shape)
         print(f"New tensor shape: {x.shape}")
-
-        # target_shapes = [
-        #     (10, 10, 640, 400)
-        # ]
-        # # Check if any of the target shapes match the total elements
-        # valid_shape = None
-        # for shape in target_shapes:
-        #     expected_elements = shape[0] * shape[1] * shape[2] * shape[3]
-        #     if total_elements == expected_elements:
-        #         valid_shape = shape
-        #         break
-        
-        # if valid_shape is None:
-        #     raise ValueError(f"Invalid target shape for input of size {total_elements}")
-
-        # h = h.view(valid_shape)
-
-        #input_tensor = input_tensor.view(batch_size, channels, height, width)
-        
-        # if total_elements != total_elements_target_shape:
-        #     raise ValueError(f"Cannot reshape tensor of total size {total_elements} to shape {target_shape}")
-        
         for module in self.input_blocks:
             h = module(h, emb, context)
             hs.append(h)
-        # print(h.shape)
         h = self.middle_block(h, emb, context)
         for module in self.output_blocks:
             h = th.cat([h, hs.pop()], dim=1)
