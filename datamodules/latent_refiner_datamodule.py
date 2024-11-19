@@ -1,7 +1,6 @@
 # -*- coding:utf-8 -*-
 import json
 import os
-
 import cv2 as cv
 import pytorch_lightning as pl
 import torch
@@ -10,7 +9,6 @@ from torch.utils.data.dataset import Dataset
 from torchvision import transforms
 from natsort import natsorted
 import numpy as np
-
 
 class trainDatamodule(pl.LightningDataModule):
     def __init__(self,  latent_1_root, latent_2_root, train_name_json, test_name_json, batch_size=1, num_workers=8,
@@ -60,10 +58,10 @@ class latent_Dataset(Dataset):
     def __getitem__(self, index):
 
         latent_1 = np.load(self.latent_1_paths[index], allow_pickle=True)
-        latent_1 = torch.from_numpy(latent_1).float()[:, :, :]
+        latent_1 = torch.from_numpy(latent_1).float()[0,:,:,:]
 
         latent_2 = np.load(self.latent_2_paths[index])
-        latent_2 = torch.from_numpy(latent_2).float()[0,:,:]
+        latent_2 = torch.from_numpy(latent_2).float()[0,:,:,:]
         return {'latent_1':latent_1,'latent_2':latent_2,
                 'latent_1_path': self.latent_1_paths[index],
                 'latent_2_path': self.latent_2_paths[index]}
