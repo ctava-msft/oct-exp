@@ -166,28 +166,8 @@ class Downsample(nn.Module):
             self.op = avg_pool_nd(dims, kernel_size=stride, stride=stride)
     
     def forward(self, x):
-        kernel_size = (min(2, x.shape[2]), min(2, x.shape[3]), min(2, x.shape[4]))
-        print(f"Input shape: {x.shape}, kernel_size: {kernel_size}")
-        kernel_depth, kernel_height, kernel_width = kernel_size
-        
-        # Ensure kernel size is smaller than input dimensions
-        if x.shape[2] <= kernel_depth:
-            kernel_depth = x.shape[2] - 1
-        if x.shape[3] <= kernel_height:
-            kernel_height = x.shape[3] - 1
-        if x.shape[4] <= kernel_width:
-            kernel_width = x.shape[4] - 1
-        
-        kernel_size = (kernel_depth, kernel_height, kernel_width)
-        print(f"Adjusted kernel_size: {kernel_size}")
-        
-        if x.shape[2] <= kernel_depth or x.shape[3] <= kernel_height or x.shape[4] <= kernel_width:
-            raise ValueError("Input dimensions are smaller than the kernel size.")
-        
-        if x.dim() == 5:
-            # Reshape the tensor to remove the extra dimension
-            x = x.squeeze(2)  # Remove the third dimension (index 2)
-        return self.conv(x)
+        assert x.shape[1] == self.channels
+        return self.op(x)
 
 
 class ResBlock(TimestepBlock):
