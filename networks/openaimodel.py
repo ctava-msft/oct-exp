@@ -379,7 +379,7 @@ class QKVAttentionLegacy(nn.Module):
         # weight = th.einsum(
         #     "bct,bcs->bts", q * scale, k * scale
         # )  # More stable with f16 than dividing afterwards
-        weight = th.matmul("bct,bcs->bts", q * scale, k * scale)
+        weight = th.matmul((q * scale).transpose(1, 2), k * scale)
         weight = th.softmax(weight.float(), dim=-1).type(weight.dtype)
         a = th.einsum("bts,bcs->bct", weight, v)
         return a.reshape(bs, -1, length)
