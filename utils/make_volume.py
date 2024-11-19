@@ -69,8 +69,8 @@ def make_volume(path, num_channels=8):
     print(f"Tensor shape after conversion: {volume_tensor.shape}")  # Should be [8, 640, 400]
 
     # Add a batch dimension to make it [1, 8, 640, 400]
-    volume_tensor = volume_tensor.unsqueeze(0)  # Shape: [1, 8, 640, 400]
-    print(f"Tensor shape after unsqueeze: {volume_tensor.shape}")  # Should be [1, 8, 640, 400]
+    #volume_tensor = volume_tensor.unsqueeze(0)  # Shape: [1, 8, 640, 400]
+    #print(f"Tensor shape after unsqueeze: {volume_tensor.shape}")  # Should be [1, 8, 640, 400]
 
     return volume_tensor
 
