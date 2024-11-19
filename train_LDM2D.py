@@ -124,7 +124,7 @@ class LDM(DDPM_base):
         self.channels = opts.latent_channel
         self.parameterization = "eps"  # all assuming fixed variance schedules
         self.loss_type = "l1"
-        self.use_ema = True
+        self.use_ema = False
         self.use_positional_encodings = False
         self.v_posterior = 0.  # weight for choosing posterior variance as sigma = (1-v) * beta_tilde + v * beta
         self.original_elbo_weight = 0.
