@@ -6,37 +6,18 @@ from natsort import natsorted
 import numpy as np
 import torch
 
-def read_cube_to_np(img_dir, stack_axis=0, cvflag=cv2.IMREAD_GRAYSCALE):
-    assert os.path.exists(img_dir), f"got {img_dir}"
-    print(img_dir)
-    imgs = []
-    names = natsorted(os.listdir(img_dir))
-    for name in names:
-        img = cv2.imread(os.path.join(img_dir, name), cvflag)
-        imgs.append(img)
-    imgs = np.stack(imgs, axis=stack_axis)
-    return imgs
-
-def orig(path):
+def read_cube_to_np(path, num_channels=8, cvflag=cv2.IMREAD_GRAYSCALE):
     # Load slices
-    slice_files = sorted(glob.glob(f'{path}/*.bmp'))  # Replace 'path_to_slices' with the actual path
-    slices = [cv2.imread(img, cv2.IMREAD_GRAYSCALE) for img in slice_files]
+    slice_files = sorted(glob.glob(f'{path}/*.bmp'))[:num_channels]  # Limit to num_channels files
+    slices = [cv2.imread(img, cvflag) for img in slice_files]
+    
+    # Ensure each slice is a single-channel image
+    slices = [slice[np.newaxis, :, :] for slice in slices]  # Add channel dimension
+    
     # Stack slices to form a 3D volume
-    volume = np.stack(slices, axis=0)  # Volume shape: (num_slices, height, width)
-    # Create a 2D projection (Maximum Intensity Projection)
-    # You can change this to np.mean(volume, axis=0) for average projection
-    projection = np.max(volume, axis=0)
-    # Save the projection as a .npy file
-    output_path = f'{path}/volume_projection.npy'
-    np.save(output_path, projection)
-    print(f"Volume projection saved as {output_path}")
-
-def mainOld(path):
-    volume = read_cube_to_np(path, stack_axis=0, cvflag=cv2.IMREAD_GRAYSCALE)
-    output_path = f'{path}/volume_projection.npy'
-    np.save(output_path, volume)
-    print(f"Volume projection saved as {output_path}")
-
+    volume = np.stack(slices, axis=0)  # Volume shape: (num_channels, height, width)
+    
+    return volume
 
 def make_volume(path, num_channels=8):
     # Read images and convert to numpy array
