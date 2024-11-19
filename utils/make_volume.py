@@ -30,7 +30,7 @@ def orig(path):
     np.save(output_path, projection)
     print(f"Volume projection saved as {output_path}")
 
-def main(path):
+def mainOld(path):
     volume = read_cube_to_np(path, stack_axis=0, cvflag=cv2.IMREAD_GRAYSCALE)
     output_path = f'{path}/volume_projection.npy'
     np.save(output_path, volume)
@@ -40,4 +40,4 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Create volume projection from image slices.')
     parser.add_argument('path', help='Path to the directory containing the image slices.')
     args = parser.parse_args()
-    main(args.path)
+    orig(args.path)
