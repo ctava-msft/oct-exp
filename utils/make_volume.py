@@ -26,7 +26,7 @@ def make_volume(path, num_channels=8):
     
     # Ensure the tensor has the correct shape [1, num_channels, height, width]
     volume_tensor = volume_tensor.unsqueeze(0)  # Add batch dimension, shape becomes [1, num_channels, height, width]
-    volume_tensor = volume_tensor.squeeze(2)  # Remove the extra dimension
+    volume_tensor = volume_tensor.permute(0, 1, 3, 4, 2).squeeze(4)  # Change shape to [1, num_channels, height, width]
     
     return volume_tensor
 
