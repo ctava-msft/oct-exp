@@ -78,12 +78,12 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
 
     def __init__(self, *args):
         super(TimestepEmbedSequential, self).__init__(*args)
-        self.input_adjust = nn.Conv2d(in_channels=11, out_channels=192, kernel_size=3, stride=1, padding=1)
-        self.conv_adjust = nn.Conv2d(in_channels=192, out_channels=8, kernel_size=3, stride=1, padding=1)
+        #self.input_adjust = nn.Conv2d(in_channels=11, out_channels=192, kernel_size=3, stride=1, padding=1)
+        #self.conv_adjust = nn.Conv2d(in_channels=192, out_channels=8, kernel_size=3, stride=1, padding=1)
 
     def forward(self, x, emb, context=None):
-        x = self.input_adjust(x)
-        x = self.conv_adjust(x)
+        #x = self.input_adjust(x)
+        #x = self.conv_adjust(x)
         for layer in self:
             if isinstance(layer, TimestepBlock):
                 x = layer(x, emb)
@@ -835,9 +835,9 @@ class UNetModel(nn.Module):
             assert y.shape == (x.shape[0],)
             emb = emb + self.label_emb(y)
         h = x.type(self.dtype)        
-        new_shape = (10, 10, 640, -1)
-        x = x.view(new_shape)
-        print(f"New tensor shape: {x.shape}")
+        #new_shape = (10, 10, 640, -1)
+        #x = x.view(new_shape)
+        #print(f"New tensor shape: {x.shape}")
         for module in self.input_blocks:
             h = module(h, emb, context)
             hs.append(h)
