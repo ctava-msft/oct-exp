@@ -286,42 +286,13 @@ class ResBlock(TimestepBlock):
         )
 
     def _forward(self, x, emb):
-        kernel_size = (min(2, x.shape[2]), min(2, x.shape[3]), min(2, x.shape[4]))
-        print(f"Input shape: {x.shape}, kernel_size: {kernel_size}")
-        kernel_depth, kernel_height, kernel_width = kernel_size
-        # Ensure kernel size is smaller than input dimensions
-        if x.shape[2] <= kernel_depth:
-            kernel_depth = x.shape[2] - 1
-        if x.shape[3] <= kernel_height:
-            kernel_height = x.shape[3] - 1
-        if x.shape[4] <= kernel_width:
-            kernel_width = x.shape[4] - 1
-        if x.shape[2] <= kernel_depth or x.shape[3] <= kernel_height or x.shape[4] <= kernel_width:
-            raise ValueError(f"Input dimensions {x.shape[2:]}, are smaller than or equal to the kernel size {kernel_size}.")
         if self.updown:
             in_rest, in_conv = self.in_layers[:-1], self.in_layers[-1]
             h = in_rest(x)
             h = self.h_upd(h)
             x = self.x_upd(x)
-            # Assuming 'h' is the input tensor
-            print(h.shape)  # Should print torch.Size([1, 1, 512, 639, 399])
-            # Define a 1x1 convolution to increase the number of channels from 1 to 128
-            conv1x1 = nn.Conv3d(1, 128, kernel_size=1)
-            # Ensure `h` is on the same device as `conv1x1`
-            device = next(conv1x1.parameters()).device
-            h = h.to(device)
-            # Apply the 1x1 convolution
-            h = conv1x1(h)
-            # Now 'h' should have the shape [1, 128, 512, 639, 399]
-            print(h.shape)
-            # Ensure the input tensor is on the same device as the weight tensor
-            h = h.to(in_conv.weight.device)
             h = in_conv(h)
         else:
-            print(f"Input shape before adjust_channels: {x.shape}")
-            x = self.adjust_channels(x)
-            print(f"Input shape before reduce_channels: {x.shape}")
-            x = self.reduce_channels(x)
             h = self.in_layers(x)
         emb_out = self.emb_layers(emb).type(h.dtype)
         while len(emb_out.shape) < len(h.shape):
