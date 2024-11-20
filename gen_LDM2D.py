@@ -23,7 +23,7 @@ def get_parser():
     parser.add_argument('--result_save_dir', type=str, default='./results')
     # data & tio args
     parser.add_argument('--first_stage_ckpt', type=str,
-                        default='./checkpoints/NHAE/nhae-epoch-40.ckpt')
+                        default='./checkpoints/NHAE/checkpoints/nhae-epoch-10.ckpt')
     parser.add_argument('--ldm1_ckpt', type=str,
                         default='./checkpoints/LDM2D/ldm2d-epoch-49.ckpt')
     parser.add_argument('--ldm2_ckpt', type=str,
